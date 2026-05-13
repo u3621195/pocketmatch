@@ -2066,3 +2066,92 @@ body{background:
   .tile:before{inset:3px!important;border-radius:4px!important;}
   .entity-sprite{width:88%!important;height:88%!important;}
 }
+
+/* v1.2.6 iPhone gameplay top-bar hotfix
+   - Keep desktop/iPad layout unchanged.
+   - iPhone landscape uses a compact one-row gameplay bar.
+   - Hide only the POCKET MATCH brand on iPhone.
+   - Restore numeric timer and Pause button.
+   - Prevent remaining controls from stretching while preserving the v1.2.5 large board size. */
+@media (max-width:950px) and (orientation:landscape){
+  .topbar{
+    grid-template-columns:max-content max-content max-content max-content max-content max-content max-content max-content!important;
+    grid-auto-flow:column!important;
+    grid-auto-rows:29px!important;
+    justify-content:center!important;
+    align-content:center!important;
+    align-items:center!important;
+    gap:4px!important;
+    overflow:hidden!important;
+  }
+
+  .brand{display:none!important;}
+  .timer-panel{display:contents!important;min-width:0!important;}
+  .timer-rail{display:none!important;}
+
+  .hud-pill,.hud-btn,.score-panel,.audio-btn{
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:none!important;
+    min-height:29px!important;
+    height:29px!important;
+  }
+
+  .hud-pill{
+    min-width:54px!important;
+    padding:0 6px!important;
+    justify-content:center!important;
+  }
+  .rule-pill{
+    min-width:88px!important;
+  }
+  .rule-pill span.rule-tag{
+    max-width:58px!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  #hintBtn,#shuffleBtn{
+    min-width:56px!important;
+    padding:0 6px!important;
+  }
+
+  .timer-text{
+    display:grid!important;
+    place-items:center!important;
+    position:static!important;
+    min-width:68px!important;
+    width:68px!important;
+    height:29px!important;
+    padding:0 5px!important;
+    border-width:2px!important;
+    border-radius:7px!important;
+    font-size:14px!important;
+    line-height:1!important;
+    letter-spacing:.02em!important;
+  }
+
+  .score-panel{
+    min-width:66px!important;
+    width:66px!important;
+    padding:2px 6px!important;
+    align-items:flex-end!important;
+  }
+  .score-panel span{font-size:5px!important;line-height:1!important;}
+  .score-panel strong{font-size:11px!important;line-height:1!important;}
+
+  #musicBtn,#pauseBtn{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    position:static!important;
+    width:30px!important;
+    min-width:30px!important;
+    height:30px!important;
+    min-height:30px!important;
+    padding:0!important;
+  }
+  #musicBtn{font-size:14px!important;}
+  #pauseBtn{font-size:12px!important;}
+  .pause-icon{width:12px!important;height:14px!important;gap:3px!important;}
+}
