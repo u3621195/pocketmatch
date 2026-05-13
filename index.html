@@ -415,6 +415,181 @@
       }
     }
 
+
+
+    /* vNext clean board-first gameplay UI */
+    .sr-only{ position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
+    .game{ display:block; padding:0; z-index:2; }
+    .board-stage{
+      position:absolute;
+      inset:calc(5px + var(--safeTop)) calc(5px + var(--safeRight)) calc(5px + var(--safeBottom)) calc(5px + var(--safeLeft));
+      display:grid;
+      place-items:center;
+      min-height:0;
+      z-index:1;
+      pointer-events:none;
+    }
+    .board-frame{ pointer-events:auto; padding:4px; border-radius:20px; }
+    .board{ padding:3px; border-radius:16px; }
+    .floating-home,
+    .floating-settings{
+      position:absolute;
+      z-index:9;
+      width:clamp(42px, 6.2vw, 58px);
+      height:clamp(42px, 6.2vw, 58px);
+      border-radius:18px;
+      font-size:clamp(18px, 2.6vw, 25px);
+      background:rgba(255,255,255,.13);
+      border:1px solid rgba(255,255,255,.22);
+      box-shadow:0 12px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.16);
+      backdrop-filter:blur(12px);
+    }
+    .floating-home{ left:calc(10px + var(--safeLeft)); top:calc(10px + var(--safeTop)); }
+    .floating-settings{ right:calc(10px + var(--safeRight)); top:calc(10px + var(--safeTop)); }
+
+    .left-status{
+      position:absolute;
+      z-index:8;
+      left:calc(10px + var(--safeLeft));
+      top:calc(64px + var(--safeTop));
+      display:grid;
+      gap:8px;
+      width:clamp(58px, 8vw, 78px);
+      pointer-events:none;
+    }
+    .float-stat{
+      min-height:clamp(50px, 8.5vw, 72px);
+      padding:7px 5px;
+      display:grid;
+      place-items:center;
+      border-radius:18px;
+      background:rgba(18,47,62,.52);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 10px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter:blur(12px);
+      font-family:"JetBrains Mono",monospace;
+    }
+    .float-stat label{ font-size:clamp(8px,1.2vw,11px); font-weight:900; color:rgba(255,255,255,.55); letter-spacing:.08em; }
+    .float-stat strong{ font-size:clamp(17px,2.8vw,28px); line-height:1; color:var(--yellow); font-weight:900; }
+    .float-stat.score strong{ font-size:clamp(14px,2.2vw,24px); }
+
+    .timer-track{
+      position:absolute;
+      z-index:8;
+      left:50%;
+      top:calc(8px + var(--safeTop));
+      transform:translateX(-50%);
+      width:min(54vw, 520px);
+      height:8px;
+      padding:2px;
+      border-radius:999px;
+      background:rgba(255,255,255,.11);
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:0 10px 24px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.11);
+      backdrop-filter:blur(8px);
+      overflow:hidden;
+      pointer-events:none;
+    }
+    .timer-bar{
+      height:100%;
+      width:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--mint),var(--cyan),var(--yellow));
+      box-shadow:0 0 14px rgba(78,234,255,.42);
+      transform-origin:left center;
+      transform:scaleX(1);
+      transition:transform .32s linear, background .2s ease, box-shadow .2s ease;
+    }
+    .timer-track.low .timer-bar{
+      background:linear-gradient(90deg,#ffbc3e,#ff5d3e,#ff3048);
+      animation:timerWarning .55s ease-in-out infinite alternate;
+    }
+    @keyframes timerWarning{ from{ box-shadow:0 0 10px rgba(255,72,72,.38); filter:brightness(1); } to{ box-shadow:0 0 28px rgba(255,72,72,.92); filter:brightness(1.28); } }
+
+    .right-tools{
+      position:absolute;
+      z-index:8;
+      right:calc(10px + var(--safeRight));
+      top:50%;
+      transform:translateY(-50%);
+      display:grid;
+      gap:8px;
+      width:clamp(54px, 7.5vw, 74px);
+    }
+    .tool-btn{
+      width:100%;
+      min-height:clamp(48px, 7.5vw, 68px);
+      padding:4px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      background:rgba(255,255,255,.13);
+      border:1px solid rgba(255,255,255,.20);
+      box-shadow:0 10px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.13);
+      backdrop-filter:blur(12px);
+      color:#fff;
+      font-weight:900;
+      font-size:clamp(17px,2.3vw,24px);
+    }
+    .tool-btn b{ color:var(--yellow); font-family:"JetBrains Mono",monospace; font-size:clamp(15px,2vw,21px); }
+    .tool-btn.pause{ font-size:clamp(20px,2.6vw,28px); }
+    .rule-icon{ color:var(--cyan); font-family:"JetBrains Mono",monospace; }
+    .rule-icon span{ font-size:clamp(24px,3.2vw,34px); line-height:1; }
+
+    .combo-flash{
+      position:absolute;
+      z-index:10;
+      left:50%;
+      top:calc(26px + var(--safeTop));
+      transform:translateX(-50%);
+      padding:8px 18px;
+      border-radius:999px;
+      background:rgba(255,233,90,.18);
+      border:1px solid rgba(255,233,90,.50);
+      color:var(--yellow);
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-shadow:0 0 18px rgba(255,233,90,.70);
+      box-shadow:0 0 28px rgba(255,233,90,.28), inset 0 1px 0 rgba(255,255,255,.18);
+      backdrop-filter:blur(10px);
+      animation:comboPop .9s ease both;
+      pointer-events:none;
+    }
+    @keyframes comboPop{ 0%{ opacity:0; transform:translateX(-50%) scale(.75) translateY(8px); } 18%{ opacity:1; transform:translateX(-50%) scale(1.12) translateY(0); } 80%{ opacity:1; } 100%{ opacity:0; transform:translateX(-50%) scale(.94) translateY(-8px); } }
+
+    .rule-intro{ align-items:flex-start; padding-top:calc(26px + var(--safeTop)); pointer-events:none; background:transparent; backdrop-filter:none; }
+    .rule-intro .modal{
+      width:auto;
+      max-width:min(430px,68vw);
+      padding:10px 16px;
+      border-radius:18px;
+      background:rgba(18,47,62,.70);
+      backdrop-filter:blur(12px);
+    }
+    .rule-intro .modal h2{ font-size:18px; margin:0 0 2px; }
+    .rule-intro .modal p{ font-size:12px; margin:0; }
+
+    @media (orientation:landscape) and (max-height:520px){
+      .hud,.actions{ display:none !important; }
+      .timer-track{ width:min(48vw, 430px); height:7px; }
+      .left-status{ top:calc(62px + var(--safeTop)); gap:7px; }
+      .right-tools{ gap:7px; }
+      .tool-btn{ min-height:clamp(44px, 12dvh, 64px); border-radius:17px; }
+      .float-stat{ min-height:clamp(46px, 13dvh, 66px); border-radius:17px; }
+    }
+
+    @media (orientation:landscape) and (max-width:760px){
+      .floating-home,.floating-settings{ width:40px; height:40px; border-radius:15px; }
+      .left-status{ width:52px; top:calc(56px + var(--safeTop)); gap:5px; }
+      .right-tools{ width:50px; gap:5px; }
+      .tool-btn{ min-height:42px; border-radius:15px; font-size:16px; }
+      .rule-icon span{ font-size:22px; }
+      .timer-track{ width:42vw; top:calc(7px + var(--safeTop)); }
+      .combo-flash{ top:calc(22px + var(--safeTop)); font-size:12px; padding:6px 12px; }
+    }
+
   </style>
 </head>
 <body>
@@ -446,16 +621,18 @@
     </section>
 
     <section id="gameScreen" class="screen game hidden">
-      <header class="hud">
-        <button id="homeBtn" class="icon-btn" title="Home">⌂</button>
-        <div class="hud-brand">POCKET<span>MATCH</span></div>
-        <div class="hud-stat"><label>LV</label><strong id="levelText">1</strong></div>
-        <div class="hud-stat"><label>TIME</label><strong id="timeText">3:00</strong></div>
-        <div class="hud-stat"><label>SCORE</label><strong id="scoreText">0</strong></div>
-        <div class="hud-stat"><label>COMBO</label><strong id="comboText">×0</strong></div>
-        <div class="hud-spacer"></div>
-        <button id="settingsGameBtn" class="icon-btn" title="Settings">⚙</button>
-      </header>
+      <button id="homeBtn" class="icon-btn floating-home" title="Home">⌂</button>
+      <button id="settingsGameBtn" class="icon-btn floating-settings" title="Settings">⚙</button>
+
+      <div class="left-status" aria-label="Game status">
+        <div class="float-stat"><label>LV</label><strong id="levelText">1</strong></div>
+        <div class="float-stat score"><label>SCORE</label><strong id="scoreText">0</strong></div>
+      </div>
+
+      <div class="timer-track" aria-label="Time remaining"><div id="timeBar" class="timer-bar"></div></div>
+      <span id="timeText" class="sr-only">3:00</span>
+      <span id="comboText" class="sr-only">×0</span>
+      <div id="comboFlash" class="combo-flash hidden">COMBO ×2</div>
 
       <main class="board-stage">
         <div class="board-frame">
@@ -463,12 +640,14 @@
         </div>
       </main>
 
-      <footer class="actions">
-        <button id="hintBtn" class="action-btn">💡 <span class="wide">Hint</span> <b id="hintText">3</b></button>
-        <button id="shuffleBtn" class="action-btn">🔀 <span class="wide">Shuffle</span> <b id="shuffleText">2</b></button>
-        <button id="pauseBtn" class="action-btn">Ⅱ <span class="wide">Pause</span></button>
-        <div class="rule-mini"><strong id="ruleTitle">Static</strong><span id="ruleSubtitle">Matched tiles vanish in place</span></div>
-      </footer>
+      <div class="right-tools" aria-label="Helpers">
+        <button id="hintBtn" class="tool-btn" title="Hint">💡 <b id="hintText">3</b></button>
+        <button id="shuffleBtn" class="tool-btn" title="Shuffle">🔀 <b id="shuffleText">2</b></button>
+        <button id="pauseBtn" class="tool-btn pause" title="Pause">Ⅱ</button>
+        <button id="ruleBtn" class="tool-btn rule-icon" title="Movement rule"><span id="ruleIcon">▦</span></button>
+        <span id="ruleTitle" class="sr-only">Static</span>
+        <span id="ruleSubtitle" class="sr-only">Matched tiles vanish in place</span>
+      </div>
     </section>
 
     <section id="completeScreen" class="screen overlay hidden">
@@ -550,7 +729,7 @@
     const state = {
       screen:'home', level:1, score:0, combo:0, timer:180, mistakes:0,
       selectedTileSet:'sports', hints:3, shuffles:2, status:'playing', selectedId:null,
-      tiles:[], hinted:new Set(), wrong:new Set(), tick:null,
+      levelTime:180, tiles:[], hinted:new Set(), wrong:new Set(), tick:null,
       prefs:{ music:true, sound:true }
     };
 
@@ -568,6 +747,8 @@
     function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
     function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     function fmtTime(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+    function levelDuration(level){ return Math.max(120,210-Math.min(level,12)*5); }
+    function ruleIconFor(dir){ return {static:'▦', down:'↓', up:'↑', left:'←', right:'→', center:'↔'}[dir] || '▦'; }
 
     function initTileSets(){
       $('tileSetRow').innerHTML = '';
@@ -608,7 +789,7 @@
     }
     function startLevel(reset){
       if(reset) state.score=0;
-      state.combo=0; state.mistakes=0; state.timer=Math.max(120,210-Math.min(state.level,12)*5);
+      state.combo=0; state.mistakes=0; state.levelTime=levelDuration(state.level); state.timer=state.levelTime;
       state.hints=3; state.shuffles=2; state.status='playing'; state.selectedId=null; state.hinted.clear(); state.wrong.clear();
       makeTiles(); showGame(); saveGame(); showRuleIntro();
     }
@@ -618,7 +799,7 @@
     function saveGame(){
       if(state.screen!=='game') return;
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        level:state.level, score:state.score, combo:state.combo, timer:state.timer, mistakes:state.mistakes,
+        level:state.level, score:state.score, combo:state.combo, timer:state.timer, levelTime:state.levelTime, mistakes:state.mistakes,
         selectedTileSet:state.selectedTileSet, hints:state.hints, shuffles:state.shuffles, status:state.status, tiles:state.tiles
       }));
       updateHomeButtons();
@@ -627,6 +808,7 @@
       try{
         const s = JSON.parse(localStorage.getItem(SAVE_KEY));
         Object.assign(state, s);
+        state.levelTime = s.levelTime || levelDuration(state.level);
         state.hinted = new Set(); state.wrong = new Set(); state.selectedId=null;
         showGame();
       }catch{ startNewGame(); }
@@ -655,10 +837,15 @@
       $('timeText').textContent = fmtTime(state.timer);
       $('scoreText').textContent = state.score;
       $('comboText').textContent = `×${state.combo}`;
+      const progress = Math.max(0, Math.min(1, state.timer / Math.max(1, state.levelTime || levelDuration(state.level))));
+      $('timeBar').style.transform = `scaleX(${progress})`;
+      $('timeBar').parentElement.classList.toggle('low', state.timer <= 20);
       $('hintText').textContent = state.hints;
       $('shuffleText').textContent = state.shuffles;
       $('ruleTitle').textContent = rule.title;
       $('ruleSubtitle').textContent = rule.subtitle;
+      $('ruleIcon').textContent = ruleIconFor(rule.dir);
+      $('ruleBtn').title = `${rule.title}: ${rule.subtitle}`;
 
       const set = tileSet();
       document.documentElement.style.setProperty('--tile1', set.colors[0]);
@@ -693,6 +880,7 @@
       if(first.symbol===second.symbol){
         state.combo += 1;
         state.score += 100 + ((state.combo-1)*20);
+        if(state.combo > 1) showComboFlash(state.combo);
         first.matched = true; second.matched = true;
         state.selectedId = null;
         applyMovement();
@@ -768,6 +956,18 @@
       state.selectedId=null; state.hinted.clear(); render(); saveGame();
     }
 
+
+    function showComboFlash(combo){
+      const el = $('comboFlash');
+      el.textContent = `COMBO ×${combo}`;
+      el.classList.remove('hidden');
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+      clearTimeout(showComboFlash.timer);
+      showComboFlash.timer = setTimeout(()=>el.classList.add('hidden'), 900);
+    }
+
     function startTimer(){
       stopTimer();
       state.tick = setInterval(()=>{
@@ -785,28 +985,19 @@
 
     function resizeBoard(){
       if(state.screen!=='game') return;
-      const game = $('gameScreen');
-      const hud = game.querySelector('.hud');
-      const actions = game.querySelector('.actions');
-      const iphoneLandscape = window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
-      const gap = iphoneLandscape ? 2 : (window.innerWidth > 1000 ? 5 : 4);
+      const smallLandscape = window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
+      const gap = smallLandscape ? 2 : (window.innerWidth > 1000 ? 5 : 4);
 
-      let availableW, availableH, framePad;
-      if(iphoneLandscape){
-        // Board-first mode: no reserved top/bottom bars. Controls float in side gutters.
-        // This lets the 16×9 board use almost the full iPhone landscape height.
-        availableW = window.innerWidth - 10;
-        availableH = window.innerHeight - 8;
-        framePad = 14;
-      }else{
-        availableW = window.innerWidth - 24;
-        availableH = window.innerHeight - hud.offsetHeight - actions.offsetHeight - 28;
-        framePad = 30;
-      }
+      // Keep a clean left/right gutter for floating controls so they do not overlap the board.
+      const controlGutter = smallLandscape ? Math.max(64, Math.min(92, window.innerWidth * 0.055)) : 92;
+      const framePad = smallLandscape ? 14 : 30;
+      const availableW = Math.max(320, window.innerWidth - (controlGutter * 2) - 10);
+      const availableH = Math.max(220, window.innerHeight - 10);
 
       const tileByW = (availableW - framePad - gap*(COLS-1) - 6) / COLS;
       const tileByH = (availableH - framePad - gap*(ROWS-1) - 6) / ROWS;
       const tile = Math.max(32, Math.floor(Math.min(tileByW, tileByH)));
+
       document.documentElement.style.setProperty('--gridGap', `${gap}px`);
       document.documentElement.style.setProperty('--tileSize', `${tile}px`);
     }
@@ -816,7 +1007,7 @@
       $('ruleIntroTitle').textContent = `Level ${state.level} — ${r.title}`;
       $('ruleIntroSubtitle').textContent = r.subtitle;
       $('ruleIntro').classList.remove('hidden');
-      setTimeout(()=>$('ruleIntro').classList.add('hidden'), 1300);
+      setTimeout(()=>$('ruleIntro').classList.add('hidden'), 850);
     }
 
     function updateSettingsButtons(){
@@ -837,6 +1028,7 @@
       $('hintBtn').onclick = useHint;
       $('shuffleBtn').onclick = shuffleRemaining;
       $('pauseBtn').onclick = pause;
+      $('ruleBtn').onclick = showRuleIntro;
       $('resumeBtn').onclick = resume;
       $('restartBtn').onclick = retryLevel;
       $('pauseNewGameBtn').onclick = startNewGame;
