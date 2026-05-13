@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Pocket Match Cartridge</title>
-  <link rel="stylesheet" href="style.css?v=1.2.8">
+  <link rel="stylesheet" href="style.css?v=1.3.7">
 </head>
 <body>
   <div class="ambient"></div>
@@ -162,57 +162,72 @@
     </div>
   </section>
   <section id="levelCompleteOverlay" class="overlay hidden">
-    <div class="modal level-modal">
+    <div class="modal level-modal compact-result-modal">
       <div class="modal-kicker" id="lcKicker">LEVEL COMPLETE</div>
-      <h1 id="lcTitle">Level 01</h1>
-      <div class="lc-stats">
-        <div class="lc-stat-row">
-          <span class="lc-label">MOVEMENT RULE</span>
-          <span class="lc-value" id="lcRule">—</span>
+      <h1 id="lcTitle">Level Complete</h1>
+      <p id="lcSummary">Great run. Your score has been updated.</p>
+      <div class="result-summary">
+        <div class="result-line">
+          <span>Level Score</span>
+          <strong id="lcLevelScore">—</strong>
         </div>
-        <div class="lc-stat-row">
-          <span class="lc-label">TIME REMAINING</span>
-          <span class="lc-value" id="lcTime">—</span>
+        <div class="result-line">
+          <span>Time Bonus</span>
+          <strong id="lcTime">—</strong>
         </div>
-        <div class="lc-stat-row">
-          <span class="lc-label">LEVEL SCORE</span>
-          <span class="lc-value" id="lcLevelScore">—</span>
+        <div class="result-line">
+          <span>Perfect Bonus</span>
+          <strong id="lcPerfect">—</strong>
         </div>
-        <div class="lc-stat-row">
-          <span class="lc-label">TOTAL SCORE</span>
-          <span class="lc-value" id="lcTotalScore">—</span>
+        <div class="result-line result-total">
+          <span>Total Score</span>
+          <strong id="lcTotalScore">—</strong>
         </div>
-        <div class="lc-stat-row lc-next-rule-row">
-          <span class="lc-label">NEXT LEVEL RULE</span>
-          <span class="lc-value lc-next-rule" id="lcNextRule">—</span>
-        </div>
+        <div class="result-next" id="lcNextRule">Next: —</div>
       </div>
-      <button id="nextLevelBtn" class="start-btn next-btn">Next Level →</button>
+      <div class="popup-actions">
+        <button id="nextLevelBtn" class="modal-btn primary" type="button">Next Level</button>
+        <button id="levelCompleteQuitBtn" class="modal-btn secondary" type="button">Save &amp; Quit</button>
+      </div>
     </div>
   </section>
   <section id="gameOverOverlay" class="overlay hidden">
-    <div class="modal level-modal">
+    <div class="modal save-modal compact-message-modal game-over-modal">
       <div class="modal-kicker">TIME LIMIT REACHED</div>
-      <h1>GAME OVER</h1>
-      <p>Time is up! Start a new game and try to beat your score.</p>
-      <div class="lc-stats">
-        <div class="lc-stat-row">
-          <span class="lc-label">LEVEL REACHED</span>
-          <span class="lc-value" id="goLevel">—</span>
-        </div>
-        <div class="lc-stat-row">
-          <span class="lc-label">FINAL SCORE</span>
-          <span class="lc-value" id="goScore">—</span>
-        </div>
-        <div class="lc-stat-row">
-          <span class="lc-label">MOVEMENT RULE</span>
-          <span class="lc-value" id="goRule">—</span>
-        </div>
+      <h1>Game Over</h1>
+      <p id="goMessage">Time is up. Start again or return to the start screen.</p>
+      <div id="goSummary" class="popup-summary-line">LV -- · -- · 0 pts</div>
+      <div class="popup-actions">
+        <button id="gameOverNewGameBtn" class="modal-btn primary" type="button">New Game</button>
+        <button id="gameOverQuitBtn" class="modal-btn secondary" type="button">Back to Start</button>
       </div>
-      <button id="gameOverNewGameBtn" class="start-btn next-btn">New Game</button>
     </div>
   </section>
 
-  <script src="game.js?v=1.2.8"></script>
+  <section id="helperMessageOverlay" class="overlay hidden compact-message-overlay">
+    <div class="modal save-modal compact-message-modal">
+      <div class="modal-kicker" id="helperMessageKicker">HELPER</div>
+      <h1 id="helperMessageTitle">No Helpers Left</h1>
+      <p id="helperMessageText">You have no helpers available.</p>
+      <div class="popup-actions">
+        <button id="helperMessageOkBtn" class="modal-btn primary" type="button">OK</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="endQuickConfirmOverlay" class="overlay hidden">
+    <div class="modal save-modal confirm-modal">
+      <div class="modal-kicker">QUICK GAME</div>
+      <h1>End Quick Game?</h1>
+      <p>This run will not be saved.</p>
+      <div class="popup-actions">
+        <button id="cancelEndQuickBtn" class="modal-btn secondary" type="button">Cancel</button>
+        <button id="confirmEndQuickBtn" class="modal-btn primary" type="button">End Game</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="combo-layer" id="comboLayer" aria-hidden="true"></div>
+  <script src="game.js?v=1.3.7"></script>
 </body>
 </html>

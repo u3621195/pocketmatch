@@ -1,4 +1,4 @@
-const ROWS=9,COLS=16,TOTAL_TIME=480,HINTS=5,SHUFFLES=5;
+const ROWS=9,COLS=16,TOTAL_TIME=480,MIN_TOTAL_TIME=360,TIMER_STEP_PER_LOOP=15,LEVEL_LOOP_SIZE=8,HINTS=5,SHUFFLES=10,MAX_HINTS=10,MAX_SHUFFLES=15;
 const SAVE_KEY="pocketmatch_save_v1"; // legacy single-slot save key
 const SAVES_KEY="pocketmatch_saves_v2";
 const SPRITE_SET_KEY="pocketmatch_sprite_set_v1";
@@ -135,9 +135,10 @@ document.addEventListener("click",e=>{
 
 // ─────────────────────────────────────────────
 //  MOVEMENT STRATEGIES
-//  Level 1=NORMAL, 2=BOTTOM, 3=TOP, 4=LEFT,
+//  8-level loop:
+//  1=NORMAL, 2=BOTTOM, 3=TOP, 4=LEFT,
 //  5=RIGHT, 6=LEFT+RIGHT, 7=TOP+BOTTOM,
-//  8=X CENTER, 9=Y CENTER, 10+=RANDOM
+//  8=RANDOM, then repeats from NORMAL.
 // ─────────────────────────────────────────────
 const STRATEGIES=[
   {id:0,name:"NORMAL",     label:"No movement"},
@@ -145,20 +146,25 @@ const STRATEGIES=[
   {id:2,name:"TOP",        label:"Rise to top"},
   {id:3,name:"LEFT",       label:"Slide to left"},
   {id:4,name:"RIGHT",      label:"Slide to right"},
-  {id:5,name:"LEFT+RIGHT", label:"Push to edges"},
-  {id:6,name:"TOP+BOTTOM", label:"Push to top & bottom"},
-  {id:7,name:"X CENTER",   label:"Collapse to center col"},
-  {id:8,name:"Y CENTER",   label:"Collapse to center row"}
+  {id:5,name:"LEFT+RIGHT", label:"Push left/right halves outward"},
+  {id:6,name:"TOP+BOTTOM", label:"Push top/bottom sections outward"},
+  {id:7,name:"RANDOM",     label:"Random movement after each match"}
 ];
+const RANDOM_MOVEMENT_IDS=[1,2,3,4,5,6];
 
 function getStrategy(lvl){
-  if(lvl<=9)return STRATEGIES[lvl-1];
-  return STRATEGIES[1+Math.floor(Math.random()*8)];
+  return STRATEGIES[(Math.max(1,lvl)-1)%LEVEL_LOOP_SIZE];
 }
 
 function applyMovement(strategy){
   const id=strategy.id;
   if(id===0)return;
+  if(id===7){
+    const randomId=RANDOM_MOVEMENT_IDS[Math.floor(Math.random()*RANDOM_MOVEMENT_IDS.length)];
+    const randomStrategy=STRATEGIES.find(s=>s.id===randomId)||STRATEGIES[0];
+    applyMovement(randomStrategy);
+    return;
+  }
   function compactLine(cells,dir){
     let active=cells.filter(c=>!c.removed),empty=cells.filter(c=>c.removed);
     return dir===1?[...empty,...active]:[...active,...empty];
@@ -169,35 +175,38 @@ function applyMovement(strategy){
       for(let r=0;r<ROWS;r++)board[r][c]=comp[r];
     }
   }
-  function applyHorizontal(dir){for(let r=0;r<ROWS;r++)board[r]=compactLine(board[r],dir)}
-  function applyYCenter(){
-    for(let c=0;c<COLS;c++){
-      let col=board.map(row=>row[c]);
-      let active=col.filter(x=>!x.removed),empties=col.filter(x=>x.removed);
-      let mid=Math.floor(ROWS/2);
-      let topAct=active.slice(0,Math.ceil(active.length/2)),botAct=active.slice(Math.ceil(active.length/2));
-      let topGap=empties.slice(0,mid-topAct.length),botGap=empties.slice(mid-topAct.length);
-      let newCol=[...topAct,...topGap,...botGap,...botAct];
-      for(let r=0;r<ROWS;r++)board[r][c]=newCol[r];
+  function applyHorizontal(dir){
+    for(let r=0;r<ROWS;r++)board[r]=compactLine(board[r],dir)
+  }
+  function applyLeftRight(){
+    const mid=Math.floor(COLS/2);
+    for(let r=0;r<ROWS;r++){
+      const left=board[r].slice(0,mid);
+      const right=board[r].slice(mid);
+      board[r]=[...compactLine(left,0),...compactLine(right,1)];
     }
   }
-  function applyXCenter(){
-    let mid=Math.floor(COLS/2);
-    for(let r=0;r<ROWS;r++){
-      let all=board[r],active=all.filter(x=>!x.removed),empties=all.filter(x=>x.removed);
-      let leftAct=active.slice(0,Math.ceil(active.length/2)),rightAct=active.slice(Math.ceil(active.length/2));
-      let leftGap=empties.slice(0,mid-leftAct.length),rightGap=empties.slice(mid-leftAct.length);
-      board[r]=[...leftAct,...leftGap,...rightGap,...rightAct];
+  function applyTopBottom(){
+    const mid=Math.floor(ROWS/2); // 9 rows => row index 4 is the neutral center row
+    for(let c=0;c<COLS;c++){
+      const top=[];
+      const bottom=[];
+      for(let r=0;r<mid;r++)top.push(board[r][c]);
+      const center=board[mid][c];
+      for(let r=mid+1;r<ROWS;r++)bottom.push(board[r][c]);
+      const newTop=compactLine(top,0);      // rows 1–4 move TOP
+      const newBottom=compactLine(bottom,1); // rows 6–9 move BOTTOM
+      for(let r=0;r<mid;r++)board[r][c]=newTop[r];
+      board[mid][c]=center;                // row 5 stays as neutral center row
+      for(let r=mid+1;r<ROWS;r++)board[r][c]=newBottom[r-(mid+1)];
     }
   }
   if(id===1)applyVertical(1);
   else if(id===2)applyVertical(0);
   else if(id===3)applyHorizontal(0);
   else if(id===4)applyHorizontal(1);
-  else if(id===5)applyXCenter();
-  else if(id===6)applyYCenter();
-  else if(id===7)applyXCenter();
-  else if(id===8)applyYCenter();
+  else if(id===5)applyLeftRight();
+  else if(id===6)applyTopBottom();
 }
 
 // ─────────────────────────────────────────────
@@ -263,6 +272,19 @@ function applySpriteSet(setId){
   if(typeof refreshStartScreen==="function")refreshStartScreen();
 }
 
+function randomSpriteSetId(excludeId=null){
+  const ids=Object.keys(SPRITE_SETS);
+  const pool=ids.length>1?ids.filter(id=>id!==excludeId):ids;
+  return pool[Math.floor(Math.random()*pool.length)]||ids[0]||"original";
+}
+
+function applyQuickGameRandomSet(){
+  if(!isQuickGame)return currentSpriteSetId;
+  const nextSet=randomSpriteSetId(currentSpriteSetId);
+  applySpriteSet(nextSet);
+  return nextSet;
+}
+
 // Sprite set is applied after DOM refs are ready.
 
 // ─────────────────────────────────────────────
@@ -279,12 +301,61 @@ const hintCountEl=$("hintCount"),shuffleCountEl=$("shuffleCount"),moveStatus=$("
 const boardInfoEl=$("boardInfo");
 const ruleTagEl=$("ruleTag");
 
-let board=[],selected=null,score=0,levelScore=0,timeLeft=TOTAL_TIME;
+let board=[],selected=null,score=0,levelScore=0,timeLeft=TOTAL_TIME,levelTotalTime=TOTAL_TIME;
 let timerId=null,hintCount=HINTS,shuffleCount=SHUFFLES,level=1,paused=false,gameStarted=false;
+let comboCount=0,lastMatchAt=0,bestCombo=0,usedHintLvl=0,usedShuffLvl=0;
+const COMBO_WINDOW_MS=5000;
+const COMBO_POINTS=[100,150,200,300,400,500];
+const TIME_BONUS_PER_SECOND=50;
+const PERFECT_BONUS=5000;
 let isQuickGame=false,currentSaveSlotId=null;
 let currentStrategy=STRATEGIES[0];
+
+function getLevelTime(lvl){
+  const reduction=Math.floor((Math.max(1,lvl)-1)/LEVEL_LOOP_SIZE)*TIMER_STEP_PER_LOOP;
+  return Math.max(MIN_TOTAL_TIME,TOTAL_TIME-reduction);
+}
+
+function formatScore(value){
+  return Number(value||0).toLocaleString('en-US');
+}
+function setScoreDisplay(){
+  if(scoreEl)scoreEl.textContent=formatScore(score);
+}
+
+function formatHelperCount(n){return String(Math.max(0,n)).padStart(2,"0")}
+function updateHelperDisplay(){
+  hintCountEl.textContent=formatHelperCount(hintCount);
+  shuffleCountEl.textContent=formatHelperCount(shuffleCount);
+}
+function refillHelpersAfterClearedLevel(clearedLevel){
+  if(clearedLevel>0 && clearedLevel%3===0){
+    hintCount=Math.min(MAX_HINTS,hintCount+1);
+    shuffleCount=Math.min(MAX_SHUFFLES,shuffleCount+2);
+    updateHelperDisplay();
+    return true;
+  }
+  return false;
+}
 applySpriteSet(currentSpriteSetId);
 let bgm=new Audio("assets/audio/background-music.mp3");bgm.loop=true;bgm.volume=.4;
+const uiAudio={
+  levelComplete:new Audio("assets/audio/level-complete.wav"),
+  gameOver:new Audio("assets/audio/game-over.wav")
+};
+uiAudio.levelComplete.volume=.65;
+uiAudio.gameOver.volume=.60;
+function playUiAudio(name){
+  if(muted)return;
+  const a=uiAudio[name];
+  if(!a)return;
+  try{
+    a.pause();
+    a.currentTime=0;
+    a.muted=muted;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
 
 // ─────────────────────────────────────────────
 //  SAVE / LOAD
@@ -357,7 +428,8 @@ function saveGame(){
   const save={
     version:2,
     ts:Date.now(),
-    level,score,levelScore,timeLeft,hintCount,shuffleCount,
+    level,score,levelScore,timeLeft,levelTotalTime,hintCount,shuffleCount,
+    comboCount,lastMatchAt,bestCombo,usedHintLvl,usedShuffLvl,
     strategyId:currentStrategy.id,
     theme:currentTheme,
     spriteSet:slot,
@@ -426,7 +498,7 @@ function refreshSaveSlot(){
   if(resumeBtn){resumeBtn.disabled=false;resumeBtn.classList.remove("disabled");}
   if(deleteBtn)deleteBtn.classList.remove("hidden");
   $("saveLevel").textContent=`${setName} · LV ${String(save.level).padStart(2,"0")}`;
-  $("saveScore").textContent=`${save.score} pts`;
+  $("saveScore").textContent=`${formatScore(save.score)} pts`;
   $("saveDate").textContent=formatSaveDate(save.ts);
 }
 
@@ -440,7 +512,10 @@ function returnToTitleAfterSave(){
   clearInterval(timerId);
   bgm.pause();bgm.currentTime=0;
   pauseOverlay.classList.add("hidden");
+  levelCompleteOverlay.classList.add("hidden");
   gameOverOverlay.classList.add("hidden");
+  $("endQuickConfirmOverlay")?.classList.add("hidden");
+  $("helperMessageOverlay")?.classList.add("hidden");
   appShell.classList.remove("paused");
   document.body.classList.remove("low-time");
   overlay.classList.remove("hidden");
@@ -472,17 +547,22 @@ function restoreGame(save){
   level=save.level;
   score=save.score;
   levelScore=save.levelScore||0;
-  timeLeft=save.timeLeft;
-  hintCount=save.hintCount;
-  shuffleCount=save.shuffleCount;
+  levelTotalTime=save.levelTotalTime||getLevelTime(level);
+  timeLeft=Math.min(save.timeLeft,levelTotalTime);
+  hintCount=Number.isFinite(save.hintCount)?save.hintCount:HINTS;
+  shuffleCount=Number.isFinite(save.shuffleCount)?save.shuffleCount:SHUFFLES;
+  comboCount=save.comboCount||0;
+  lastMatchAt=save.lastMatchAt||0;
+  bestCombo=save.bestCombo||0;
+  usedHintLvl=save.usedHintLvl||0;
+  usedShuffLvl=save.usedShuffLvl||0;
   currentStrategy=STRATEGIES.find(s=>s.id===save.strategyId)||STRATEGIES[0];
   board=deserializeBoard(save.board);
 
   // Sync HUD
   levelEl.textContent=String(level).padStart(2,"0");
-  scoreEl.textContent=score;
-  hintCountEl.textContent=String(hintCount).padStart(2,"0");
-  shuffleCountEl.textContent=String(shuffleCount).padStart(2,"0");
+  setScoreDisplay();
+  updateHelperDisplay();
   updateRuleTag();
   updateTimer();
   renderBoard();
@@ -544,17 +624,21 @@ function renderBoard(){
   setTimeout(resizeCanvas,50)
 }
 
+let pathPadX=0,pathPadY=0;
 function resizeCanvas(){
-  // Expand canvas by 1 tile on every side so U-shaped border paths have room to draw.
+  // Expand the connection-line canvas around the tile grid so border routes
+  // (above, below, left, right of the grid) remain fully visible on every device.
   const rect=boardEl.getBoundingClientRect();
   const wrap=document.querySelector(".board-wrap").getBoundingClientRect();
-  const tw=rect.width/COLS, th=rect.height/ROWS;  // one tile size = padding
-  canvas.width =rect.width  + tw*2;
-  canvas.height=rect.height + th*2;
+  const tw=rect.width/COLS, th=rect.height/ROWS;
+  pathPadX=Math.max(10,tw*.62);
+  pathPadY=Math.max(18,th*.88);
+  canvas.width =Math.ceil(rect.width  + pathPadX*2);
+  canvas.height=Math.ceil(rect.height + pathPadY*2);
   canvas.style.width =canvas.width +"px";
   canvas.style.height=canvas.height+"px";
-  canvas.style.left=(rect.left-wrap.left-tw)+"px";
-  canvas.style.top =(rect.top -wrap.top -th)+"px";
+  canvas.style.left=(rect.left-wrap.left-pathPadX)+"px";
+  canvas.style.top =(rect.top -wrap.top -pathPadY)+"px";
 }
 window.onresize=resizeCanvas;
 
@@ -567,18 +651,89 @@ function straight(a,b){
   if(a.c===b.c){for(let r=Math.min(a.r,b.r)+1;r<Math.max(a.r,b.r);r++)if(!empty(r,a.c))return false;return true}
   return false
 }
+function routeDistance(points){
+  let d=0;
+  for(let i=0;i<points.length-1;i++){
+    d+=Math.abs(points[i].r-points[i+1].r)+Math.abs(points[i].c-points[i+1].c);
+  }
+  return d;
+}
+function routeOutsidePenalty(points){
+  return points.reduce((n,p)=>n+((p.r<0||p.r>=ROWS||p.c<0||p.c>=COLS)?1:0),0);
+}
+function simplifyRoute(points){
+  const out=[];
+  points.forEach(p=>{
+    const last=out[out.length-1];
+    if(!last||last.r!==p.r||last.c!==p.c)out.push(p);
+  });
+  return out;
+}
+function pickShortestRoute(routes){
+  if(!routes.length)return null;
+  routes.sort((a,b)=>{
+    const da=routeDistance(a),db=routeDistance(b);
+    if(da!==db)return da-db;
+    const oa=routeOutsidePenalty(a),ob=routeOutsidePenalty(b);
+    if(oa!==ob)return oa-ob;
+    return a.length-b.length;
+  });
+  return simplifyRoute(routes[0]);
+}
 function path(a,b){
-  let A={r:a.r,c:a.c},B={r:b.r,c:b.c};
-  if(straight(A,B))return[A,B];
-  let p1={r:A.r,c:B.c};if(empty(p1.r,p1.c)&&straight(A,p1)&&straight(p1,B))return[A,p1,B];
-  let p2={r:B.r,c:A.c};if(empty(p2.r,p2.c)&&straight(A,p2)&&straight(p2,B))return[A,p2,B];
-  // Allow routing through 1-cell border outside the grid (r=-1, r=ROWS, c=-1, c=COLS)
-  for(let r=-1;r<=ROWS;r++){let pa={r,c:A.c},pb={r,c:B.c};if(empty(pa.r,pa.c)&&empty(pb.r,pb.c)&&straight(A,pa)&&straight(pa,pb)&&straight(pb,B))return[A,pa,pb,B]}
-  for(let c=-1;c<=COLS;c++){let pa={r:A.r,c},pb={r:B.r,c};if(empty(pa.r,pa.c)&&empty(pb.r,pb.c)&&straight(A,pa)&&straight(pa,pb)&&straight(pb,B))return[A,pa,pb,B]}
-  return null
+  const A={r:a.r,c:a.c},B={r:b.r,c:b.c};
+  const routes=[];
+
+  if(straight(A,B))routes.push([A,B]);
+
+  const p1={r:A.r,c:B.c};
+  if(empty(p1.r,p1.c)&&straight(A,p1)&&straight(p1,B))routes.push([A,p1,B]);
+
+  const p2={r:B.r,c:A.c};
+  if(empty(p2.r,p2.c)&&straight(A,p2)&&straight(p2,B))routes.push([A,p2,B]);
+
+  // Allow two-turn routing through empty internal lanes first, and through
+  // one-cell border lanes only when they produce the shortest valid path.
+  // This avoids sending mid-board matches all the way to the outer frame when
+  // a shorter valid route is available just above/below/beside the matched tiles.
+  for(let r=-1;r<=ROWS;r++){
+    const pa={r,c:A.c},pb={r,c:B.c};
+    if(empty(pa.r,pa.c)&&empty(pb.r,pb.c)&&straight(A,pa)&&straight(pa,pb)&&straight(pb,B))routes.push([A,pa,pb,B]);
+  }
+  for(let c=-1;c<=COLS;c++){
+    const pa={r:A.r,c},pb={r:B.r,c};
+    if(empty(pa.r,pa.c)&&empty(pb.r,pb.c)&&straight(A,pa)&&straight(pa,pb)&&straight(pb,B))routes.push([A,pa,pb,B]);
+  }
+
+  return pickShortestRoute(routes);
 }
 function tileEl(r,c){return boardEl.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`)}
 function clearSel(){document.querySelectorAll(".tile.selected").forEach(t=>t.classList.remove("selected"));selected=null}
+
+// ─────────────────────────────────────────────
+//  SCORING HELPERS
+// ─────────────────────────────────────────────
+function comboPts(){
+  return COMBO_POINTS[Math.min(COMBO_POINTS.length-1,Math.max(0,comboCount-1))];
+}
+
+function showCombo(text){
+  const layer=$("comboLayer");
+  if(!layer)return;
+  const el=document.createElement("div");
+  el.className="combo-pop";
+  el.textContent=text;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(),760);
+}
+
+function resetLevelScoring(){
+  comboCount=0;
+  lastMatchAt=0;
+  bestCombo=0;
+  usedHintLvl=0;
+  usedShuffLvl=0;
+}
 
 // ─────────────────────────────────────────────
 //  CLICK HANDLER
@@ -596,8 +751,14 @@ function clickTile(r,c,el){
       drawPath(p);sfx.match();
       tileEl(a.r,a.c)?.classList.add("matched");tileEl(b.r,b.c)?.classList.add("matched");
       board[a.r][a.c].removed=board[b.r][b.c].removed=true;
-      score+=20;levelScore+=20;scoreEl.textContent=score;
-      moveStatus.textContent="LINK CONFIRMED  +20";
+      const now=Date.now();
+      comboCount=(lastMatchAt&&now-lastMatchAt<=COMBO_WINDOW_MS)?comboCount+1:1;
+      lastMatchAt=now;
+      bestCombo=Math.max(bestCombo,comboCount);
+      const pts=comboPts();
+      score+=pts;levelScore+=pts;setScoreDisplay();
+      moveStatus.textContent=comboCount>1?`COMBO x${comboCount}  +${formatScore(pts)}`:`MATCH  +${formatScore(pts)}`;
+      if(comboCount>1)showCombo(`COMBO x${comboCount}  +${formatScore(pts)}`);
       setTimeout(()=>{
         clearPath();applyMovement(currentStrategy);renderBoard();
         if(board.flat().every(t=>t.removed)){sfx.level();showLevelComplete()}
@@ -619,10 +780,20 @@ function cellSize(){
 }
 
 function center(p){
-  // Canvas is padded by 1 tile on every side (see resizeCanvas).
-  // Add that 1-tile offset so coordinates map correctly onto the expanded canvas.
   const{w,h}=cellSize();
-  return{x:(p.c+1.5)*w, y:(p.r+1.5)*h}
+  const gridW=w*COLS,gridH=h*ROWS;
+  let x,y;
+  if(p.c<0)x=pathPadX*.42;
+  else if(p.c>=COLS)x=pathPadX+gridW+pathPadX*.58;
+  else x=pathPadX+(p.c+.5)*w;
+
+  // Border-route lanes: keep top/bottom outside paths close to the tile grid
+  // so players can see the complete path without it being hidden by the frame.
+  const laneGap=Math.max(8,Math.min(14,h*.18));
+  if(p.r<0)y=Math.max(5,pathPadY-laneGap);
+  else if(p.r>=ROWS)y=Math.min(canvas.height-5,pathPadY+gridH+laneGap);
+  else y=pathPadY+(p.r+.5)*h;
+  return{x,y};
 }
 
 function drawPixelLine(points,color,width,shadow){
@@ -666,7 +837,7 @@ function clearPath(){ctx.clearRect(0,0,canvas.width,canvas.height)}
 function updateTimer(){
   let m=String(Math.floor(timeLeft/60)).padStart(2,"0"),s=String(timeLeft%60).padStart(2,"0");
   timerText.textContent=`${m}:${s}`;
-  const pct=Math.max(0,timeLeft/TOTAL_TIME*100);
+  const pct=Math.max(0,timeLeft/levelTotalTime*100);
   if(timerBar)timerBar.style.width=`${pct}%`;
   if(boardTimerBar)boardTimerBar.style.width=`${pct}%`;
   document.body.classList.toggle("low-time",timeLeft<=60&&gameStarted&&!paused);
@@ -695,11 +866,21 @@ function showGameOver(){
   levelCompleteOverlay.classList.add("hidden");
   saveOverlay.classList.add("hidden");
   $("themePicker").classList.add("hidden");
-  $("goLevel").textContent=`LV ${String(level).padStart(2,"0")}`;
-  $("goScore").textContent=`${score} pts`;
-  $("goRule").textContent=currentStrategy?currentStrategy.name:"—";
+  const goSummary=$("goSummary");
+  if(goSummary){
+    const rule=currentStrategy?currentStrategy.name:"—";
+    goSummary.textContent=`LV ${String(level).padStart(2,"0")} · ${rule} · ${formatScore(score)} pts`;
+  }
+  const goMsg=$("goMessage");
+  if(goMsg)goMsg.textContent=isQuickGame
+    ?"Time is up. Start a new Quick Game or return to the start screen."
+    :"Time is up. Start a new game or return to the start screen.";
+  const goNew=$("gameOverNewGameBtn");
+  if(goNew)goNew.textContent=isQuickGame?"New Quick Game":"New Game";
+  const goQuit=$("gameOverQuitBtn");
+  if(goQuit)goQuit.textContent="Back to Start";
   moveStatus.textContent="GAME OVER";
-  sfx.timeup();
+  playUiAudio("gameOver");
   gameOverOverlay.classList.remove("hidden");
 }
 
@@ -739,12 +920,22 @@ function updateBoardInfo(){
   boardInfoEl.textContent=`MATCHES: ${String(n).padStart(2,"0")}  ·  SET: ${setName}`;
 }
 
+function showHelperMessage(kind,message){
+  const ov=$("helperMessageOverlay");
+  if(!ov){moveStatus.textContent=message;sfx.invalid();return}
+  $("helperMessageKicker").textContent="HELPER UNAVAILABLE";
+  $("helperMessageTitle").textContent=kind;
+  $("helperMessageText").textContent=message;
+  ov.classList.remove("hidden");
+  sfx.invalid();
+}
+
 function hint(){
   if(paused||!gameStarted)return;
-  if(hintCount<=0){sfx.invalid();return}
+  if(hintCount<=0){showHelperMessage("No Hints Left","You have no hints available for this run.");return}
   let m=findMove();
-  if(!m){moveStatus.textContent="NO LINK FOUND";sfx.invalid();return}
-  hintCount--;hintCountEl.textContent=String(hintCount).padStart(2,"0");
+  if(!m){showHelperMessage("No Link Found","There is no available link right now. Try shuffling the board.");return}
+  hintCount--;usedHintLvl++;updateHelperDisplay();
   document.querySelectorAll(".tile.hint").forEach(t=>t.classList.remove("hint"));
   m.forEach(p=>tileEl(p.r,p.c)?.classList.add("hint"));
   sfx.hint();moveStatus.textContent="FIND PULSE SENT";
@@ -753,7 +944,7 @@ function hint(){
 
 function shuffleTiles(count=true){
   if(paused||!gameStarted)return;
-  if(count&&shuffleCount<=0){sfx.invalid();return}
+  if(count&&shuffleCount<=0){showHelperMessage("No Shuffles Left","You have no shuffles available for this run.");return}
   let rem=[];board.flat().forEach(t=>{if(!t.removed)rem.push(t.entity)});
   // Try a few reshuffles so the board comes back with at least one connectable pair.
   for(let attempt=0;attempt<12;attempt++){
@@ -761,7 +952,7 @@ function shuffleTiles(count=true){
     let k=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(!board[r][c].removed)board[r][c].entity=rem[k++];
     if(findMove())break;
   }
-  if(count){shuffleCount--;shuffleCountEl.textContent=String(shuffleCount).padStart(2,"0")}
+  if(count){shuffleCount--;usedShuffLvl++;updateHelperDisplay()}
   renderBoard();sfx.shuffle();moveStatus.textContent="CARTRIDGE RESHUFFLED"
 }
 
@@ -773,33 +964,60 @@ function updateRuleTag(){ruleTagEl.textContent=currentStrategy.name}
 function showLevelComplete(){
   clearInterval(timerId);paused=true;
   const nextLvl=level+1,nextStrat=getStrategy(nextLvl);
-  const timeBonus=timeLeft*5;
-  score+=timeBonus;levelScore+=timeBonus;scoreEl.textContent=score;
-  const mm=String(Math.floor(timeLeft/60)).padStart(2,"0"),ss=String(timeLeft%60).padStart(2,"0");
+  const timeBonus=timeLeft*TIME_BONUS_PER_SECOND;
+  const perfect=(usedHintLvl===0&&usedShuffLvl===0)?PERFECT_BONUS:0;
+  score+=timeBonus+perfect;levelScore+=timeBonus+perfect;setScoreDisplay();
+  const nextSetName=isQuickGame?"Random tile set":(SPRITE_SETS[currentSpriteSetId]||SPRITE_SETS.original).name;
   $("lcKicker").textContent=`LEVEL ${String(level).padStart(2,"0")} COMPLETE`;
-  $("lcTitle").textContent=`Level ${level}`;
-  $("lcRule").textContent=`${currentStrategy.name} — ${currentStrategy.label}`;
-  $("lcTime").textContent=`${mm}:${ss}  (+${timeBonus} pts)`;
-  $("lcLevelScore").textContent=`${levelScore} pts`;
-  $("lcTotalScore").textContent=`${score} pts`;
-  $("lcNextRule").textContent=nextLvl<=9?`LV ${nextLvl}  ·  ${nextStrat.name}`:`LV ${nextLvl}  ·  RANDOM`;
+  $("lcTitle").textContent="Level Complete";
+  $("lcSummary").textContent=isQuickGame?"Quick Game continues with a new random tile set next level.":"Your progress can be saved before returning to the start screen.";
+  $("lcTime").textContent=`+${formatScore(timeBonus)} pts`;
+  $("lcPerfect").textContent=perfect?`+${formatScore(PERFECT_BONUS)} pts`:"—";
+  $("lcLevelScore").textContent=`${formatScore(levelScore)} pts`;
+  $("lcTotalScore").textContent=`${formatScore(score)} pts`;
+  $("lcNextRule").textContent=`Next: LV ${nextLvl} · ${nextStrat.name} · ${nextSetName}`;
+  playUiAudio("levelComplete");
+  const quitBtn=$("levelCompleteQuitBtn");
+  if(quitBtn)quitBtn.textContent=isQuickGame?"End Quick Game":"Save & Quit";
   levelCompleteOverlay.classList.remove("hidden");
+}
+
+function prepareNextLevelState(){
+  const clearedLevel=level;
+  level++;levelScore=0;resetLevelScoring();
+  refillHelpersAfterClearedLevel(clearedLevel);
+  if(isQuickGame)applyQuickGameRandomSet();
+  currentStrategy=getStrategy(level);
+  levelEl.textContent=String(level).padStart(2,"0");
+  updateRuleTag();
+  levelTotalTime=getLevelTime(level);
+  timeLeft=levelTotalTime;timerWarned=false;
+  updateHelperDisplay();
+  updateTimer();createBoard();renderBoard();
 }
 
 function startNextLevel(){
   levelCompleteOverlay.classList.add("hidden");
   gameOverOverlay.classList.add("hidden");
-  level++;levelScore=0;
-  currentStrategy=getStrategy(level);
-  levelEl.textContent=String(level).padStart(2,"0");
-  updateRuleTag();
-  timeLeft=TOTAL_TIME;timerWarned=false;
-  hintCount=HINTS;shuffleCount=SHUFFLES;
-  hintCountEl.textContent="05";shuffleCountEl.textContent="05";
-  updateTimer();createBoard();renderBoard();
+  $("endQuickConfirmOverlay")?.classList.add("hidden");
+  $("helperMessageOverlay")?.classList.add("hidden");
+  prepareNextLevelState();
   paused=false;gameStarted=true;
-  moveStatus.textContent=`LV ${level}  ·  ${currentStrategy.name}`;
+  const setName=(SPRITE_SETS[currentSpriteSetId]||SPRITE_SETS.original).name;
+  moveStatus.textContent=isQuickGame?`QUICK GAME · ${setName} · LV ${level}`:`LV ${level}  ·  ${currentStrategy.name}`;
   startTimer();
+}
+
+function levelCompleteQuit(){
+  if(isQuickGame){
+    levelCompleteOverlay.classList.add("hidden");
+    endQuickGame(true);
+    return;
+  }
+  prepareNextLevelState();
+  saveGame();
+  sfx.save();
+  returnToTitleAfterSave();
 }
 
 // ─────────────────────────────────────────────
@@ -808,7 +1026,7 @@ function startNextLevel(){
 function startGame(options={}){
   const mode=typeof options==="object"?options:{};
   const selectedSet=mode.randomSet
-    ? Object.keys(SPRITE_SETS)[Math.floor(Math.random()*Object.keys(SPRITE_SETS).length)]
+    ? randomSpriteSetId(null)
     : currentSpriteSetId;
   applySpriteSet(selectedSet);
   isQuickGame=!!mode.quick;
@@ -820,13 +1038,14 @@ function startGame(options={}){
   $("themePicker").classList.add("hidden");
   appShell.classList.remove("paused");
   unlockAudio();sfx.level();bgm.play().catch(()=>{});
-  score=0;levelScore=0;level=1;
+  score=0;levelScore=0;level=1;resetLevelScoring();
   currentStrategy=getStrategy(1);
-  timeLeft=TOTAL_TIME;timerWarned=false;
+  levelTotalTime=getLevelTime(1);
+  timeLeft=levelTotalTime;timerWarned=false;
   hintCount=HINTS;shuffleCount=SHUFFLES;
   paused=false;gameStarted=true;
-  levelEl.textContent="01";scoreEl.textContent="0";
-  hintCountEl.textContent="05";shuffleCountEl.textContent="05";
+  levelEl.textContent="01";setScoreDisplay();
+  updateHelperDisplay();
   updateRuleTag();updateTimer();createBoard();renderBoard();startTimer();
   moveStatus.textContent=isQuickGame?`QUICK GAME · ${(SPRITE_SETS[selectedSet]||SPRITE_SETS.original).name}`:"SYSTEM ONLINE"
 }
@@ -901,8 +1120,12 @@ function saveAndQuit(){
   returnToTitleAfterSave();
 }
 
-function endQuickGame(){
+function endQuickGame(skipConfirm=false){
   if(!isQuickGame){returnToTitleAfterSave();return;}
+  if(!skipConfirm){
+    const ov=$("endQuickConfirmOverlay");
+    if(ov){ov.classList.remove("hidden");return;}
+  }
   gameStarted=false;
   paused=false;
   clearInterval(timerId);
@@ -934,6 +1157,32 @@ function resumeGame(){
   moveStatus.textContent="SYSTEM ONLINE";sfx.level();startTimer();resizeCanvas()
 }
 
+function restartCurrentLevel(){
+  gameOverOverlay.classList.add("hidden");
+  levelScore=0;resetLevelScoring();
+  currentStrategy=getStrategy(level);
+  levelTotalTime=getLevelTime(level);
+  timeLeft=levelTotalTime;timerWarned=false;
+  updateRuleTag();updateTimer();createBoard();renderBoard();
+  paused=false;gameStarted=true;
+  moveStatus.textContent=`RETRY  LV ${level}`;
+  startTimer();
+}
+
+function newGameFromGameOver(){
+  gameOverOverlay.classList.add("hidden");
+  if(isQuickGame){
+    startQuickGame();
+  }else{
+    startGame({quick:false});
+  }
+}
+
+function quitFromGameOver(){
+  gameOverOverlay.classList.add("hidden");
+  returnToTitleAfterSave();
+}
+
 // ─────────────────────────────────────────────
 //  BUTTON BINDINGS
 // ─────────────────────────────────────────────
@@ -948,9 +1197,11 @@ $("continueBtn").onclick=(e)=>{
   resumeGame();
 };
 $("nextLevelBtn").onclick=startNextLevel;
-$("gameOverNewGameBtn").onclick=()=>startGame({quick:false});
+$("levelCompleteQuitBtn").onclick=levelCompleteQuit;
+$("gameOverNewGameBtn").onclick=newGameFromGameOver;
+$("gameOverQuitBtn").onclick=quitFromGameOver;
 $("themeBtn").onclick=(e)=>{e.stopPropagation();toggleThemePicker()};
-$("musicBtn").onclick=()=>{unlockAudio();muted=!muted;bgm.muted=muted;$("musicBtn").textContent=muted?"×":"♪";if(!muted)bgm.play().catch(()=>{})};
+$("musicBtn").onclick=()=>{unlockAudio();muted=!muted;bgm.muted=muted;Object.values(uiAudio).forEach(a=>a.muted=muted);$("musicBtn").textContent=muted?"×":"♪";if(!muted)bgm.play().catch(()=>{})};
 
 // Save buttons
 $("saveBtn").onclick=(e)=>{
@@ -987,8 +1238,14 @@ $("saveFromPauseBtn").onclick=(e)=>{
 $("endQuickGameBtn").onclick=(e)=>{
   e.preventDefault();
   e.stopPropagation();
-  endQuickGame();
+  endQuickGame(false);
 };
+$("cancelEndQuickBtn").onclick=()=>$("endQuickConfirmOverlay").classList.add("hidden");
+$("confirmEndQuickBtn").onclick=()=>{
+  $("endQuickConfirmOverlay").classList.add("hidden");
+  endQuickGame(true);
+};
+$("helperMessageOkBtn").onclick=()=>$("helperMessageOverlay").classList.add("hidden");
 
 // Start screen actions
 $("continueFromSaveBtn").onclick=continueFromSave;
