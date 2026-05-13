@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pocket Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260513-v18-reference-mobile-layout">
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="bg-shell">
+  <div class="bg-base"></div>
+  <div class="bg-tiles" id="bgTiles"></div>
+  <div class="bg-vignette"></div>
+</div>
+
+<!-- =========================================================
+     START SCREEN
+     ========================================================= -->
+<section id="startScreen" class="screen start-screen">
+  <div class="start-inner">
+
+    <!-- Settings gear -->
+    <button class="settings-gear" id="settingsBtn" type="button" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98a7.92 7.92 0 0 0 0-1.96l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.86 7.86 0 0 0-1.7-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.42l-.38 2.65c-.6.25-1.17.58-1.7.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65a7.92 7.92 0 0 0 0 1.96L2.45 14.63a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .6.22l2.49-1c.53.4 1.1.73 1.7.98l.38 2.65A.5.5 0 0 0 10 22h4a.5.5 0 0 0 .5-.42l.38-2.65c.6-.25 1.17-.58 1.7-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.12-1.65zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z" fill="currentColor"/></svg>
+    </button>
+
+    <header class="title-block">
+      <h1 class="game-title">
+        <span class="title-line t-pocket">POCKET</span>
+        <span class="title-line t-match">MATCH</span>
+      </h1>
+      <div class="title-rule">
+        <span class="rule-line"></span>
+        <span class="title-tagline">MATCH PAIRS &nbsp;•&nbsp; BEAT THE TIME &nbsp;•&nbsp; KEEP GOING</span>
+        <span class="rule-line"></span>
+      </div>
+    </header>
+
+    <div class="tileset-block">
+      <div class="tileset-label">CHOOSE YOUR TILE SET</div>
+      <div class="tileset-carousel" aria-label="Tile set selector">
+        <button class="tileset-nav tileset-nav-prev" id="tileSetPrev" type="button" aria-label="Previous tile sets">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
+        </button>
+        <div class="tileset-scroll" id="tileSetScroll">
+          <div class="tileset-row" id="tileSetRow">
+          <button class="tileset-btn" data-set="gadgets" type="button">
+            <span class="ts-card-glow"></span>
+            <span class="ts-disc">
+              <span class="ts-stack ts-gadgets">
+                <img src="assets/sprites/gadgets/14-headset.png" alt="">
+                <img src="assets/sprites/gadgets/18-mobile-phone-1.png" alt="">
+                <img src="assets/sprites/gadgets/04-camera.png" alt="">
+              </span>
+            </span>
+            <span class="ts-name">GADGETS</span>
+            <span class="ts-save" data-set-badge="gadgets">NEW</span>
+          </button>
+
+          <button class="tileset-btn is-active" data-set="sports" type="button">
+            <span class="ts-card-glow"></span>
+            <span class="ts-disc">
+              <span class="ts-stack ts-sports">
+                <img src="assets/sprites/sports/13-football.png" alt="">
+                <img src="assets/sprites/sports/02-american-football.png" alt="">
+                <img src="assets/sprites/sports/27-tennis.png" alt="">
+              </span>
+            </span>
+            <span class="ts-name">SPORTS</span>
+            <span class="ts-save" data-set-badge="sports">NEW</span>
+          </button>
+
+          <button class="tileset-btn" data-set="foodies" type="button">
+            <span class="ts-card-glow"></span>
+            <span class="ts-disc">
+              <span class="ts-stack ts-foodies">
+                <img src="assets/sprites/foodies/04-burger.png" alt="">
+                <img src="assets/sprites/foodies/10-donut.png" alt="">
+                <img src="assets/sprites/foodies/25-sushi.png" alt="">
+              </span>
+            </span>
+            <span class="ts-name">FOODIES</span>
+            <span class="ts-save" data-set-badge="foodies">NEW</span>
+          </button>
+
+          <button class="tileset-btn" data-set="home" type="button">
+            <span class="ts-card-glow"></span>
+            <span class="ts-disc">
+              <span class="ts-stack ts-home">
+                <img src="assets/sprites/home/22-sofa.png" alt="">
+                <img src="assets/sprites/home/26-tv.png" alt="">
+                <img src="assets/sprites/home/12-fan.png" alt="">
+              </span>
+            </span>
+            <span class="ts-name">HOME</span>
+            <span class="ts-save" data-set-badge="home">NEW</span>
+          </button>
+          </div>
+        </div>
+        <button class="tileset-nav tileset-nav-next" id="tileSetNext" type="button" aria-label="Next tile sets">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.59 16.59 1.41 1.41 6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <button class="play-btn" id="playBtn" type="button">
+        <span class="play-label" id="playLabel">PLAY</span>
+        <span class="play-glow"></span>
+      </button>
+    </div>
+
+    <div class="save-summary" id="saveSummary" hidden>
+      <span>SAVED RUN —</span> <strong id="saveLevel">LV 01</strong> · <strong id="saveScore">0 pts</strong>
+    </div>
+
+    <div class="start-action-row" id="startActionRow">
+      <button class="pill-btn pill-secondary start-small-action" id="newGameBtn" type="button"><span class="pill-label">NEW GAME</span></button>
+      <button class="pill-btn pill-secondary start-small-action" id="quickGameBtn" type="button"><span class="pill-label">QUICK GAME</span></button>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================================================
+     GAME SCREEN
+     ========================================================= -->
+<section id="gameScreen" class="screen game-screen hidden">
+
+  <header class="game-hud">
+    <button class="hud-back" id="hudBack" type="button" title="Back">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
+    </button>
+
+    <div class="hud-stat hud-level">
+      <span class="hs-label">LEVEL</span>
+      <span class="hs-value" id="hudLevel">01</span>
+    </div>
+
+    <div class="hud-center">
+      <div class="hud-timer">
+        <span class="timer-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61 1.42-1.42a9.93 9.93 0 0 0-1.41-1.41l-1.42 1.42A8 8 0 1 0 20 13c0-2.04-.76-3.91-2-5.34zM12 20a6 6 0 1 1 0-12 6 6 0 0 1 0 12z" fill="currentColor"/></svg>
+        </span>
+        <span class="timer-text" id="timerText">08:00</span>
+      </div>
+      <div class="hud-score">
+        <span class="hs-label">SCORE</span>
+        <span class="hs-value" id="hudScore">0</span>
+      </div>
+    </div>
+
+    <div class="hud-actions">
+      <button class="hud-icon-btn" id="hintBtn" type="button" title="Hint">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2z" fill="currentColor"/></svg>
+        <span class="ib-count" id="hintCount">5</span>
+      </button>
+      <button class="hud-icon-btn" id="shuffleBtn" type="button" title="Shuffle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.59 9.17 5.41 4 4 5.41 9.17 10.58l1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" fill="currentColor"/></svg>
+        <span class="ib-count" id="shuffleCount">10</span>
+      </button>
+      <button class="hud-icon-btn" id="pauseBtn" type="button" title="Pause">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="timer-rail-wrap">
+    <div class="timer-rail">
+      <div class="timer-fill" id="timerFill"></div>
+    </div>
+    <div class="rule-tag" id="ruleTag">NORMAL · No movement</div>
+  </div>
+
+  <main class="board-area">
+    <div class="board-frame">
+      <div class="board-wrap">
+        <canvas id="pathCanvas" class="path-canvas"></canvas>
+        <div id="board" class="board"></div>
+      </div>
+    </div>
+    <div class="board-status" id="boardStatus">SYSTEM READY</div>
+  </main>
+
+</section>
+
+<!-- =========================================================
+     OVERLAYS
+     ========================================================= -->
+<div class="overlay hidden" id="pauseOverlay">
+  <div class="modal">
+    <div class="modal-kicker">PAUSED</div>
+    <h2 class="modal-title">Take a Breath</h2>
+    <p class="modal-body">The timer is stopped. Resume when you're ready.</p>
+    <div class="modal-cta">
+      <button class="play-btn play-sm" id="resumeBtn" type="button"><span class="play-label">RESUME</span><span class="play-glow"></span></button>
+      <button class="pill-btn pill-secondary" id="quitBtn" type="button"><span class="pill-label">SAVE &amp; QUIT</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="settingsOverlay">
+  <div class="modal modal-settings">
+    <div class="modal-kicker">SETTINGS</div>
+    <h2 class="modal-title">Game Options</h2>
+    <div class="settings-list">
+      <div class="settings-row">
+        <span class="settings-label">SOUND EFFECTS</span>
+        <button class="toggle-btn is-on" id="toggleSfx" type="button" data-on="true"><span class="toggle-knob"></span></button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">BACKGROUND MUSIC</span>
+        <button class="toggle-btn is-on" id="toggleBgm" type="button" data-on="true"><span class="toggle-knob"></span></button>
+      </div>
+    </div>
+    <div class="modal-cta">
+      <button class="play-btn play-sm" id="settingsCloseBtn" type="button"><span class="play-label">DONE</span><span class="play-glow"></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="levelCompleteOverlay">
+  <div class="modal modal-celebrate">
+    <div class="modal-kicker celebrate" id="lcKicker">LEVEL 01 COMPLETE</div>
+    <h2 class="modal-title gradient-title" id="lcTitle">Nice Run!</h2>
+    <div class="stat-grid">
+      <div class="stat-cell"><span class="stat-label">TIME LEFT</span><span class="stat-value" id="lcTime">00:00</span></div>
+      <div class="stat-cell"><span class="stat-label">LEVEL SCORE</span><span class="stat-value" id="lcLevelScore">0</span></div>
+      <div class="stat-cell"><span class="stat-label">TOTAL</span><span class="stat-value gold" id="lcTotal">0</span></div>
+      <div class="stat-cell"><span class="stat-label">NEXT RULE</span><span class="stat-value small" id="lcNextRule">—</span></div>
+    </div>
+    <div class="modal-cta">
+      <button class="play-btn" id="nextLevelBtn" type="button"><span class="play-label">NEXT LEVEL</span><span class="play-glow"></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="gameOverOverlay">
+  <div class="modal modal-over">
+    <div class="modal-kicker danger">TIME'S UP</div>
+    <h2 class="modal-title">Game Over</h2>
+    <div class="stat-grid">
+      <div class="stat-cell"><span class="stat-label">LEVEL REACHED</span><span class="stat-value" id="goLevel">01</span></div>
+      <div class="stat-cell"><span class="stat-label">FINAL SCORE</span><span class="stat-value gold" id="goScore">0</span></div>
+    </div>
+    <div class="modal-cta">
+      <button class="play-btn" id="goRestartBtn" type="button"><span class="play-label">PLAY AGAIN</span><span class="play-glow"></span></button>
+      <button class="pill-btn pill-secondary" id="goHomeBtn" type="button"><span class="pill-label">HOME</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="combo-layer" id="comboLayer"></div>
+
+
+
+<script src="game.js?v=20260512-v16-original-board"></script>
+</body>
+</html>
