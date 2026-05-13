@@ -2155,3 +2155,111 @@ body{background:
   #pauseBtn{font-size:12px!important;}
   .pause-icon{width:12px!important;height:14px!important;gap:3px!important;}
 }
+
+/* v1.2.7 iPhone top-bar balance
+   - Bring compact POCKET MATCH brand back on iPhone landscape.
+   - Anchor brand to the left and Pause to the far right.
+   - Widen compact controls slightly so the bar no longer feels loose/centered.
+   - Keep v1.2.6 board sizing unchanged. */
+@media (max-width:950px) and (orientation:landscape){
+  .topbar{
+    grid-template-columns:minmax(120px,1fr) 66px 112px 66px 66px 80px 78px 34px 34px!important;
+    justify-content:stretch!important;
+    align-content:center!important;
+    align-items:center!important;
+    gap:4px!important;
+    padding:2px 6px!important;
+  }
+
+  .brand{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    text-overflow:ellipsis!important;
+    font-size:clamp(12px,2.7vw,16px)!important;
+    line-height:1!important;
+    letter-spacing:-.045em!important;
+    gap:4px!important;
+  }
+  .brand:before,.brand:after{
+    width:10px!important;
+    height:10px!important;
+    flex:0 0 10px!important;
+    border-width:1px!important;
+    box-shadow:none!important;
+  }
+
+  .hud-pill,.hud-btn,.score-panel,.audio-btn{
+    justify-self:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  .hud-pill{
+    padding:0 6px!important;
+    font-size:7px!important;
+  }
+  .hud-pill strong{
+    font-size:12px!important;
+    padding:1px 5px!important;
+  }
+
+  .rule-pill span.rule-tag{
+    max-width:64px!important;
+    font-size:7px!important;
+  }
+
+  #hintBtn,#shuffleBtn{
+    padding:0 6px!important;
+    justify-content:center!important;
+  }
+  #hintBtn strong,#shuffleBtn strong{
+    font-size:11px!important;
+    padding:0 5px!important;
+  }
+
+  .timer-text{
+    width:100%!important;
+    min-width:0!important;
+    font-size:15px!important;
+  }
+
+  .score-panel{
+    width:100%!important;
+    min-width:0!important;
+    padding:2px 6px!important;
+  }
+  .score-panel strong{font-size:12px!important;}
+
+  #musicBtn,#pauseBtn{
+    width:34px!important;
+    min-width:34px!important;
+    height:30px!important;
+    min-height:30px!important;
+    justify-self:end!important;
+  }
+}
+
+@media (max-width:760px) and (orientation:landscape){
+  .topbar{
+    grid-template-columns:minmax(92px,1fr) 52px 88px 52px 52px 62px 56px 30px 30px!important;
+    gap:3px!important;
+    padding:2px 4px!important;
+  }
+  .brand{font-size:11px!important;gap:3px!important;}
+  .brand:before,.brand:after{width:8px!important;height:8px!important;flex-basis:8px!important;}
+  .hud-pill{font-size:6px!important;padding:0 4px!important;}
+  .hud-pill strong{font-size:10px!important;padding:1px 3px!important;}
+  .rule-pill span.rule-tag{font-size:6px!important;max-width:50px!important;padding:1px 3px!important;}
+  .hud-btn{padding:0 4px!important;}
+  .hud-btn span{font-size:12px!important;}
+  .hud-btn strong{font-size:9px!important;padding:0 3px!important;}
+  .timer-text{font-size:12px!important;padding:0 3px!important;}
+  .score-panel{padding:1px 4px!important;}
+  .score-panel span{font-size:4.5px!important;}
+  .score-panel strong{font-size:10px!important;}
+  #musicBtn,#pauseBtn{width:30px!important;min-width:30px!important;height:29px!important;min-height:29px!important;}
+}
