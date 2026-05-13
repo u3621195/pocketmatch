@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Pocket Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#061327;
+      --bg2:#072c37;
+      --bg3:#26103a;
+      --glass:rgba(255,255,255,.115);
+      --glass2:rgba(255,255,255,.07);
+      --stroke:rgba(255,255,255,.18);
+      --stroke2:rgba(255,255,255,.28);
+      --cyan:#4eeaff;
+      --mint:#5afad0;
+      --yellow:#ffe95a;
+      --orange:#ff8a35;
+      --pink:#ff4ff3;
+      --red:#ff4848;
+      --ink:#ffffff;
+      --muted:rgba(255,255,255,.66);
+      --tile1:#ff6b46;
+      --tile2:#ff3448;
+      --tile3:#fff0e8;
+      --tileText:#1b0f18;
+      --safeTop:env(safe-area-inset-top,0px);
+      --safeRight:env(safe-area-inset-right,0px);
+      --safeBottom:env(safe-area-inset-bottom,0px);
+      --safeLeft:env(safe-area-inset-left,0px);
+      --tileSize:42px;
+      --gridGap:4px;
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ width:100%; height:100%; margin:0; overflow:hidden; background:#050a17; }
+    body{
+      font-family:"Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color:var(--ink);
+      touch-action:manipulation;
+      user-select:none;
+    }
+    button{ font:inherit; border:0; cursor:pointer; color:inherit; }
+
+    .app{
+      position:relative;
+      width:100vw;
+      height:100dvh;
+      min-height:100vh;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(78,234,255,.24), transparent 30%),
+        radial-gradient(circle at 88% 78%, rgba(255,79,243,.22), transparent 32%),
+        radial-gradient(circle at 52% 50%, rgba(255,138,53,.10), transparent 38%),
+        linear-gradient(135deg,var(--bg1),var(--bg2) 48%,var(--bg3));
+    }
+    .app::before{
+      content:"";
+      position:absolute; inset:-20%;
+      background:
+        linear-gradient(115deg, transparent 0 44%, rgba(255,255,255,.055) 45%, transparent 47% 100%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 8px);
+      opacity:.5;
+      pointer-events:none;
+      animation: drift 16s linear infinite;
+    }
+    @keyframes drift{ from{ transform:translate3d(-2%,0,0) rotate(0deg);} to{ transform:translate3d(2%,0,0) rotate(1deg);} }
+    .hidden{ display:none !important; }
+
+    .screen{ position:absolute; inset:0; z-index:1; }
+
+    /* HOME */
+    .home{
+      display:grid;
+      grid-template-columns:minmax(330px, .92fr) minmax(360px, 1.08fr);
+      gap:clamp(18px,3vw,44px);
+      padding:calc(24px + var(--safeTop)) calc(32px + var(--safeRight)) calc(22px + var(--safeBottom)) calc(32px + var(--safeLeft));
+      align-items:center;
+    }
+    .home-panel{ position:relative; z-index:2; }
+    .home-kicker{
+      font:800 12px/1 "JetBrains Mono",monospace;
+      letter-spacing:.18em;
+      color:var(--cyan);
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .title{ margin:0 0 10px; line-height:.82; letter-spacing:.045em; }
+    .title span{
+      display:block;
+      font-size:clamp(54px,9vw,104px);
+      font-weight:900;
+      background:linear-gradient(180deg,#fff,#ffe95a 52%,#4eeaff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow:0 12px 34px rgba(78,234,255,.22);
+    }
+    .home-copy{ max-width:520px; color:var(--muted); font-weight:700; line-height:1.35; margin:18px 0 22px; }
+    .top-gear{
+      position:absolute; right:calc(22px + var(--safeRight)); top:calc(18px + var(--safeTop)); z-index:7;
+    }
+    .icon-btn,.glass-btn{
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      box-shadow:0 10px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.13);
+      backdrop-filter: blur(10px);
+    }
+    .icon-btn{ width:48px; height:48px; border-radius:18px; display:grid; place-items:center; font-size:23px; }
+    .btn-stack{ display:grid; gap:10px; max-width:390px; }
+    .primary-btn{
+      min-height:58px; border-radius:22px; padding:0 24px;
+      background:linear-gradient(90deg,var(--orange),var(--pink));
+      color:#fff; font-weight:900; font-size:20px;
+      box-shadow:0 16px 30px rgba(255,79,243,.25), inset 0 1px 0 rgba(255,255,255,.34);
+      text-transform:uppercase; letter-spacing:.03em;
+    }
+    .primary-btn.mint{ background:linear-gradient(90deg,var(--mint),var(--cyan)); box-shadow:0 16px 30px rgba(78,234,255,.22); }
+    .secondary-btn{
+      min-height:48px; border-radius:18px; padding:0 22px;
+      background:var(--glass); border:1px solid var(--stroke);
+      color:#fff; font-weight:850; text-transform:uppercase; letter-spacing:.03em;
+    }
+    .select-panel{
+      position:relative; z-index:2;
+      padding:20px;
+      border-radius:30px;
+      background:rgba(255,255,255,.075);
+      border:1px solid var(--stroke);
+      box-shadow:0 18px 50px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter:blur(10px);
+    }
+    .section-title{ margin:0 0 14px; font-size:22px; font-weight:900; }
+    .tile-set-row{ display:flex; gap:14px; overflow:auto; padding:4px 4px 12px; scroll-snap-type:x mandatory; }
+    .tile-set-card{
+      min-width:164px; height:124px; border-radius:26px; padding:14px;
+      display:flex; flex-direction:column; justify-content:center; align-items:center; gap:10px;
+      background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.07));
+      border:1px solid var(--stroke);
+      box-shadow:0 12px 28px rgba(0,0,0,.18);
+      scroll-snap-align:center;
+      transition:.2s ease;
+    }
+    .tile-set-card.selected{ border:4px solid var(--yellow); transform:scale(1.045); box-shadow:0 0 28px rgba(255,233,90,.32); }
+    .set-icons{ display:flex; margin-left:8px; }
+    .set-icons span{ width:38px; height:38px; margin-left:-8px; display:grid; place-items:center; border-radius:12px; background:#fff; box-shadow:0 5px 12px rgba(0,0,0,.24); font-size:24px; }
+    .set-name{ font-weight:900; }
+    .rule-list{ margin-top:10px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .rule-item{ border-radius:15px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); padding:8px 10px; color:rgba(255,255,255,.76); font-size:12px; font-weight:800; }
+
+    /* GAME */
+    .game{
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:7px;
+      padding:calc(8px + var(--safeTop)) calc(10px + var(--safeRight)) calc(8px + var(--safeBottom)) calc(10px + var(--safeLeft));
+      z-index:2;
+    }
+    .hud,.actions{
+      position:relative; z-index:3;
+      display:flex; align-items:center; gap:8px;
+      padding:7px;
+      min-height:48px;
+      border-radius:21px;
+      background:rgba(255,255,255,.10);
+      border:1px solid var(--stroke);
+      box-shadow:0 14px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter:blur(10px);
+    }
+    .hud-brand{ font-weight:900; letter-spacing:.06em; margin:0 4px 0 6px; white-space:nowrap; }
+    .hud-brand span{ color:var(--cyan); }
+    .hud-stat{
+      height:36px; min-width:72px; padding:0 10px;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      border-radius:15px; background:rgba(255,255,255,.10);
+      font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:900;
+    }
+    .hud-stat label{ color:rgba(255,255,255,.55); }
+    .hud-stat strong{ color:var(--yellow); }
+    .hud-spacer{ flex:1; min-width:4px; }
+    .hud .icon-btn,.actions .icon-btn{ width:38px; height:36px; border-radius:14px; font-size:18px; flex:0 0 auto; }
+    .board-stage{ position:relative; display:grid; place-items:center; min-height:0; }
+    .board-frame{
+      position:relative;
+      width:fit-content;
+      max-width:100%; max-height:100%;
+      padding:9px;
+      border-radius:26px;
+      background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.055));
+      border:1px solid var(--stroke);
+      box-shadow:0 24px 60px rgba(0,0,0,.22), 0 0 40px rgba(78,234,255,.08), inset 0 1px 0 rgba(255,255,255,.13);
+    }
+    .board{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(16,var(--tileSize));
+      grid-template-rows:repeat(9,var(--tileSize));
+      gap:var(--gridGap);
+      padding:6px;
+      border-radius:20px;
+      background:linear-gradient(135deg,rgba(0,0,0,.24),rgba(255,255,255,.045));
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:inset 0 0 28px rgba(0,0,0,.28);
+    }
+    .tile-slot{ width:var(--tileSize); height:var(--tileSize); border-radius:12px; background:rgba(255,255,255,.035); }
+    .tile{
+      width:var(--tileSize); height:var(--tileSize);
+      border-radius:max(11px,calc(var(--tileSize)*.23));
+      display:grid; place-items:center;
+      font-size:calc(var(--tileSize)*.50);
+      color:var(--tileText);
+      background:linear-gradient(135deg,var(--tile3) 0 16%, var(--tile1) 34%, var(--tile2) 100%);
+      border:1px solid rgba(0,0,0,.22);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.50), inset -8px -10px 18px rgba(0,0,0,.10), 0 8px 14px rgba(0,0,0,.25);
+      transition:transform .14s ease, box-shadow .14s ease, filter .14s ease, opacity .14s ease;
+      overflow:hidden;
+    }
+    .tile::before{ content:""; position:absolute; width:42%; height:34%; left:10%; top:7%; border-radius:50%; background:rgba(255,255,255,.40); filter:blur(7px); pointer-events:none; }
+    .tile.selected{ transform:scale(1.08); border:3px solid var(--yellow); box-shadow:0 0 18px rgba(255,233,90,.50), inset 0 1px 0 rgba(255,255,255,.60); }
+    .tile.hinted{ animation:pulseHint .8s ease-in-out infinite alternate; border:3px solid var(--yellow); }
+    @keyframes pulseHint{ from{ box-shadow:0 0 12px rgba(255,233,90,.35);} to{ box-shadow:0 0 24px rgba(255,233,90,.65);} }
+    .tile.wrong{ animation:shake .28s ease; filter:drop-shadow(0 0 14px rgba(255,72,72,.55)); }
+    @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+    .tile.matched{ transform:scale(.4); opacity:0; pointer-events:none; }
+
+    .action-btn{
+      height:38px; padding:0 12px; border-radius:15px; flex:0 0 auto;
+      background:rgba(255,255,255,.12); border:1px solid var(--stroke); color:#fff;
+      font-weight:900; font-size:13px; display:flex; align-items:center; gap:7px;
+    }
+    .action-btn b{ color:var(--yellow); }
+    .rule-mini{
+      height:38px; min-width:0; flex:1; border-radius:15px; padding:0 12px;
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,.12); border:1px solid var(--stroke);
+      overflow:hidden;
+    }
+    .rule-mini strong{ white-space:nowrap; font-size:13px; }
+    .rule-mini span{ color:rgba(255,255,255,.62); font-size:12px; font-weight:750; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* OVERLAYS */
+    .overlay{ position:absolute; inset:0; z-index:20; display:grid; place-items:center; padding:22px; background:rgba(0,0,0,.36); backdrop-filter:blur(7px); }
+    .modal{
+      width:min(470px,92vw); border-radius:30px; padding:24px;
+      color:#fff; text-align:center;
+      background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.08));
+      border:1px solid var(--stroke2);
+      box-shadow:0 26px 70px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .modal h2{ margin:0 0 8px; font-size:42px; font-weight:900; }
+    .modal p{ color:var(--muted); font-weight:700; line-height:1.35; margin:0 0 18px; }
+    .modal-actions{ display:grid; gap:10px; max-width:330px; margin:0 auto; }
+    .rule-intro{ z-index:11; pointer-events:none; background:transparent; backdrop-filter:none; }
+    .rule-intro .modal{ width:min(420px,86vw); transform:translateY(-4px); }
+
+    .portrait-warning{ display:none; position:absolute; inset:0; z-index:50; place-items:center; padding:30px; background:#050a17; text-align:center; }
+    .portrait-warning .modal{ display:block; }
+
+    @media (orientation:portrait){ .portrait-warning{ display:grid; } }
+
+    @media (max-width: 760px), (max-height: 390px){
+      .game{ gap:5px; padding:calc(6px + var(--safeTop)) calc(8px + var(--safeRight)) calc(6px + var(--safeBottom)) calc(8px + var(--safeLeft)); }
+      .hud,.actions{ min-height:42px; padding:5px; gap:5px; border-radius:18px; }
+      .hud-brand{ display:none; }
+      .hud-stat{ height:32px; min-width:54px; padding:0 7px; gap:4px; font-size:10px; }
+      .hud-stat label{ display:none; }
+      .hud .icon-btn,.actions .icon-btn{ width:34px; height:32px; font-size:16px; }
+      .board-frame{ padding:6px; border-radius:22px; }
+      .board{ padding:4px; border-radius:17px; }
+      .action-btn{ height:34px; padding:0 9px; font-size:12px; }
+      .action-btn .wide{ display:none; }
+      .rule-mini{ height:34px; padding:0 9px; }
+      .rule-mini span{ display:none; }
+      .home{ grid-template-columns:1fr 1fr; gap:12px; padding:calc(14px + var(--safeTop)) calc(18px + var(--safeRight)) calc(12px + var(--safeBottom)) calc(18px + var(--safeLeft)); }
+      .title span{ font-size:48px; }
+      .home-copy{ font-size:13px; margin:12px 0 14px; }
+      .primary-btn{ min-height:48px; font-size:17px; }
+      .secondary-btn{ min-height:42px; }
+      .select-panel{ padding:14px; }
+      .tile-set-card{ min-width:138px; height:104px; border-radius:22px; }
+      .rule-list{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app">
+    <button id="settingsHomeBtn" class="icon-btn top-gear" title="Settings">⚙</button>
+
+    <section id="homeScreen" class="screen home">
+      <div class="home-panel">
+        <div class="home-kicker">16 × 9 Landscape Arcade</div>
+        <h1 class="title"><span>POCKET</span><span>MATCH</span></h1>
+        <p class="home-copy">Tap matching pairs, clear all 144 spaces, and master shifting boards before the timer runs out.</p>
+        <div class="btn-stack">
+          <button id="continueBtn" class="primary-btn mint hidden">Continue</button>
+          <button id="playBtn" class="primary-btn">Play</button>
+          <button id="newGameBtn" class="secondary-btn hidden">New Game</button>
+          <button id="quickGameBtn" class="secondary-btn">Quick Game</button>
+        </div>
+      </div>
+
+      <div class="select-panel">
+        <h2 class="section-title">Choose Tile Set</h2>
+        <div id="tileSetRow" class="tile-set-row"></div>
+        <div class="rule-list">
+          <div class="rule-item">L1 • Static</div><div class="rule-item">L2 • Drop Down</div>
+          <div class="rule-item">L3 • Float Up</div><div class="rule-item">L4 • Shift Left</div>
+          <div class="rule-item">L5 • Shift Right</div><div class="rule-item">L6 • Toward Center</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game hidden">
+      <header class="hud">
+        <button id="homeBtn" class="icon-btn" title="Home">⌂</button>
+        <div class="hud-brand">POCKET<span>MATCH</span></div>
+        <div class="hud-stat"><label>LV</label><strong id="levelText">1</strong></div>
+        <div class="hud-stat"><label>TIME</label><strong id="timeText">3:00</strong></div>
+        <div class="hud-stat"><label>SCORE</label><strong id="scoreText">0</strong></div>
+        <div class="hud-stat"><label>COMBO</label><strong id="comboText">×0</strong></div>
+        <div class="hud-spacer"></div>
+        <button id="settingsGameBtn" class="icon-btn" title="Settings">⚙</button>
+      </header>
+
+      <main class="board-stage">
+        <div class="board-frame">
+          <div id="board" class="board"></div>
+        </div>
+      </main>
+
+      <footer class="actions">
+        <button id="hintBtn" class="action-btn">💡 <span class="wide">Hint</span> <b id="hintText">3</b></button>
+        <button id="shuffleBtn" class="action-btn">🔀 <span class="wide">Shuffle</span> <b id="shuffleText">2</b></button>
+        <button id="pauseBtn" class="action-btn">Ⅱ <span class="wide">Pause</span></button>
+        <div class="rule-mini"><strong id="ruleTitle">Static</strong><span id="ruleSubtitle">Matched tiles vanish in place</span></div>
+      </footer>
+    </section>
+
+    <section id="completeScreen" class="screen overlay hidden">
+      <div class="modal">
+        <h2>LEVEL CLEAR</h2>
+        <p id="completeMsg">Level complete.</p>
+        <div class="modal-actions">
+          <button id="nextLevelBtn" class="primary-btn mint">Next Level</button>
+          <button id="replayBtn" class="secondary-btn">Replay</button>
+          <button id="completeHomeBtn" class="secondary-btn">Home</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pauseOverlay" class="overlay hidden">
+      <div class="modal">
+        <h2 id="pauseTitle">PAUSED</h2>
+        <p id="pauseCopy">The timer is stopped. Continue when ready.</p>
+        <div class="modal-actions">
+          <button id="resumeBtn" class="primary-btn mint">Resume</button>
+          <button id="restartBtn" class="secondary-btn">Restart Level</button>
+          <button id="pauseNewGameBtn" class="secondary-btn">New Game</button>
+          <button id="pauseHomeBtn" class="secondary-btn">Home</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="settingsOverlay" class="overlay hidden">
+      <div class="modal">
+        <h2>Settings</h2>
+        <p>Game preferences are saved on this device.</p>
+        <div class="modal-actions">
+          <button id="musicBtn" class="secondary-btn">Music: On</button>
+          <button id="soundBtn" class="secondary-btn">Sound: On</button>
+          <button id="resetBtn" class="secondary-btn">Reset Saved Progress</button>
+          <button id="settingsCloseBtn" class="primary-btn">Close</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="ruleIntro" class="overlay rule-intro hidden">
+      <div class="modal">
+        <h2 id="ruleIntroTitle">Static</h2>
+        <p id="ruleIntroSubtitle">Matched tiles vanish in place.</p>
+      </div>
+    </section>
+
+    <div class="portrait-warning">
+      <div class="modal">
+        <h2>Rotate Device</h2>
+        <p>Pocket Match is designed for landscape play so the 16 × 9 board stays large and easy to tap.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const COLS = 16;
+    const ROWS = 9;
+    const TILE_COUNT = COLS * ROWS;
+    const SAVE_KEY = 'PocketMatchHTMLVNextSave';
+    const PREF_KEY = 'PocketMatchHTMLVNextPrefs';
+
+    const tileSets = [
+      { id:'sports', name:'Sports', colors:['#ff8a35','#ff3448'], symbols:['⚽️','🏀','🏈','⚾️','🎾','🏐','🏓','🥊','🏆','🛼','⛳️','🏒','🥍','🏏','🥅','🏹','🎣','🥌','⛸️','🏂','🏄','🚴','🏇','🏊','🤺','🏋️','🤾','🤸','🥇','🎯'] },
+      { id:'animals', name:'Animals', colors:['#5afad0','#4eeaff'], symbols:['🦊','🐼','🐸','🐵','🦁','🐯','🐨','🐙','🦄','🐢','🐶','🐱','🐭','🐹','🐰','🐻','🐮','🐷','🐔','🐧','🐦','🦆','🦉','🦋','🐝','🐬','🐳','🦖','🦒','🦓'] },
+      { id:'food', name:'Food', colors:['#ff4ff3','#ffe95a'], symbols:['🍕','🍔','🍩','🍓','🥑','🍟','🌮','🍦','🥨','🍉','🍎','🍌','🍇','🍒','🥝','🍍','🥥','🥐','🧀','🥞','🧇','🍗','🍖','🍣','🍜','🍰','🧁','🍪','🍫','🍿'] }
+    ];
+
+    const rules = [
+      { title:'Static', subtitle:'Matched tiles vanish in place', dir:'static' },
+      { title:'Drop Down', subtitle:'Tiles fall down to fill gaps', dir:'down' },
+      { title:'Float Up', subtitle:'Tiles rise upward into gaps', dir:'up' },
+      { title:'Shift Left', subtitle:'Tiles slide left after matches', dir:'left' },
+      { title:'Shift Right', subtitle:'Tiles slide right after matches', dir:'right' },
+      { title:'Toward Center', subtitle:'Both halves slide into the center line', dir:'center' }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const state = {
+      screen:'home', level:1, score:0, combo:0, timer:180, mistakes:0,
+      selectedTileSet:'sports', hints:3, shuffles:2, status:'playing', selectedId:null,
+      tiles:[], hinted:new Set(), wrong:new Set(), tick:null,
+      prefs:{ music:true, sound:true }
+    };
+
+    function loadPrefs(){
+      try{ state.prefs = {...state.prefs, ...(JSON.parse(localStorage.getItem(PREF_KEY))||{})}; }catch{}
+      state.selectedTileSet = state.prefs.tileSet || 'sports';
+      updateSettingsButtons();
+    }
+    function savePrefs(){
+      localStorage.setItem(PREF_KEY, JSON.stringify({...state.prefs, tileSet:state.selectedTileSet}));
+    }
+
+    function ruleForLevel(level){ return rules[(level-1)%6]; }
+    function tileSet(){ return tileSets.find(t=>t.id===state.selectedTileSet) || tileSets[0]; }
+    function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function fmtTime(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+    function initTileSets(){
+      $('tileSetRow').innerHTML = '';
+      tileSets.forEach(set=>{
+        const btn = document.createElement('button');
+        btn.className = 'tile-set-card' + (set.id===state.selectedTileSet?' selected':'');
+        btn.innerHTML = `<div class="set-icons">${set.symbols.slice(0,4).map(s=>`<span>${s}</span>`).join('')}</div><div class="set-name">${set.name}</div>`;
+        btn.style.background = `linear-gradient(135deg,${set.colors[0]}88,${set.colors[1]}66)`;
+        btn.onclick = () => { state.selectedTileSet=set.id; savePrefs(); initTileSets(); };
+        $('tileSetRow').appendChild(btn);
+      });
+    }
+
+    function hasSave(){ return !!localStorage.getItem(SAVE_KEY); }
+    function updateHomeButtons(){
+      const saved = hasSave();
+      $('continueBtn').classList.toggle('hidden', !saved);
+      $('newGameBtn').classList.toggle('hidden', !saved);
+      $('playBtn').classList.toggle('hidden', saved);
+    }
+
+    function makeTiles(){
+      const set = tileSet();
+      const pairs = TILE_COUNT/2;
+      const symbols=[];
+      for(let i=0;i<pairs;i++){ const s=set.symbols[i%set.symbols.length]; symbols.push(s,s); }
+      shuffle(symbols);
+      state.tiles = symbols.map((symbol,position)=>({ id:uid(), symbol, position, matched:false }));
+    }
+
+    function startNewGame(){
+      state.level=1; state.score=0;
+      startLevel(true);
+    }
+    function quickGame(){
+      state.selectedTileSet = tileSets[Math.floor(Math.random()*tileSets.length)].id;
+      savePrefs(); initTileSets(); startNewGame();
+    }
+    function startLevel(reset){
+      if(reset) state.score=0;
+      state.combo=0; state.mistakes=0; state.timer=Math.max(120,210-Math.min(state.level,12)*5);
+      state.hints=3; state.shuffles=2; state.status='playing'; state.selectedId=null; state.hinted.clear(); state.wrong.clear();
+      makeTiles(); showGame(); saveGame(); showRuleIntro();
+    }
+    function retryLevel(){ startLevel(false); }
+    function nextLevel(){ state.level++; startLevel(false); }
+
+    function saveGame(){
+      if(state.screen!=='game') return;
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        level:state.level, score:state.score, combo:state.combo, timer:state.timer, mistakes:state.mistakes,
+        selectedTileSet:state.selectedTileSet, hints:state.hints, shuffles:state.shuffles, status:state.status, tiles:state.tiles
+      }));
+      updateHomeButtons();
+    }
+    function continueGame(){
+      try{
+        const s = JSON.parse(localStorage.getItem(SAVE_KEY));
+        Object.assign(state, s);
+        state.hinted = new Set(); state.wrong = new Set(); state.selectedId=null;
+        showGame();
+      }catch{ startNewGame(); }
+    }
+
+    function showHome(){
+      state.screen='home'; stopTimer(); updateHomeButtons(); initTileSets();
+      $('homeScreen').classList.remove('hidden'); $('gameScreen').classList.add('hidden'); $('completeScreen').classList.add('hidden');
+      $('pauseOverlay').classList.add('hidden');
+    }
+    function showGame(){
+      state.screen='game';
+      $('homeScreen').classList.add('hidden'); $('gameScreen').classList.remove('hidden'); $('completeScreen').classList.add('hidden');
+      $('pauseOverlay').classList.add('hidden');
+      resizeBoard(); render(); startTimer();
+    }
+    function showComplete(){
+      stopTimer(); localStorage.removeItem(SAVE_KEY); updateHomeButtons(); state.screen='complete';
+      $('completeMsg').textContent = `Level ${state.level} complete • Final score ${state.score}`;
+      $('completeScreen').classList.remove('hidden');
+    }
+
+    function render(){
+      const rule = ruleForLevel(state.level);
+      $('levelText').textContent = state.level;
+      $('timeText').textContent = fmtTime(state.timer);
+      $('scoreText').textContent = state.score;
+      $('comboText').textContent = `×${state.combo}`;
+      $('hintText').textContent = state.hints;
+      $('shuffleText').textContent = state.shuffles;
+      $('ruleTitle').textContent = rule.title;
+      $('ruleSubtitle').textContent = rule.subtitle;
+
+      const set = tileSet();
+      document.documentElement.style.setProperty('--tile1', set.colors[0]);
+      document.documentElement.style.setProperty('--tile2', set.colors[1]);
+
+      const board = $('board'); board.innerHTML = '';
+      for(let pos=0; pos<TILE_COUNT; pos++){
+        const slot = document.createElement('div'); slot.className='tile-slot';
+        const tile = state.tiles.find(t=>t.position===pos && !t.matched);
+        if(tile){
+          const btn = document.createElement('button');
+          btn.className = 'tile';
+          if(state.selectedId===tile.id) btn.classList.add('selected');
+          if(state.hinted.has(tile.id)) btn.classList.add('hinted');
+          if(state.wrong.has(tile.id)) btn.classList.add('wrong');
+          btn.textContent = tile.symbol;
+          btn.onclick = () => tapTile(tile.id);
+          slot.appendChild(btn);
+        }
+        board.appendChild(slot);
+      }
+    }
+
+    function tapTile(id){
+      if(state.status!=='playing') return;
+      state.hinted.clear();
+      if(state.selectedId===id){ state.selectedId=null; render(); return; }
+      if(!state.selectedId){ state.selectedId=id; render(); return; }
+      const first = state.tiles.find(t=>t.id===state.selectedId && !t.matched);
+      const second = state.tiles.find(t=>t.id===id && !t.matched);
+      if(!first || !second){ state.selectedId=id; render(); return; }
+      if(first.symbol===second.symbol){
+        state.combo += 1;
+        state.score += 100 + ((state.combo-1)*20);
+        first.matched = true; second.matched = true;
+        state.selectedId = null;
+        applyMovement();
+        render();
+        if(state.tiles.every(t=>t.matched)){
+          state.score += state.timer*5;
+          setTimeout(showComplete, 250);
+        }else saveGame();
+      }else{
+        state.mistakes += 1; state.combo=0; state.score=Math.max(0,state.score-25);
+        state.wrong = new Set([first.id, second.id]); state.selectedId=null; render();
+        setTimeout(()=>{ state.wrong.clear(); render(); saveGame(); }, 320);
+      }
+    }
+
+    function boardArray(){
+      const b = Array(TILE_COUNT).fill(null);
+      state.tiles.forEach(t=>{ if(!t.matched) b[t.position]=t; });
+      return b;
+    }
+    function applyMovement(){
+      const rule = ruleForLevel(state.level).dir;
+      let b = boardArray();
+      if(rule==='down' || rule==='up') compactColumns(b, rule==='down');
+      else if(rule==='left' || rule==='right') compactRows(b, rule==='right');
+      else if(rule==='center') compactCenter(b);
+      else return;
+      b.forEach((t,pos)=>{ if(t) t.position=pos; });
+    }
+    function compactColumns(b, reversed){
+      for(let c=0;c<COLS;c++){
+        const rows = [...Array(ROWS).keys()]; if(reversed) rows.reverse();
+        const active = rows.map(r=>b[r*COLS+c]).filter(Boolean);
+        for(let r=0;r<ROWS;r++) b[r*COLS+c]=null;
+        active.forEach((t,i)=>{ const r = reversed ? ROWS-1-i : i; b[r*COLS+c]=t; });
+      }
+    }
+    function compactRows(b, reversed){
+      for(let r=0;r<ROWS;r++){
+        const cols = [...Array(COLS).keys()]; if(reversed) cols.reverse();
+        const active = cols.map(c=>b[r*COLS+c]).filter(Boolean);
+        for(let c=0;c<COLS;c++) b[r*COLS+c]=null;
+        active.forEach((t,i)=>{ const c = reversed ? COLS-1-i : i; b[r*COLS+c]=t; });
+      }
+    }
+    function compactCenter(b){
+      for(let r=0;r<ROWS;r++){
+        const left = [...Array(COLS/2).keys()].reverse().map(c=>b[r*COLS+c]).filter(Boolean);
+        const right = [...Array(COLS/2).keys()].map(i=>i+COLS/2).map(c=>b[r*COLS+c]).filter(Boolean);
+        for(let c=0;c<COLS;c++) b[r*COLS+c]=null;
+        left.forEach((t,i)=>{ b[r*COLS+(COLS/2-1-i)]=t; });
+        right.forEach((t,i)=>{ b[r*COLS+(COLS/2+i)]=t; });
+      }
+    }
+
+    function useHint(){
+      if(state.hints<=0 || state.status!=='playing') return;
+      const active = state.tiles.filter(t=>!t.matched);
+      for(let i=0;i<active.length;i++){
+        for(let j=i+1;j<active.length;j++){
+          if(active[i].symbol===active[j].symbol){
+            state.hints--; state.score=Math.max(0,state.score-50); state.hinted=new Set([active[i].id,active[j].id]); render(); saveGame(); return;
+          }
+        }
+      }
+    }
+    function shuffleRemaining(){
+      if(state.shuffles<=0 || state.status!=='playing') return;
+      state.shuffles--; state.score=Math.max(0,state.score-100);
+      const active = state.tiles.filter(t=>!t.matched);
+      const symbols = shuffle(active.map(t=>t.symbol));
+      active.forEach((t,i)=>t.symbol=symbols[i]);
+      state.selectedId=null; state.hinted.clear(); render(); saveGame();
+    }
+
+    function startTimer(){
+      stopTimer();
+      state.tick = setInterval(()=>{
+        if(state.screen==='game' && state.status==='playing'){
+          state.timer = Math.max(0,state.timer-1);
+          if(state.timer===0){ timeUp(); }
+          render(); saveGame();
+        }
+      },1000);
+    }
+    function stopTimer(){ if(state.tick){ clearInterval(state.tick); state.tick=null; } }
+    function pause(){ state.status='paused'; $('pauseTitle').textContent='PAUSED'; $('pauseCopy').textContent='The timer is stopped. Continue when ready.'; $('resumeBtn').classList.remove('hidden'); $('pauseOverlay').classList.remove('hidden'); render(); saveGame(); }
+    function resume(){ state.status='playing'; $('pauseOverlay').classList.add('hidden'); render(); saveGame(); }
+    function timeUp(){ state.status='timeUp'; $('pauseTitle').textContent='TIME UP'; $('pauseCopy').textContent='Retry the level or head home.'; $('resumeBtn').classList.add('hidden'); $('pauseOverlay').classList.remove('hidden'); saveGame(); }
+
+    function resizeBoard(){
+      if(state.screen!=='game') return;
+      const game = $('gameScreen');
+      const hud = game.querySelector('.hud');
+      const actions = game.querySelector('.actions');
+      const padX = 20 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeLeft')) || 0);
+      const availableW = window.innerWidth - 24;
+      const availableH = window.innerHeight - hud.offsetHeight - actions.offsetHeight - 28;
+      const gap = (window.innerWidth < 760 || window.innerHeight < 390) ? 2 : (window.innerWidth > 1000 ? 5 : 4);
+      const framePad = (window.innerWidth < 760 || window.innerHeight < 390) ? 20 : 30;
+      const tileByW = (availableW - framePad - gap*(COLS-1) - 12) / COLS;
+      const tileByH = (availableH - framePad - gap*(ROWS-1) - 12) / ROWS;
+      const tile = Math.max(28, Math.floor(Math.min(tileByW, tileByH)));
+      document.documentElement.style.setProperty('--gridGap', `${gap}px`);
+      document.documentElement.style.setProperty('--tileSize', `${tile}px`);
+    }
+
+    function showRuleIntro(){
+      const r = ruleForLevel(state.level);
+      $('ruleIntroTitle').textContent = `Level ${state.level} — ${r.title}`;
+      $('ruleIntroSubtitle').textContent = r.subtitle;
+      $('ruleIntro').classList.remove('hidden');
+      setTimeout(()=>$('ruleIntro').classList.add('hidden'), 1300);
+    }
+
+    function updateSettingsButtons(){
+      $('musicBtn').textContent = `Music: ${state.prefs.music ? 'On' : 'Off'}`;
+      $('soundBtn').textContent = `Sound: ${state.prefs.sound ? 'On' : 'Off'}`;
+    }
+    function openSettings(){ updateSettingsButtons(); $('settingsOverlay').classList.remove('hidden'); }
+    function closeSettings(){ $('settingsOverlay').classList.add('hidden'); }
+
+    function bind(){
+      $('playBtn').onclick = startNewGame;
+      $('newGameBtn').onclick = startNewGame;
+      $('continueBtn').onclick = continueGame;
+      $('quickGameBtn').onclick = quickGame;
+      $('homeBtn').onclick = showHome;
+      $('completeHomeBtn').onclick = showHome;
+      $('pauseHomeBtn').onclick = showHome;
+      $('hintBtn').onclick = useHint;
+      $('shuffleBtn').onclick = shuffleRemaining;
+      $('pauseBtn').onclick = pause;
+      $('resumeBtn').onclick = resume;
+      $('restartBtn').onclick = retryLevel;
+      $('pauseNewGameBtn').onclick = startNewGame;
+      $('nextLevelBtn').onclick = nextLevel;
+      $('replayBtn').onclick = retryLevel;
+      $('settingsHomeBtn').onclick = openSettings;
+      $('settingsGameBtn').onclick = openSettings;
+      $('settingsCloseBtn').onclick = closeSettings;
+      $('musicBtn').onclick = () => { state.prefs.music=!state.prefs.music; savePrefs(); updateSettingsButtons(); };
+      $('soundBtn').onclick = () => { state.prefs.sound=!state.prefs.sound; savePrefs(); updateSettingsButtons(); };
+      $('resetBtn').onclick = () => { localStorage.removeItem(SAVE_KEY); updateHomeButtons(); closeSettings(); };
+      window.addEventListener('resize', () => { resizeBoard(); render(); });
+      window.addEventListener('orientationchange', () => setTimeout(()=>{ resizeBoard(); render(); }, 250));
+    }
+
+    loadPrefs(); bind(); initTileSets(); updateHomeButtons(); showHome();
+  </script>
+</body>
+</html>
