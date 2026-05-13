@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Pocket Match Cartridge</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient"></div>
+  <div class="scanline"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-dot"></span>POCKET<span>MATCH</span></div>
+      <div class="hud-pill">LV <strong id="level">01</strong></div>
+      <div class="hud-pill rule-pill">RULE <span class="rule-tag" id="ruleTag">NORMAL</span></div>
+      <button id="hintBtn" class="hud-btn"><span>⌕</span><strong id="hintCount">05</strong></button>
+      <button id="shuffleBtn" class="hud-btn"><span>⇄</span><strong id="shuffleCount">05</strong></button>
+      <div class="timer-panel">
+        <div class="timer-rail"><div id="timerBar" class="timer-bar"></div></div>
+        <div id="timerText" class="timer-text">08:00</div>
+      </div>
+      <div class="score-panel"><span>SCORE</span><strong id="score">0</strong></div>
+      <button id="themeBtn" class="theme-btn" title="Change Theme" aria-label="Change Theme">◈</button>
+      <button id="musicBtn" class="audio-btn" title="Sound On/Off" aria-label="Sound On/Off">♪</button>
+      <button id="saveBtn" class="audio-btn save-btn" title="Quick Save" aria-label="Quick Save">💾</button>
+      <button id="pauseBtn" class="audio-btn pause-btn" title="Pause" aria-label="Pause"><span class="pause-icon" aria-hidden="true"></span></button>
+    </header>
+
+    <main class="game-area">
+      <div class="board-frame">
+        <div class="board-header">
+          <span id="boardInfo">MATCHES: --</span>
+          <span id="moveStatus">SYSTEM READY</span>
+        </div>
+        <div class="board-wrap">
+          <canvas id="pathCanvas"></canvas>
+          <div id="board" class="board"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="themePicker" class="theme-picker hidden">
+    <div class="theme-picker-label">Select Theme</div>
+    <div class="theme-option active" data-theme="arcade">
+      <div class="theme-dots">
+        <div class="theme-dot" style="background:#171622"></div>
+        <div class="theme-dot" style="background:#a66cff"></div>
+        <div class="theme-dot" style="background:#ff4ff3"></div>
+      </div>
+      <span class="theme-name">NEON ARCADE</span>
+    </div>
+    <div class="theme-option" data-theme="ocean">
+      <div class="theme-dots">
+        <div class="theme-dot" style="background:#04182a"></div>
+        <div class="theme-dot" style="background:#7de8d8"></div>
+        <div class="theme-dot" style="background:#f0c060"></div>
+      </div>
+      <span class="theme-name">DEEP OCEAN</span>
+    </div>
+    <div class="theme-option" data-theme="obsidian">
+      <div class="theme-dots">
+        <div class="theme-dot" style="background:#0e0e0e"></div>
+        <div class="theme-dot" style="background:#c8a84a"></div>
+        <div class="theme-dot" style="background:#e8d090"></div>
+      </div>
+      <span class="theme-name">OBSIDIAN GOLD</span>
+    </div>
+    <div class="theme-option" data-theme="cyber">
+      <div class="theme-dots">
+        <div class="theme-dot" style="background:#080c14"></div>
+        <div class="theme-dot" style="background:#40c8f0"></div>
+        <div class="theme-dot" style="background:#80e8ff"></div>
+      </div>
+      <span class="theme-name">CYBER SLATE</span>
+    </div>
+    <div class="theme-option" data-theme="amethyst">
+      <div class="theme-dots">
+        <div class="theme-dot" style="background:#08060e"></div>
+        <div class="theme-dot" style="background:#c890f8"></div>
+        <div class="theme-dot" style="background:#e8c8ff"></div>
+      </div>
+      <span class="theme-name">VOID AMETHYST</span>
+    </div>
+  </div>
+  <section id="overlay" class="overlay">
+    <div class="modal start-modal">
+      <div class="modal-kicker">RETRO CARTRIDGE SYSTEM</div>
+      <h1>Pocket <span>Match</span></h1>
+      <p>Match pairs. Make clean paths. Beat the clock.</p>
+      <div class="sprite-select">
+        <div class="sprite-select-label"><span>Theme</span></div>
+        <div class="sprite-options" id="spriteOptions">
+          <button type="button" class="sprite-option active" data-set="original"><img class="sprite-icon sprite-icon-img" src="assets/sprites/original/pokemon-card-icon.png" alt="Pokémon icon"><span class="sprite-name">Pokémon</span><span class="sprite-save-pill">NEW</span></button>
+          <button type="button" class="sprite-option" data-set="foodies"><span class="sprite-icon">🍔</span><span class="sprite-name">Foodies</span><span class="sprite-save-pill">NEW</span></button>
+          <button type="button" class="sprite-option" data-set="gadgets"><span class="sprite-icon">🎮</span><span class="sprite-name">Gadgets</span><span class="sprite-save-pill">NEW</span></button>
+          <button type="button" class="sprite-option" data-set="sports"><span class="sprite-icon">🏆</span><span class="sprite-name">Sports</span><span class="sprite-save-pill">NEW</span></button>
+          <button type="button" class="sprite-option" data-set="home"><span class="sprite-icon">🏠</span><span class="sprite-name">Home</span><span class="sprite-save-pill">NEW</span></button>
+        </div>
+      </div>
+      <div id="savedSlot" class="saved-slot selected-run-info">
+        <div class="saved-slot-card">
+          <div class="saved-slot-info">
+            <span class="saved-slot-label">Selected Run</span>
+            <div class="saved-slot-details">
+              <span id="saveLevel">—</span>
+              <span class="saved-slot-sep">·</span>
+              <span id="saveScore">—</span>
+            </div>
+          </div>
+          <div class="saved-slot-info">
+            <span class="saved-slot-label">Last Saved</span>
+            <div class="saved-slot-details">
+              <span id="saveDate">—</span>
+              <button id="deleteSaveBtn" class="delete-save-btn" title="Delete selected saved game">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="start-actions action-grid">
+        <button id="continueFromSaveBtn" class="start-btn action-btn continue-action" type="button">Continue</button>
+        <button id="startBtn" class="start-btn action-btn primary-action" type="button">New Game</button>
+        <button id="quickGameBtn" class="start-btn action-btn quick-action" type="button">Quick Game</button>
+      </div>
+    </div>
+  </section>
+  <section id="newGameConfirmOverlay" class="overlay hidden">
+    <div class="modal save-modal confirm-modal">
+      <div class="modal-kicker">SAVE SLOT WARNING</div>
+      <h1>Start New Game?</h1>
+      <p id="newGameConfirmMsg">This will delete the saved progress for the selected tile set.</p>
+      <div class="popup-actions">
+        <button id="cancelNewGameBtn" class="modal-btn secondary" type="button">Cancel</button>
+        <button id="confirmNewGameBtn" class="modal-btn primary" type="button">Start New Game</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="saveOverlay" class="overlay hidden">
+    <div class="modal save-modal">
+      <div class="modal-kicker">CARTRIDGE SAVE</div>
+      <h1>Game Saved</h1>
+      <p id="saveMsg">Progress saved — continue any time from the main screen.</p>
+      <div class="popup-actions">
+        <button id="saveOkBtn" class="modal-btn primary" type="button">OK</button>
+      </div>
+    </div>
+  </section>
+  <section id="pauseOverlay" class="overlay pause-overlay hidden">
+    <div class="modal pause-modal">
+      <div class="modal-kicker">GAME PAUSED</div>
+      <h1>Paused</h1>
+      <p>The timer is stopped. Press continue to return to the match matrix.</p>
+      <div class="popup-actions">
+        <button id="continueBtn" class="modal-btn primary" type="button">Continue</button>
+        <button id="saveFromPauseBtn" class="modal-btn secondary" type="button">Save &amp; Quit</button>
+      </div>
+    </div>
+  </section>
+  <section id="levelCompleteOverlay" class="overlay hidden">
+    <div class="modal level-modal">
+      <div class="modal-kicker" id="lcKicker">LEVEL COMPLETE</div>
+      <h1 id="lcTitle">Level 01</h1>
+      <div class="lc-stats">
+        <div class="lc-stat-row">
+          <span class="lc-label">MOVEMENT RULE</span>
+          <span class="lc-value" id="lcRule">—</span>
+        </div>
+        <div class="lc-stat-row">
+          <span class="lc-label">TIME REMAINING</span>
+          <span class="lc-value" id="lcTime">—</span>
+        </div>
+        <div class="lc-stat-row">
+          <span class="lc-label">LEVEL SCORE</span>
+          <span class="lc-value" id="lcLevelScore">—</span>
+        </div>
+        <div class="lc-stat-row">
+          <span class="lc-label">TOTAL SCORE</span>
+          <span class="lc-value" id="lcTotalScore">—</span>
+        </div>
+        <div class="lc-stat-row lc-next-rule-row">
+          <span class="lc-label">NEXT LEVEL RULE</span>
+          <span class="lc-value lc-next-rule" id="lcNextRule">—</span>
+        </div>
+      </div>
+      <button id="nextLevelBtn" class="start-btn next-btn">Next Level →</button>
+    </div>
+  </section>
+  <section id="gameOverOverlay" class="overlay hidden">
+    <div class="modal level-modal">
+      <div class="modal-kicker">TIME LIMIT REACHED</div>
+      <h1>GAME OVER</h1>
+      <p>Time is up! Start a new game and try to beat your score.</p>
+      <div class="lc-stats">
+        <div class="lc-stat-row">
+          <span class="lc-label">LEVEL REACHED</span>
+          <span class="lc-value" id="goLevel">—</span>
+        </div>
+        <div class="lc-stat-row">
+          <span class="lc-label">FINAL SCORE</span>
+          <span class="lc-value" id="goScore">—</span>
+        </div>
+        <div class="lc-stat-row">
+          <span class="lc-label">MOVEMENT RULE</span>
+          <span class="lc-value" id="goRule">—</span>
+        </div>
+      </div>
+      <button id="gameOverNewGameBtn" class="start-btn next-btn">New Game</button>
+    </div>
+  </section>
+
+  <script src="game.js"></script>
+</body>
+</html>
