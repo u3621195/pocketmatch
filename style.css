@@ -1558,3 +1558,130 @@ body{background:
   #overlay .selected-run-info{width:min(78%,620px);margin-bottom:8px;}
   #overlay .selected-run-info .saved-slot-card{padding:6px 12px;}
 }
+
+
+/* v1.2.3 iPhone PWA start-screen patch
+   - keep the Pokémon card icon self-contained
+   - restore stronger visual size for tile-set cards on iPhone
+   - allow landscape start screen to scroll instead of clipping the bottom */
+#overlay .sprite-option .sprite-icon,
+#overlay .sprite-option .sprite-icon-img{
+  flex:0 0 auto;
+}
+#overlay .sprite-option .sprite-icon-img{
+  object-fit:contain;
+  image-rendering:auto;
+}
+
+@media (max-width: 600px) and (orientation: portrait){
+  #overlay{
+    align-items:flex-start !important;
+    overflow-y:auto !important;
+  }
+  #overlay .start-modal{
+    max-height:none !important;
+    overflow:visible !important;
+    margin:0 auto 18px !important;
+  }
+  #overlay .sprite-options{
+    gap:10px !important;
+  }
+  #overlay .sprite-option{
+    min-height:122px !important;
+    padding:12px 8px 10px !important;
+    gap:7px !important;
+  }
+  #overlay .sprite-option .sprite-icon{
+    font-size:42px !important;
+  }
+  #overlay .sprite-option .sprite-icon-img{
+    width:46px !important;
+    height:46px !important;
+  }
+  #overlay .sprite-option[data-set="original"] .sprite-icon-img{
+    width:58px !important;
+    height:58px !important;
+  }
+  #overlay .sprite-option .sprite-name{
+    font-size:12px !important;
+    letter-spacing:.055em !important;
+  }
+  #overlay .sprite-option .sprite-save-pill{
+    min-height:20px !important;
+    min-width:48px !important;
+    font-size:9px !important;
+    padding:3px 10px !important;
+  }
+}
+
+@media (max-width: 950px) and (orientation: landscape){
+  #overlay{
+    align-items:flex-start !important;
+    justify-content:center !important;
+    height:100dvh !important;
+    min-height:100dvh !important;
+    overflow-y:auto !important;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(28px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left)) !important;
+  }
+  #overlay .start-modal{
+    width:min(96vw,760px) !important;
+    max-height:none !important;
+    overflow:visible !important;
+    margin:0 auto 28px !important;
+    padding:10px 20px 16px !important;
+  }
+  #overlay .start-modal h1{
+    font-size:clamp(34px,6.6vw,56px) !important;
+  }
+  #overlay .sprite-select{
+    max-width:650px !important;
+    margin-bottom:8px !important;
+  }
+  #overlay .sprite-options{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+  #overlay .sprite-option{
+    min-height:108px !important;
+    padding:9px 6px 8px !important;
+    gap:5px !important;
+    border-radius:11px !important;
+  }
+  #overlay .sprite-option .sprite-icon{
+    font-size:34px !important;
+  }
+  #overlay .sprite-option .sprite-icon-img{
+    width:38px !important;
+    height:38px !important;
+  }
+  #overlay .sprite-option[data-set="original"] .sprite-icon-img{
+    width:48px !important;
+    height:48px !important;
+  }
+  #overlay .sprite-option .sprite-name{
+    font-size:9px !important;
+    letter-spacing:.055em !important;
+  }
+  #overlay .sprite-option .sprite-save-pill{
+    min-height:18px !important;
+    min-width:44px !important;
+    font-size:8px !important;
+    padding:3px 8px !important;
+  }
+  #overlay .selected-run-info{
+    width:min(82%,650px) !important;
+    margin-bottom:8px !important;
+  }
+  #overlay .action-grid{
+    width:min(82%,650px) !important;
+    gap:9px !important;
+  }
+  #overlay .action-btn{
+    min-height:44px !important;
+    font-size:13px !important;
+  }
+}
