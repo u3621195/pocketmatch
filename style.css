@@ -1685,3 +1685,182 @@ body{background:
     font-size:13px !important;
   }
 }
+
+/* v1.2.4 Gameplay layout + popup polish */
+.hidden{display:none!important}
+.removed-control{display:none!important}
+
+/* Desktop gameplay top bar cleanup */
+.topbar{
+  grid-template-columns:auto auto auto auto auto auto auto auto;
+  gap:10px;
+}
+.timer-panel{display:contents;min-width:0}
+.timer-rail{display:none!important}
+.timer-text{
+  min-width:76px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  padding:0 12px;
+  border-radius:10px;
+  border:3px solid var(--lcd-border);
+  background:var(--lcd-bg);
+  color:var(--lcd-color);
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:.03em;
+}
+.audio-btn{width:46px;height:46px;min-height:46px}
+#musicBtn{font-size:24px}
+#musicBtn::before{content:""}
+#musicBtn[aria-label]{line-height:1}
+
+/* Slimmer board frame + integrated board time meter */
+.board-frame{
+  padding:10px 12px 10px!important;
+  border-width:3px!important;
+  border-radius:24px!important;
+  box-shadow:inset 0 3px 0 var(--frame-sh1),inset 0 -5px 0 var(--frame-sh2),0 12px 0 var(--frame-sh3),0 0 34px var(--frame-glow)!important;
+}
+.board-header{
+  height:24px;
+  padding:0 8px 5px;
+  font-size:12px;
+}
+.board-time-meter{
+  height:9px;
+  width:calc(100% - 28px);
+  margin:0 auto 7px;
+  padding:2px;
+  border:2px solid var(--timer-border);
+  border-radius:999px;
+  background:linear-gradient(180deg,#1e1d2d,var(--timer-bg));
+  box-shadow:inset 0 2px 2px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.22);
+  overflow:hidden;
+}
+.board-time-bar{
+  width:100%;height:100%;border-radius:999px;
+  background:repeating-linear-gradient(90deg,var(--timer-bar2) 0 18px,var(--timer-bar1) 18px 28px);
+  box-shadow:0 0 12px rgba(183,224,124,.38);
+  transition:width .22s linear,filter .18s ease;
+}
+.low-time .board-time-bar{animation:timeMeterPulse .55s infinite alternate}
+.low-time .timer-text{animation:timerTextPulse .55s infinite alternate}
+.low-time .board-frame{animation:none!important}
+@keyframes timeMeterPulse{
+  from{filter:brightness(1);box-shadow:0 0 10px rgba(183,224,124,.38)}
+  to{filter:brightness(1.65);box-shadow:0 0 24px var(--danger-glow),0 0 10px rgba(255,255,255,.42)}
+}
+@keyframes timerTextPulse{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.35);box-shadow:0 0 14px var(--danger-glow)}
+}
+
+/* Compact popup dialogs */
+.modal:not(.start-modal){
+  width:min(90vw,520px)!important;
+  padding:26px 26px 22px!important;
+  border-width:3px!important;
+  border-radius:22px!important;
+  box-shadow:inset 0 3px 0 var(--modal-sh1),0 12px 0 var(--modal-sh2)!important;
+}
+.modal:not(.start-modal)::before{inset:8px!important;border-radius:15px!important}
+.modal:not(.start-modal) .modal-kicker,.modal:not(.start-modal).modal-kicker{font-size:9px!important;margin-bottom:9px!important;letter-spacing:.28em!important}
+.modal:not(.start-modal) h1{font-size:clamp(32px,4.2vw,44px)!important;letter-spacing:-.035em!important;margin-bottom:10px!important}
+.modal:not(.start-modal) p{font-size:15px!important;line-height:1.42!important;margin-bottom:16px!important;max-width:420px!important}
+.popup-actions{gap:10px!important;max-width:420px!important}
+.modal-btn{
+  min-height:52px!important;
+  border-radius:12px!important;
+  border-width:2.5px!important;
+  font-size:clamp(15px,2.2vw,19px)!important;
+  letter-spacing:.11em!important;
+  gap:12px!important;
+}
+.modal-btn:before{width:30px!important;height:30px!important;border-radius:7px!important;font-size:15px!important}
+.confirm-modal .popup-actions{grid-template-columns:1fr 1fr;max-width:440px!important}
+.save-modal{width:min(90vw,480px)!important}
+.level-modal{width:min(90vw,500px)!important;padding:24px 24px 20px!important}
+
+/* iPad portrait: compact tablet layout */
+@media (min-width:601px) and (max-width:1100px) and (orientation:portrait){
+  html,body{height:100dvh;overflow:hidden}
+  .app-shell{height:100dvh;padding:10px;display:grid;grid-template-rows:auto 1fr;gap:10px}
+  .topbar{width:100%;grid-template-columns:auto auto auto auto auto auto auto;gap:7px;padding:7px 10px;min-height:54px;border-radius:18px 18px 9px 9px}
+  .brand{display:none}
+  .hud-pill,.hud-btn{min-height:38px;padding:4px 10px}
+  .timer-text{height:38px;min-width:68px;font-size:18px;border-width:2px}
+  .score-panel{min-height:38px;min-width:82px;padding:4px 10px}
+  .score-panel strong{font-size:20px}
+  .audio-btn{width:40px;height:40px;min-height:40px}
+  .game-area{min-height:0;padding:0}
+  .board-frame{width:100%;max-height:none;height:100%;display:flex;flex-direction:column}
+  .board-wrap{flex:1;min-height:0;overflow:hidden}
+  .board{max-width:100%;max-height:100%;width:100%;height:100%;aspect-ratio:auto}
+}
+
+/* iPhone gameplay: landscape-only board-first layout */
+@media (max-width:700px) and (orientation:portrait){
+  .app-shell::after{
+    content:"ROTATE TO PLAY\A Please turn your iPhone sideways.";
+    white-space:pre;
+    position:fixed;inset:0;z-index:8;
+    display:grid;place-items:center;text-align:center;
+    background:rgba(7,7,16,.88);color:#fff;
+    font-weight:800;letter-spacing:.08em;line-height:1.5;
+    pointer-events:none;
+  }
+  #overlay:not(.hidden) ~ .app-shell::after{display:none}
+}
+
+@media (max-width:950px) and (orientation:landscape){
+  html,body{height:100dvh;overflow:hidden}
+  .app-shell{
+    position:relative;height:100dvh;width:100vw;
+    padding:max(4px,env(safe-area-inset-top)) calc(70px + env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) calc(78px + env(safe-area-inset-left));
+    display:block;overflow:hidden;
+  }
+  .topbar{
+    position:fixed;inset:0;width:100vw;height:100dvh;z-index:6;
+    display:block;padding:0;border:0;background:transparent;box-shadow:none;pointer-events:none;
+  }
+  .topbar>*{pointer-events:auto}
+  .brand,.timer-panel{display:none!important}
+  #level{font-size:20px!important}
+  .hud-pill,.hud-btn,.score-panel,.audio-btn,.theme-btn{
+    position:fixed!important;margin:0!important;z-index:7;
+    border-width:2px!important;border-radius:12px!important;
+    box-shadow:inset 0 2px 0 var(--hud-sh1),inset 0 -3px 0 var(--hud-sh2),0 4px 0 rgba(0,0,0,.24)!important;
+  }
+  .hud-pill{left:calc(8px + env(safe-area-inset-left));width:62px;min-height:52px;padding:4px 6px;display:grid;place-items:center;text-align:center;font-size:8px;gap:2px}
+  .hud-pill strong{font-size:20px;padding:2px 6px}
+  .rule-pill{top:calc(70px + env(safe-area-inset-top));}
+  .hud-pill:not(.rule-pill){top:calc(8px + env(safe-area-inset-top));}
+  .rule-pill span.rule-tag{font-size:10px;padding:3px 5px;max-width:54px;white-space:normal;line-height:1.05}
+  .score-panel{right:calc(8px + env(safe-area-inset-right));top:calc(8px + env(safe-area-inset-top));width:62px;min-width:62px;min-height:52px;padding:4px 5px;text-align:center;align-items:center}
+  .score-panel span{font-size:7px}.score-panel strong{font-size:17px;line-height:1.05}
+  #hintBtn{right:calc(8px + env(safe-area-inset-right));top:calc(70px + env(safe-area-inset-top));width:62px;height:42px;display:flex;gap:4px;justify-content:center}
+  #shuffleBtn{right:calc(8px + env(safe-area-inset-right));top:calc(120px + env(safe-area-inset-top));width:62px;height:42px;display:flex;gap:4px;justify-content:center}
+  #hintBtn strong,#shuffleBtn strong{font-size:17px;padding:1px 5px}
+  #hintBtn span,#shuffleBtn span{font-size:13px}
+  #musicBtn{right:calc(8px + env(safe-area-inset-right));bottom:calc(58px + env(safe-area-inset-bottom));width:54px;height:46px;font-size:24px}
+  #pauseBtn{right:calc(8px + env(safe-area-inset-right));bottom:calc(6px + env(safe-area-inset-bottom));width:54px;height:46px}
+  .game-area{height:100%;width:100%;padding:0;display:flex;align-items:stretch;justify-content:center;min-height:0}
+  .board-frame{height:100%!important;width:100%!important;max-height:none!important;margin:0!important;padding:4px!important;border-width:2px!important;border-radius:14px!important;display:flex;flex-direction:column;box-shadow:inset 0 2px 0 var(--frame-sh1),inset 0 -3px 0 var(--frame-sh2),0 5px 0 var(--frame-sh3),0 0 18px var(--frame-glow)!important;overflow:hidden!important}
+  .board-header{height:14px;flex:0 0 14px;font-size:7px;padding:0 4px 1px;letter-spacing:.06em}
+  #boardInfo{font-size:7px;letter-spacing:.06em}
+  .board-time-meter{height:8px;width:calc(100% - 14px);margin:0 auto 3px;padding:1.5px;border-width:1.5px}
+  .board-wrap{flex:1 1 auto;min-height:0;width:100%;padding:3px;border-width:3px;border-radius:10px;overflow:hidden}
+  .board{width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto;gap:2px;padding:3px;border-radius:8px}
+  .tile{border-width:1.5px;border-radius:5px}
+  .tile:before{inset:3px;border-radius:4px}
+  .entity-sprite{width:88%;height:88%}
+  .theme-picker{display:none!important}
+  .modal:not(.start-modal){width:min(72vw,430px)!important;padding:18px 20px 16px!important;border-radius:18px!important}
+  .modal:not(.start-modal) h1{font-size:32px!important;margin-bottom:7px!important}
+  .modal:not(.start-modal) p{font-size:12px!important;margin-bottom:12px!important}
+  .popup-actions{gap:8px!important;max-width:360px!important}
+  .modal-btn{min-height:42px!important;font-size:14px!important;letter-spacing:.10em!important}
+  .modal-btn:before{width:26px!important;height:26px!important;font-size:13px!important}
+}

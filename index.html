@@ -22,9 +22,9 @@
         <div id="timerText" class="timer-text">08:00</div>
       </div>
       <div class="score-panel"><span>SCORE</span><strong id="score">0</strong></div>
-      <button id="themeBtn" class="theme-btn" title="Change Theme" aria-label="Change Theme">◈</button>
+      <button id="themeBtn" class="theme-btn removed-control" title="Change Theme" aria-label="Change Theme" hidden>◈</button>
       <button id="musicBtn" class="audio-btn" title="Sound On/Off" aria-label="Sound On/Off">♪</button>
-      <button id="saveBtn" class="audio-btn save-btn" title="Quick Save" aria-label="Quick Save">💾</button>
+      <button id="saveBtn" class="audio-btn save-btn removed-control" title="Quick Save" aria-label="Quick Save" hidden>💾</button>
       <button id="pauseBtn" class="audio-btn pause-btn" title="Pause" aria-label="Pause"><span class="pause-icon" aria-hidden="true"></span></button>
     </header>
 
@@ -34,6 +34,7 @@
           <span id="boardInfo">MATCHES: --</span>
           <span id="moveStatus">SYSTEM READY</span>
         </div>
+        <div class="board-time-meter" aria-hidden="true"><div id="boardTimerBar" class="board-time-bar"></div></div>
         <div class="board-wrap">
           <canvas id="pathCanvas"></canvas>
           <div id="board" class="board"></div>
@@ -132,7 +133,7 @@
       <p id="newGameConfirmMsg">This will delete the saved progress for the selected tile set.</p>
       <div class="popup-actions">
         <button id="cancelNewGameBtn" class="modal-btn secondary" type="button">Cancel</button>
-        <button id="confirmNewGameBtn" class="modal-btn primary" type="button">Start New Game</button>
+        <button id="confirmNewGameBtn" class="modal-btn primary" type="button">New Game</button>
       </div>
     </div>
   </section>
@@ -151,10 +152,12 @@
     <div class="modal pause-modal">
       <div class="modal-kicker">GAME PAUSED</div>
       <h1>Paused</h1>
-      <p>The timer is stopped. Press continue to return to the match matrix.</p>
-      <div class="popup-actions">
+      <p id="pauseMessage">The timer is stopped. Choose how you want to continue.</p>
+      <div class="popup-actions" id="pauseActions">
         <button id="continueBtn" class="modal-btn primary" type="button">Continue</button>
+        <button id="saveContinueBtn" class="modal-btn secondary" type="button">Save &amp; Continue</button>
         <button id="saveFromPauseBtn" class="modal-btn secondary" type="button">Save &amp; Quit</button>
+        <button id="endQuickGameBtn" class="modal-btn secondary hidden" type="button">End Quick Game</button>
       </div>
     </div>
   </section>

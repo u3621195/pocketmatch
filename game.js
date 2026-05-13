@@ -274,7 +274,7 @@ const overlay=$("overlay"),pauseOverlay=$("pauseOverlay"),levelCompleteOverlay=$
 const saveOverlay=$("saveOverlay");
 let saveOverlayAction="none";
 const appShell=document.querySelector(".app-shell");
-const levelEl=$("level"),scoreEl=$("score"),timerText=$("timerText"),timerBar=$("timerBar");
+const levelEl=$("level"),scoreEl=$("score"),timerText=$("timerText"),timerBar=$("timerBar"),boardTimerBar=$("boardTimerBar");
 const hintCountEl=$("hintCount"),shuffleCountEl=$("shuffleCount"),moveStatus=$("moveStatus");
 const boardInfoEl=$("boardInfo");
 const ruleTagEl=$("ruleTag");
@@ -442,6 +442,7 @@ function returnToTitleAfterSave(){
   pauseOverlay.classList.add("hidden");
   gameOverOverlay.classList.add("hidden");
   appShell.classList.remove("paused");
+  document.body.classList.remove("low-time");
   overlay.classList.remove("hidden");
   refreshSaveSlot();
 }
@@ -665,9 +666,11 @@ function clearPath(){ctx.clearRect(0,0,canvas.width,canvas.height)}
 function updateTimer(){
   let m=String(Math.floor(timeLeft/60)).padStart(2,"0"),s=String(timeLeft%60).padStart(2,"0");
   timerText.textContent=`${m}:${s}`;
-  timerBar.style.width=`${Math.max(0,timeLeft/TOTAL_TIME*100)}%`;
-  document.body.classList.toggle("low-time",timeLeft<=45);
-  if(timeLeft===45&&!timerWarned){timerWarned=true;sfx.warn();moveStatus.textContent="TIMER WARNING"}
+  const pct=Math.max(0,timeLeft/TOTAL_TIME*100);
+  if(timerBar)timerBar.style.width=`${pct}%`;
+  if(boardTimerBar)boardTimerBar.style.width=`${pct}%`;
+  document.body.classList.toggle("low-time",timeLeft<=60&&gameStarted&&!paused);
+  if(timeLeft===60&&!timerWarned){timerWarned=true;sfx.warn();moveStatus.textContent="ONE MINUTE LEFT"}
 }
 function startTimer(){
   clearInterval(timerId);
@@ -859,11 +862,65 @@ function continueFromSave(){
   moveStatus.textContent=`SAVE RESTORED  LV ${level}`;
 }
 
+function setupPauseModal(){
+  const kicker=document.querySelector('#pauseOverlay .modal-kicker');
+  const title=document.querySelector('#pauseOverlay h1');
+  const msg=$("pauseMessage");
+  const saveContinue=$("saveContinueBtn");
+  const saveQuit=$("saveFromPauseBtn");
+  const endQuick=$("endQuickGameBtn");
+  if(isQuickGame){
+    if(kicker)kicker.textContent="QUICK GAME PAUSED";
+    if(title)title.textContent="Quick Game Paused";
+    if(msg)msg.textContent="Quick Game is a single-session mode and will not save progress.";
+    saveContinue.classList.add("hidden");
+    saveQuit.classList.add("hidden");
+    endQuick.classList.remove("hidden");
+  }else{
+    if(kicker)kicker.textContent="GAME PAUSED";
+    if(title)title.textContent="Paused";
+    if(msg)msg.textContent="The timer is stopped. Choose how you want to continue.";
+    saveContinue.classList.remove("hidden");
+    saveQuit.classList.remove("hidden");
+    endQuick.classList.add("hidden");
+  }
+}
+
+function saveAndContinue(){
+  if(!gameStarted)return;
+  const ok=saveGame();
+  sfx.save();
+  if(ok){moveStatus.textContent="GAME SAVED";}
+  resumeGame();
+}
+
+function saveAndQuit(){
+  if(!gameStarted)return;
+  saveGame();
+  sfx.save();
+  returnToTitleAfterSave();
+}
+
+function endQuickGame(){
+  if(!isQuickGame){returnToTitleAfterSave();return;}
+  gameStarted=false;
+  paused=false;
+  clearInterval(timerId);
+  bgm.pause();bgm.currentTime=0;
+  pauseOverlay.classList.add("hidden");
+  appShell.classList.remove("paused");
+  document.body.classList.remove("low-time");
+  overlay.classList.remove("hidden");
+  refreshSaveSlot();
+}
+
 function pauseGame(){
   if(!gameStarted||paused)return;
   paused=true;clearInterval(timerId);clearSel();clearPath();
+  document.body.classList.remove("low-time");
   $("themePicker").classList.add("hidden");
   appShell.classList.add("paused");
+  setupPauseModal();
   pauseOverlay.classList.remove("hidden");
   moveStatus.textContent="GAME PAUSED";sfx.select()
 }
@@ -873,6 +930,7 @@ function resumeGame(){
   paused=false;
   pauseOverlay.classList.add("hidden");
   appShell.classList.remove("paused");
+  document.body.classList.toggle("low-time",timeLeft<=60&&gameStarted);
   moveStatus.textContent="SYSTEM ONLINE";sfx.level();startTimer();resizeCanvas()
 }
 
@@ -916,10 +974,20 @@ $("saveOkBtn").onclick=(e)=>{
     resumeGame();
   }
 };
+$("saveContinueBtn").onclick=(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  saveAndContinue();
+};
 $("saveFromPauseBtn").onclick=(e)=>{
   e.preventDefault();
   e.stopPropagation();
-  triggerSave(true);
+  saveAndQuit();
+};
+$("endQuickGameBtn").onclick=(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  endQuickGame();
 };
 
 // Start screen actions
