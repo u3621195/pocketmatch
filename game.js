@@ -1191,18 +1191,19 @@ function quitFromGameOver(){
 
 
 // ─────────────────────────────────────────────
-//  v1.3.16 START SCREEN HYBRID CAROUSEL
-//  Desktop: controlled circular carousel with arrows
-//  iPhone/iPad: native momentum scroll-snap carousel from V1.8 pattern
+//  v1.3.16  FINITE SCROLL-SNAP CAROUSEL
+//  Single unified approach for desktop + mobile.
+//  Layout: CSS flex scroll-snap (no absolute positioning, no JS transforms).
+//  JS responsibility: track active index, update is-center class,
+//  scroll active card into view, update dots, update arrow disabled state.
 // ─────────────────────────────────────────────
 let spriteCarouselIndex=0;
+let spriteCarouselScrollTimer=0;
+let spriteCarouselSuppressScroll=false;
 let spriteCarouselWheelLock=false;
 let spriteCarouselPointerStart=null;
 let spriteCarouselPointerMoved=false;
 let spriteCarouselResizeRAF=0;
-let spriteCarouselMode="controlled";
-let spriteCarouselScrollTimer=0;
-let spriteCarouselSuppressScroll=false;
 
 function baseSpriteOptions(){
   const el=$("spriteOptions");
@@ -1213,163 +1214,78 @@ function getSpriteCarouselIds(){
   return baseSpriteOptions().map(card=>card.dataset.set).filter(Boolean);
 }
 
-function useNativeSpriteCarousel(){
-  const hasTouch=("ontouchstart" in window)||(navigator.maxTouchPoints||0)>0||(window.matchMedia&&window.matchMedia("(pointer: coarse)").matches);
-  const isNarrow=window.matchMedia&&window.matchMedia("(max-width:950px)").matches;
-  // iPadOS can report itself as MacIntel when using desktop-class Safari.
-  const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&(navigator.maxTouchPoints||0)>1);
-  return !!(hasTouch&&(isNarrow||isiOS));
-}
-
-function applySpriteCarouselModeClass(){
-  const el=$("spriteOptions");
-  if(!el)return;
-  const native=spriteCarouselMode==="native";
-  el.classList.toggle("native-carousel",native);
-  el.classList.toggle("controlled-carousel",!native);
-  el.closest(".sprite-select")?.classList.toggle("native-carousel-wrap",native);
-}
-
-function getCircularOffset(i,active,n){
-  let offset=i-active;
-  const half=n/2;
-  if(offset>half)offset-=n;
-  if(offset<-half)offset+=n;
-  return offset;
-}
-
 function setupSpriteCarousel(){
   const el=$("spriteOptions");
   if(!el||el.dataset.carouselReady==="1")return;
-  el.querySelectorAll(".sprite-clone").forEach(node=>node.remove());
   el.dataset.carouselReady="1";
-  spriteCarouselMode=useNativeSpriteCarousel()?"native":"controlled";
-  applySpriteCarouselModeClass();
   buildSpriteCarouselDots();
 
   const ids=getSpriteCarouselIds();
   spriteCarouselIndex=Math.max(0,ids.indexOf(currentSpriteSetId));
 
+  // Arrow buttons
   const prev=$("spriteCarouselPrev");
   const next=$("spriteCarouselNext");
   if(prev)prev.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(-1,true);});
   if(next)next.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(1,true);});
 
-  el.addEventListener("wheel",handleSpriteCarouselWheel,{passive:false});
+  // Scroll → detect which card is centred after scrolling settles
   el.addEventListener("scroll",()=>{
-    if(spriteCarouselMode!=="native"||spriteCarouselSuppressScroll)return;
+    if(spriteCarouselSuppressScroll)return;
     window.clearTimeout(spriteCarouselScrollTimer);
-    spriteCarouselScrollTimer=window.setTimeout(selectNearestNativeCarouselCard,90);
+    spriteCarouselScrollTimer=window.setTimeout(selectNearestCarouselCard,90);
   },{passive:true});
 
+  // Mouse-wheel: step one card at a time
+  el.addEventListener("wheel",handleSpriteCarouselWheel,{passive:false});
+
+  // Re-centre on resize
   window.addEventListener("resize",()=>{
     if(spriteCarouselResizeRAF)return;
     spriteCarouselResizeRAF=requestAnimationFrame(()=>{
       spriteCarouselResizeRAF=0;
-      const newMode=useNativeSpriteCarousel()?"native":"controlled";
-      if(newMode!==spriteCarouselMode){
-        spriteCarouselMode=newMode;
-        applySpriteCarouselModeClass();
-      }
-      renderSpriteCarousel();
-      if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(spriteCarouselIndex,false);
+      scrollCarouselToIndex(spriteCarouselIndex,false);
     });
   },{passive:true});
 
   refreshSpriteSavePills();
   renderSpriteCarousel();
-  if(spriteCarouselMode==="native")setTimeout(()=>scrollNativeCarouselToIndex(spriteCarouselIndex,false),80);
+  // Defer first scroll so layout is complete
+  setTimeout(()=>scrollCarouselToIndex(spriteCarouselIndex,false),80);
   updateSpriteCarouselDots();
-}
-
-function getSpriteCarouselGeometry(cards){
-  const first=cards[0];
-  const cardW=first?(first.getBoundingClientRect().width||parseFloat(getComputedStyle(first).width)||178):178;
-  const isLandscape=window.matchMedia("(max-width:950px) and (orientation:landscape)").matches;
-  const isMobile=window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;
-  const isTablet=window.matchMedia("(min-width:601px) and (max-width:950px)").matches;
-  const gap=isLandscape?16:(isMobile||isTablet?22:28);
-  return {cardW,gap};
-}
-
-function getSpriteCarouselScaleForAbs(abs){
-  if(abs===0)return 1;
-  if(abs===1)return .925;
-  if(abs===2)return .85;
-  return .78;
-}
-
-function getSpriteCarouselXForOffset(offset,cards){
-  const {cardW,gap}=getSpriteCarouselGeometry(cards);
-  const dir=Math.sign(offset);
-  const steps=Math.abs(offset);
-  let x=0;
-  let previousScale=getSpriteCarouselScaleForAbs(0);
-  for(let k=1;k<=steps;k++){
-    const currentScale=getSpriteCarouselScaleForAbs(Math.min(k,3));
-    x+=(cardW*((previousScale+currentScale)/2))+gap;
-    previousScale=currentScale;
-  }
-  return dir*x;
 }
 
 function renderSpriteCarousel(){
   const cards=baseSpriteOptions();
   const n=cards.length;
   if(!n)return;
-  spriteCarouselIndex=((spriteCarouselIndex%n)+n)%n;
-
-  if(spriteCarouselMode==="native"){
-    cards.forEach((card,i)=>{
-      const isActive=i===spriteCarouselIndex;
-      card.style.removeProperty("--carousel-x");
-      card.style.removeProperty("--carousel-scale");
-      card.style.removeProperty("--carousel-opacity");
-      card.style.removeProperty("z-index");
-      card.classList.toggle("is-center",isActive);
-      card.classList.remove("is-near","is-far","is-hidden");
-      card.setAttribute("aria-hidden","false");
-      card.tabIndex=0;
-    });
-    updateSpriteCarouselDots();
-    return;
-  }
-
+  spriteCarouselIndex=Math.max(0,Math.min(spriteCarouselIndex,n-1));
   cards.forEach((card,i)=>{
-    const offset=getCircularOffset(i,spriteCarouselIndex,n);
-    const abs=Math.abs(offset);
-    const scale=getSpriteCarouselScaleForAbs(abs);
-    const opacity=abs===0?1:(abs===1?.82:(abs===2?.64:0));
-    card.dataset.carouselOffset=String(offset);
-    card.style.setProperty("--carousel-x",`${getSpriteCarouselXForOffset(offset,cards)}px`);
-    card.style.setProperty("--carousel-scale",String(scale));
-    card.style.setProperty("--carousel-opacity",String(opacity));
-    card.classList.toggle("is-center",offset===0);
-    card.classList.toggle("is-near",abs===1);
-    card.classList.toggle("is-far",abs===2);
-    card.classList.toggle("is-hidden",abs>2);
-    card.setAttribute("aria-hidden",abs>2?"true":"false");
-    card.tabIndex=abs>2?-1:0;
+    card.classList.toggle("is-center",i===spriteCarouselIndex);
   });
   updateSpriteCarouselDots();
+  updateCarouselArrows();
 }
 
-function scrollNativeCarouselToIndex(idx,smooth=true){
+function scrollCarouselToIndex(idx,smooth=true){
   const el=$("spriteOptions");
   const cards=baseSpriteOptions();
   const card=cards[idx];
   if(!el||!card)return;
-  const target=card.offsetLeft-(el.clientWidth-card.offsetWidth)/2;
   spriteCarouselSuppressScroll=true;
-  if(smooth&&typeof el.scrollTo==="function"){
-    el.scrollTo({left:target,behavior:"smooth"});
+  // Scroll so the card centre aligns with the container centre
+  const cardRect=card.getBoundingClientRect();
+  const containerRect=el.getBoundingClientRect();
+  const delta=(cardRect.left+cardRect.width/2)-(containerRect.left+containerRect.width/2);
+  if(smooth){
+    el.scrollTo({left:el.scrollLeft+delta,behavior:"smooth"});
   }else{
-    el.scrollLeft=target;
+    el.scrollLeft=el.scrollLeft+delta;
   }
-  window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?260:60);
+  window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?340:80);
 }
 
-function selectNearestNativeCarouselCard(){
+function selectNearestCarouselCard(){
   const el=$("spriteOptions");
   const cards=baseSpriteOptions();
   if(!el||!cards.length)return;
@@ -1395,17 +1311,18 @@ function centerSpriteCarouselOn(setId,smooth=true){
   if(idx<0)return;
   spriteCarouselIndex=idx;
   renderSpriteCarousel();
-  if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(idx,smooth);
+  scrollCarouselToIndex(idx,smooth);
 }
 
 function moveSpriteCarousel(direction,playSound=false){
   const ids=getSpriteCarouselIds();
   if(!ids.length)return;
-  spriteCarouselIndex=(spriteCarouselIndex+direction+ids.length)%ids.length;
+  // Finite: clamp at ends, no wrap-around
+  spriteCarouselIndex=Math.max(0,Math.min(spriteCarouselIndex+direction,ids.length-1));
   const setId=ids[spriteCarouselIndex];
   applySpriteSet(setId,{fromCarousel:true});
   renderSpriteCarousel();
-  if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(spriteCarouselIndex,true);
+  scrollCarouselToIndex(spriteCarouselIndex,true);
   if(playSound&&typeof sfx!=="undefined")sfx.select();
 }
 
@@ -1416,7 +1333,7 @@ function selectSpriteCarouselSet(setId,playSound=false){
   spriteCarouselIndex=idx;
   applySpriteSet(setId,{fromCarousel:true});
   renderSpriteCarousel();
-  if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(idx,true);
+  scrollCarouselToIndex(idx,true);
   if(playSound&&typeof sfx!=="undefined")sfx.select();
 }
 
@@ -1426,11 +1343,18 @@ function getCenteredSpriteCard(){
 
 function normalizeSpriteCarouselPosition(){
   renderSpriteCarousel();
-  if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(spriteCarouselIndex,false);
+  scrollCarouselToIndex(spriteCarouselIndex,false);
+}
+
+function updateCarouselArrows(){
+  const ids=getSpriteCarouselIds();
+  const prev=$("spriteCarouselPrev");
+  const next=$("spriteCarouselNext");
+  if(prev)prev.disabled=spriteCarouselIndex===0;
+  if(next)next.disabled=spriteCarouselIndex===ids.length-1;
 }
 
 function handleSpriteCarouselWheel(e){
-  if(spriteCarouselMode==="native")return;
   const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
   if(Math.abs(amount)<8)return;
   e.preventDefault();
@@ -1464,13 +1388,11 @@ function updateSpriteCarouselDots(){
 }
 
 function handleSpriteCarouselPointerDown(e){
-  if(spriteCarouselMode==="native")return;
   spriteCarouselPointerStart={x:e.clientX,y:e.clientY,t:Date.now()};
   spriteCarouselPointerMoved=false;
 }
 
 function handleSpriteCarouselPointerUp(e){
-  if(spriteCarouselMode==="native")return false;
   if(!spriteCarouselPointerStart)return false;
   const dx=(e.clientX||0)-spriteCarouselPointerStart.x;
   const dy=(e.clientY||0)-spriteCarouselPointerStart.y;
@@ -1573,12 +1495,6 @@ function handleSpritePointerDown(e){
 function handleSpriteOptionPress(e){
   const opt=e.target.closest(".sprite-option");
   if(!opt)return;
-
-  // Native mobile/tablet carousel uses the browser's own momentum scroll.
-  // Do not cancel pointerup in this mode, otherwise iOS Safari can treat the
-  // carousel like a locked button strip instead of a scrollable area.
-  if(spriteCarouselMode==="native" && e.type==="pointerup")return;
-
   if(e.type==="pointerup" && handleSpriteCarouselPointerUp(e)){
     e.preventDefault();
     e.stopPropagation();

@@ -1541,7 +1541,10 @@ body{background:
   transform:none;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(42,47,70,.08),0 3px 0 rgba(42,47,70,.18);
 }
-#overlay .delete-save-btn.hidden{display:none;}
+#overlay .delete-save-btn.hidden{
+  visibility:hidden;    /* holds its space — no layout shift when toggled */
+  pointer-events:none;
+}
 .confirm-modal .popup-actions{grid-template-columns:1fr 1fr;}
 @media (max-width: 760px){
   #overlay .action-grid{grid-template-columns:1fr;gap:8px;width:min(86%,420px);}
@@ -2656,33 +2659,76 @@ body{background:
   }
 }
 
-/* v1.3.11 theme carousel + consistent embedded card icons */
+/* ─────────────────────────────────────────────────────────────────
+   v1.3.16  FINITE SCROLL-SNAP CAROUSEL  (desktop + mobile unified)
+   All cards are flex children in a single scroll container.
+   Scroll-snap centres each card. No absolute positioning, no JS
+   transforms for layout — just padding + gap + scroll-snap.
+   ───────────────────────────────────────────────────────────────── */
+
+/* Icon sizing preserved from v1.3.11 */
+#overlay .sprite-option .sprite-icon.icon-shell{
+  width:72px!important;height:72px!important;
+  display:grid!important;place-items:center!important;
+  margin:0 auto!important;line-height:1!important;
+  filter:drop-shadow(0 4px 0 rgba(20,24,38,.14))!important;
+}
+#overlay .sprite-option .sprite-icon.icon-shell svg,
+#overlay .sprite-option .sprite-icon.icon-shell img,
+#overlay .sprite-option[data-set="original"] .sprite-icon-img{
+  width:72px!important;height:72px!important;
+  display:block!important;object-fit:contain!important;image-rendering:auto!important;
+}
+#overlay .sprite-option .sprite-name{
+  font-size:14px!important;letter-spacing:.07em!important;
+  line-height:1.05!important;margin-top:0!important;
+}
+#overlay .sprite-option .sprite-save-pill{
+  min-height:21px!important;min-width:52px!important;
+  font-size:9px!important;padding:3px 10px!important;
+}
+
+/* Container */
 #overlay .sprite-select{
+  position:relative!important;
   width:min(92vw, 840px)!important;
   max-width:840px!important;
   margin:0 auto 14px!important;
-  overflow:hidden!important;
+  overflow:visible!important;    /* arrows sit outside; mask handles visual clip */
 }
+
+/* Scroll track */
 #overlay .sprite-options{
   display:flex!important;
   grid-template-columns:none!important;
-  align-items:stretch!important;
+  align-items:center!important;
   justify-content:flex-start!important;
-  gap:14px!important;
+  gap:16px!important;
   width:100%!important;
   max-width:none!important;
-  overflow-x:auto!important;
-  overflow-y:visible!important;
+  height:auto!important;
+  min-height:160px!important;
+  padding:10px var(--carousel-side-pad, 0px) 12px!important;
+  box-sizing:border-box!important;
+  overflow-x:scroll!important;
+  overflow-y:hidden!important;
   scroll-snap-type:x mandatory!important;
-  scroll-behavior:smooth!important;
+  scroll-padding-inline:var(--carousel-side-pad, 0px)!important;
   -webkit-overflow-scrolling:touch!important;
   scrollbar-width:none!important;
-  padding:10px calc((100% - var(--carousel-card-w, 176px)) / 2) 12px!important;
-  box-sizing:border-box!important;
   touch-action:pan-x!important;
+  cursor:grab!important;
+  /* Fade edges so partial cards look intentional */
+  mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)!important;
 }
+#overlay .sprite-options:active{cursor:grabbing!important;}
 #overlay .sprite-options::-webkit-scrollbar{display:none!important;}
+
+/* Each card */
 #overlay .sprite-option{
+  position:relative!important;
+  left:auto!important;top:auto!important;
   flex:0 0 var(--carousel-card-w, 176px)!important;
   width:var(--carousel-card-w, 176px)!important;
   min-width:var(--carousel-card-w, 176px)!important;
@@ -2690,111 +2736,139 @@ body{background:
   min-height:148px!important;
   padding:14px 12px 12px!important;
   gap:8px!important;
+  margin:0!important;
   scroll-snap-align:center!important;
   scroll-snap-stop:always!important;
+  /* Inactive cards: slightly shrunk + dimmed */
   transform:scale(.91)!important;
   opacity:.76!important;
-  transition:transform .22s ease, opacity .22s ease, filter .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease!important;
+  transition:transform .22s ease, opacity .22s ease, box-shadow .22s ease,
+             background .22s ease, border-color .22s ease!important;
+  will-change:transform,opacity!important;
 }
+/* Active (centred) card */
+#overlay .sprite-option.is-center,
 #overlay .sprite-option.active{
   transform:scale(1)!important;
   opacity:1!important;
 }
 #overlay .sprite-option:hover{
-  transform:scale(.95) translateY(-1px)!important;
+  transform:scale(.94) translateY(-1px)!important;
 }
+#overlay .sprite-option.is-center:hover,
 #overlay .sprite-option.active:hover{
   transform:scale(1.02) translateY(-1px)!important;
 }
-#overlay .sprite-option .sprite-icon.icon-shell{
-  width:72px!important;
-  height:72px!important;
-  display:grid!important;
-  place-items:center!important;
-  margin:0 auto!important;
-  line-height:1!important;
-  filter:drop-shadow(0 4px 0 rgba(20,24,38,.14))!important;
-}
-#overlay .sprite-option .sprite-icon.icon-shell svg,
-#overlay .sprite-option .sprite-icon.icon-shell img{
-  width:72px!important;
-  height:72px!important;
-  display:block!important;
-  object-fit:contain!important;
-  image-rendering:auto!important;
-}
-#overlay .sprite-option[data-set="original"] .sprite-icon-img{
-  width:72px!important;
-  height:72px!important;
-  object-fit:contain!important;
-  image-rendering:auto!important;
-}
-#overlay .sprite-option .sprite-name{
-  font-size:14px!important;
-  letter-spacing:.07em!important;
-  line-height:1.05!important;
-  margin-top:0!important;
-}
-#overlay .sprite-option .sprite-save-pill{
-  min-height:21px!important;
-  min-width:52px!important;
-  font-size:9px!important;
-  padding:3px 10px!important;
-}
+
+/* Dots */
 #overlay .sprite-carousel-dots{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-  margin:-2px auto 0!important;
-  min-height:14px!important;
+  display:flex!important;align-items:center!important;
+  justify-content:center!important;gap:6px!important;
+  margin:0 auto!important;min-height:14px!important;
 }
 #overlay .sprite-carousel-dot{
-  width:7px!important;
-  height:7px!important;
-  border:0!important;
-  border-radius:999px!important;
-  background:rgba(66,71,98,.28)!important;
-  padding:0!important;
+  width:7px!important;height:7px!important;
+  border:0!important;border-radius:999px!important;
+  background:rgba(66,71,98,.28)!important;padding:0!important;
   cursor:pointer!important;
-  transition:width .18s ease, background .18s ease, opacity .18s ease!important;
-  opacity:.9!important;
+  transition:width .18s ease, background .18s ease!important;
 }
 #overlay .sprite-carousel-dot.active{
-  width:18px!important;
-  background:#d99a00!important;
-  opacity:1!important;
+  width:18px!important;background:#d99a00!important;
 }
-#overlay .sprite-option.sprite-clone{
-  pointer-events:auto!important;
+
+/* Arrows (desktop only, hidden on touch) */
+#overlay .sprite-carousel-arrow{
+  position:absolute!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:50!important;
+  width:42px!important;height:54px!important;
+  border-radius:16px!important;
+  border:2px solid rgba(66,71,98,.34)!important;
+  background:linear-gradient(180deg,#fffdf8,#e7e3dc)!important;
+  color:#42365f!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.72),inset 0 -3px 0 rgba(25,30,48,.12),0 4px 0 rgba(15,18,32,.18)!important;
+  font-family:'Space Grotesk',system-ui,sans-serif!important;
+  font-size:36px!important;font-weight:800!important;line-height:1!important;
+  display:grid!important;place-items:center!important;
+  cursor:pointer!important;user-select:none!important;
 }
+#overlay .sprite-carousel-prev{left:4px!important;}
+#overlay .sprite-carousel-next{right:4px!important;}
+#overlay .sprite-carousel-arrow:hover{
+  border-color:#d99a00!important;color:#4b35bd!important;
+  transform:translateY(calc(-50% - 1px))!important;
+}
+#overlay .sprite-carousel-arrow:active{
+  transform:translateY(calc(-50% + 1px))!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(25,30,48,.12),0 2px 0 rgba(15,18,32,.18)!important;
+}
+/* Disable arrows when at first/last card */
+#overlay .sprite-carousel-arrow[disabled]{
+  opacity:.35!important;cursor:default!important;pointer-events:none!important;
+}
+/* Hide arrows on touch devices — swipe is enough */
+@media (pointer:coarse){
+  #overlay .sprite-carousel-arrow{display:none!important;}
+}
+
+/* ── Breakpoint tweaks ── */
+
+/* Desktop wide */
 @media (min-width:951px){
-  #overlay .sprite-options{--carousel-card-w:178px;}
+  #overlay .sprite-select{padding:0 52px!important;box-sizing:border-box!important;}
+  #overlay .sprite-options{
+    --carousel-card-w:178px;
+    --carousel-side-pad:calc((100% - 178px) / 2);
+    min-height:162px!important;
+  }
 }
+
+/* Tablet */
 @media (min-width:601px) and (max-width:950px){
-  #overlay .sprite-select{width:min(90vw, 620px)!important;max-width:620px!important;}
-  #overlay .sprite-options{--carousel-card-w:168px;gap:12px!important;padding-top:8px!important;padding-bottom:10px!important;}
+  #overlay .sprite-select{width:min(90vw,620px)!important;max-width:620px!important;}
+  #overlay .sprite-options{
+    --carousel-card-w:168px;
+    --carousel-side-pad:calc((100% - 168px) / 2);
+    gap:14px!important;
+    min-height:150px!important;
+  }
   #overlay .sprite-option{min-height:136px!important;padding:12px 10px 10px!important;}
   #overlay .sprite-option .sprite-icon.icon-shell,
   #overlay .sprite-option .sprite-icon.icon-shell svg,
   #overlay .sprite-option .sprite-icon.icon-shell img,
   #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:66px!important;height:66px!important;}
 }
+
+/* Mobile portrait */
 @media (max-width:600px) and (orientation:portrait){
-  #overlay .sprite-select{width:min(92vw, 430px)!important;max-width:430px!important;margin-bottom:10px!important;}
+  #overlay .sprite-select{width:min(92vw,430px)!important;max-width:430px!important;margin-bottom:10px!important;}
   #overlay .sprite-select-label{margin-bottom:3px!important;}
-  #overlay .sprite-options{--carousel-card-w:min(64vw, 214px);gap:12px!important;padding-top:8px!important;padding-bottom:10px!important;}
-  #overlay .sprite-option{min-height:150px!important;padding:14px 12px 12px!important;gap:8px!important;}
+  #overlay .sprite-options{
+    --carousel-card-w:min(64vw,214px);
+    --carousel-side-pad:calc((100% - min(64vw,214px)) / 2);
+    gap:14px!important;min-height:160px!important;
+  }
+  #overlay .sprite-option{min-height:150px!important;padding:14px 12px 12px!important;}
   #overlay .sprite-option .sprite-icon.icon-shell,
   #overlay .sprite-option .sprite-icon.icon-shell svg,
   #overlay .sprite-option .sprite-icon.icon-shell img,
   #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:76px!important;height:76px!important;}
   #overlay .sprite-option .sprite-name{font-size:13px!important;}
-  #overlay .sprite-option .sprite-save-pill{min-height:21px!important;min-width:52px!important;font-size:9px!important;}
+  #overlay .saved-slot-card{grid-template-columns:1fr!important;gap:6px!important;}
+  #overlay .saved-slot-info:last-child .saved-slot-details{grid-template-columns:minmax(72px,1fr) 32px!important;justify-items:start!important;}
 }
+
+/* Landscape small */
 @media (max-width:950px) and (orientation:landscape){
-  #overlay .sprite-select{width:min(84vw, 600px)!important;max-width:600px!important;margin:0 auto 5px!important;}
-  #overlay .sprite-options{--carousel-card-w:132px;gap:10px!important;padding-top:5px!important;padding-bottom:7px!important;}
+  #overlay .sprite-select{width:min(84vw,600px)!important;max-width:600px!important;margin:0 auto 5px!important;}
+  #overlay .sprite-options{
+    --carousel-card-w:132px;
+    --carousel-side-pad:calc((100% - 132px) / 2);
+    gap:10px!important;min-height:0!important;
+    padding-top:5px!important;padding-bottom:7px!important;
+  }
   #overlay .sprite-option{min-height:88px!important;padding:7px 8px 6px!important;gap:3px!important;}
   #overlay .sprite-option .sprite-icon.icon-shell,
   #overlay .sprite-option .sprite-icon.icon-shell svg,
@@ -2802,328 +2876,85 @@ body{background:
   #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:42px!important;height:42px!important;}
   #overlay .sprite-option .sprite-name{font-size:9px!important;letter-spacing:.055em!important;}
   #overlay .sprite-option .sprite-save-pill{min-height:16px!important;min-width:38px!important;font-size:7px!important;padding:2px 7px!important;}
-  #overlay .sprite-carousel-dots{gap:5px!important;min-height:10px!important;margin-top:-4px!important;}
+  #overlay .sprite-carousel-dots{gap:5px!important;min-height:10px!important;}
   #overlay .sprite-carousel-dot{width:5px!important;height:5px!important;}
   #overlay .sprite-carousel-dot.active{width:14px!important;}
-}
-
-/* v1.3.12 smooth controlled circular carousel + startup card stability fix */
-#overlay .sprite-select{
-  position:relative!important;
-  overflow:visible!important;
-}
-#overlay .sprite-options{
-  position:relative!important;
-  display:block!important;
-  overflow:hidden!important;
-  height:176px!important;
-  padding:10px 0 12px!important;
-  scroll-snap-type:none!important;
-  scroll-behavior:auto!important;
-  touch-action:pan-y!important;
-  cursor:grab!important;
-}
-#overlay .sprite-options:active{cursor:grabbing!important;}
-#overlay .sprite-option{
-  position:absolute!important;
-  left:50%!important;
-  top:10px!important;
-  flex:none!important;
-  margin:0!important;
-  transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, 178px) + 28px)))) scale(calc(1 - (min(var(--carousel-abs, 0), 2) * .075)))!important;
-  opacity:calc(1 - (min(var(--carousel-abs, 0), 2) * .18))!important;
-  z-index:calc(20 - var(--carousel-abs, 0))!important;
-  pointer-events:auto!important;
-  will-change:transform, opacity!important;
-}
-#overlay .sprite-option.is-hidden{
-  opacity:0!important;
-  pointer-events:none!important;
-  transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, 178px) + 28px)))) scale(.78)!important;
-}
-#overlay .sprite-option.is-center{
-  transform:translateX(-50%) scale(1)!important;
-  opacity:1!important;
-}
-#overlay .sprite-option:hover{
-  transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, 178px) + 28px)))) scale(calc(1 - (min(var(--carousel-abs, 0), 2) * .075))) translateY(-1px)!important;
-}
-#overlay .sprite-option.is-center:hover{
-  transform:translateX(-50%) scale(1.02) translateY(-1px)!important;
-}
-#overlay .sprite-carousel-arrow{
-  position:absolute!important;
-  top:calc(50% + 14px)!important;
-  transform:translateY(-50%)!important;
-  z-index:50!important;
-  width:42px!important;
-  height:54px!important;
-  border-radius:16px!important;
-  border:2px solid rgba(66,71,98,.34)!important;
-  background:linear-gradient(180deg,#fffdf8,#e7e3dc)!important;
-  color:#42365f!important;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.72), inset 0 -3px 0 rgba(25,30,48,.12), 0 4px 0 rgba(15,18,32,.18)!important;
-  font-family:'Space Grotesk',system-ui,sans-serif!important;
-  font-size:36px!important;
-  font-weight:800!important;
-  line-height:1!important;
-  display:grid!important;
-  place-items:center!important;
-  cursor:pointer!important;
-  user-select:none!important;
-}
-#overlay .sprite-carousel-prev{left:4px!important;}
-#overlay .sprite-carousel-next{right:4px!important;}
-#overlay .sprite-carousel-arrow:hover{
-  border-color:#d99a00!important;
-  color:#4b35bd!important;
-  transform:translateY(calc(-50% - 1px))!important;
-}
-#overlay .sprite-carousel-arrow:active{
-  transform:translateY(calc(-50% + 1px))!important;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.4), inset 0 -2px 0 rgba(25,30,48,.12), 0 2px 0 rgba(15,18,32,.18)!important;
-}
-#overlay .saved-slot-card{
-  grid-template-columns:minmax(0,1fr) minmax(145px,auto)!important;
-  align-items:center!important;
-}
-#overlay .saved-slot-info:last-child .saved-slot-details{
-  display:grid!important;
-  grid-template-columns:minmax(72px,1fr) 34px!important;
-  align-items:center!important;
-  justify-items:end!important;
-  gap:10px!important;
-  min-height:34px!important;
-}
-#overlay .delete-save-btn{
-  width:34px!important;
-  height:34px!important;
-  padding:0!important;
-  display:inline-grid!important;
-  place-items:center!important;
-}
-#overlay .delete-save-btn.hidden{
-  display:inline-grid!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-@media (max-width:950px){
-  #overlay .sprite-carousel-arrow{display:none!important;}
-}
-@media (min-width:951px){
-  #overlay .sprite-select{width:min(92vw, 860px)!important;max-width:860px!important;padding:0 46px!important;box-sizing:border-box!important;}
-  #overlay .sprite-options{height:178px!important;}
-}
-@media (min-width:601px) and (max-width:950px){
-  #overlay .sprite-options{height:164px!important;}
-  #overlay .sprite-option{transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, 168px) + 22px)))) scale(calc(1 - (min(var(--carousel-abs, 0), 2) * .075)))!important;}
-  #overlay .sprite-option.is-center{transform:translateX(-50%) scale(1)!important;}
-}
-@media (max-width:600px) and (orientation:portrait){
-  #overlay .sprite-options{height:180px!important;touch-action:pan-y!important;}
-  #overlay .sprite-option{transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, min(64vw, 214px)) + 22px)))) scale(calc(1 - (min(var(--carousel-abs, 0), 2) * .08)))!important;}
-  #overlay .sprite-option.is-center{transform:translateX(-50%) scale(1)!important;}
-  #overlay .saved-slot-card{grid-template-columns:1fr!important;gap:6px!important;}
-  #overlay .saved-slot-info:last-child .saved-slot-details{grid-template-columns:minmax(72px,1fr) 32px!important;justify-items:start!important;}
-}
-@media (max-width:950px) and (orientation:landscape){
-  #overlay .sprite-options{height:106px!important;}
-  #overlay .sprite-option{transform:translateX(calc(-50% + (var(--carousel-offset, 0) * (var(--carousel-card-w, 132px) + 16px)))) scale(calc(1 - (min(var(--carousel-abs, 0), 2) * .075)))!important;}
-  #overlay .sprite-option.is-center{transform:translateX(-50%) scale(1)!important;}
   #overlay .saved-slot-card{grid-template-columns:minmax(0,1fr) minmax(120px,auto)!important;}
   #overlay .saved-slot-info:last-child .saved-slot-details{grid-template-columns:minmax(58px,1fr) 28px!important;min-height:28px!important;gap:8px!important;}
   #overlay .delete-save-btn{width:28px!important;height:28px!important;}
 }
 
-/* v1.3.16 controlled-carousel transform override.
-   Keep this away from native mobile/tablet scrolling so CSS transforms cannot
-   interfere with iOS overflow scrolling. */
-#overlay .sprite-options:not(.native-carousel) .sprite-option,
-#overlay .sprite-options:not(.native-carousel) .sprite-option:hover,
-#overlay .sprite-options:not(.native-carousel) .sprite-option.is-hidden,
-#overlay .sprite-options:not(.native-carousel) .sprite-option.is-center,
-#overlay .sprite-options:not(.native-carousel) .sprite-option.is-center:hover{
-  transform:translateX(calc(-50% + var(--carousel-x, 0px))) scale(var(--carousel-scale, 1))!important;
-  opacity:var(--carousel-opacity, 1)!important;
+/* v1.3.21 Start screen selected-run stability patch
+   Keeps the run-info card from resizing/shifting when switching between themes
+   with saved games and themes without saved games. */
+#overlay .selected-run-info .saved-slot-card{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) clamp(140px,22vw,190px) !important;
+  align-items:center !important;
 }
-#overlay .sprite-options:not(.native-carousel) .sprite-option:hover{
-  transform:translateX(calc(-50% + var(--carousel-x, 0px))) scale(var(--carousel-scale, 1)) translateY(-1px)!important;
+#overlay .selected-run-info .saved-slot-info:first-child,
+#overlay .selected-run-info .saved-slot-info:last-child{
+  min-width:0 !important;
 }
-#overlay .sprite-options:not(.native-carousel) .sprite-option.is-center:hover{
-  transform:translateX(calc(-50% + var(--carousel-x, 0px))) scale(1.02) translateY(-1px)!important;
+#overlay .selected-run-info .saved-slot-info:last-child{
+  width:clamp(140px,22vw,190px) !important;
+}
+#overlay .selected-run-info .saved-slot-info:last-child .saved-slot-label{
+  text-align:left !important;
+}
+#overlay .selected-run-info .saved-slot-info:last-child .saved-slot-details{
+  display:grid !important;
+  grid-template-columns:96px 32px !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:32px !important;
+}
+#overlay #saveDate{
+  display:inline-block !important;
+  width:96px !important;
+  text-align:left !important;
+  white-space:nowrap !important;
+}
+#overlay .delete-save-btn{
+  width:32px !important;
+  height:32px !important;
+  display:inline-grid !important;
+  place-items:center !important;
+  padding:0 !important;
+  flex:0 0 32px !important;
+}
+#overlay .delete-save-btn.hidden{
+  visibility:hidden !important;
+  pointer-events:none !important;
 }
 
-
-/* v1.3.14 iPhone/iPad native momentum carousel fix, adapted from V1.8 */
-@media (pointer: coarse){
-  #overlay .sprite-select.native-carousel-wrap{
-    overflow:visible!important;
-    overflow-x:visible!important;
-    overflow-y:visible!important;
+@media (max-width:600px) and (orientation:portrait){
+  #overlay .selected-run-info .saved-slot-card{
+    grid-template-columns:1fr !important;
   }
-  #overlay .sprite-options.native-carousel{
-    position:relative!important;
-    display:flex!important;
-    align-items:stretch!important;
-    justify-content:flex-start!important;
-    gap:12px!important;
-    width:100%!important;
-    height:auto!important;
-    min-height:0!important;
-    overflow-x:auto!important;
-    overflow-y:visible!important;
-    scroll-snap-type:x proximity!important;
-    scroll-padding-inline:calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2)!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    touch-action:pan-x pan-y!important;
-    cursor:auto!important;
-    padding:8px calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2) 10px!important;
-    mask-image:linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)!important;
+  #overlay .selected-run-info .saved-slot-info:last-child{
+    width:100% !important;
   }
-  #overlay .sprite-options.native-carousel::-webkit-scrollbar{display:none!important;}
-  #overlay .sprite-options.native-carousel .sprite-option,
-  #overlay .sprite-options.native-carousel .sprite-option:hover,
-  #overlay .sprite-options.native-carousel .sprite-option.is-center,
-  #overlay .sprite-options.native-carousel .sprite-option.is-center:hover,
-  #overlay .sprite-options.native-carousel .sprite-option.is-hidden{
-    position:relative!important;
-    left:auto!important;
-    top:auto!important;
-    flex:0 0 var(--carousel-card-w, min(64vw, 214px))!important;
-    width:var(--carousel-card-w, min(64vw, 214px))!important;
-    min-width:var(--carousel-card-w, min(64vw, 214px))!important;
-    max-width:var(--carousel-card-w, min(64vw, 214px))!important;
-    margin:0!important;
-    scroll-snap-align:center!important;
-    scroll-snap-stop:normal!important;
-    transform:scale(.92)!important;
-    opacity:.78!important;
-    z-index:auto!important;
-    pointer-events:auto!important;
-    transition:transform .2s ease, opacity .2s ease, filter .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease!important;
-  }
-  #overlay .sprite-options.native-carousel .sprite-option.active,
-  #overlay .sprite-options.native-carousel .sprite-option.is-center{
-    transform:scale(1)!important;
-    opacity:1!important;
-  }
-}
-@media (pointer: coarse) and (min-width:601px) and (max-width:950px){
-  #overlay .sprite-options.native-carousel{
-    --carousel-card-w:168px!important;
-    padding-inline:calc((100% - 168px) / 2)!important;
-    scroll-padding-inline:calc((100% - 168px) / 2)!important;
-  }
-}
-@media (pointer: coarse) and (max-width:950px) and (orientation:landscape){
-  #overlay .sprite-options.native-carousel{
-    --carousel-card-w:132px!important;
-    gap:10px!important;
-    padding:5px calc((100% - 132px) / 2) 7px!important;
-    scroll-padding-inline:calc((100% - 132px) / 2)!important;
+  #overlay .selected-run-info .saved-slot-info:last-child .saved-slot-details{
+    grid-template-columns:96px 32px !important;
   }
 }
 
-
-/* v1.3.16 iOS Safari native-carousel hard override
-   Apply whenever JS adds .native-carousel, not only inside pointer media queries. */
-#overlay .sprite-options.native-carousel{
-  position:relative!important;
-  display:flex!important;
-  align-items:stretch!important;
-  justify-content:flex-start!important;
-  gap:12px!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  overflow-x:scroll!important;
-  overflow-y:visible!important;
-  scroll-snap-type:x proximity!important;
-  scroll-padding-inline:calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2)!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  touch-action:auto!important;
-  cursor:auto!important;
-  padding:8px calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2) 10px!important;
-  box-sizing:border-box!important;
-  mask-image:linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)!important;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)!important;
-}
-#overlay .sprite-options.native-carousel::-webkit-scrollbar{display:none!important;}
-#overlay .sprite-options.native-carousel .sprite-option,
-#overlay .sprite-options.native-carousel .sprite-option:hover,
-#overlay .sprite-options.native-carousel .sprite-option.is-center,
-#overlay .sprite-options.native-carousel .sprite-option.is-center:hover,
-#overlay .sprite-options.native-carousel .sprite-option.is-hidden{
-  position:relative!important;
-  left:auto!important;
-  right:auto!important;
-  top:auto!important;
-  bottom:auto!important;
-  display:flex!important;
-  flex:0 0 var(--carousel-card-w, min(64vw, 214px))!important;
-  width:var(--carousel-card-w, min(64vw, 214px))!important;
-  min-width:var(--carousel-card-w, min(64vw, 214px))!important;
-  max-width:var(--carousel-card-w, min(64vw, 214px))!important;
-  margin:0!important;
-  scroll-snap-align:center!important;
-  scroll-snap-stop:normal!important;
-  transform:scale(.92)!important;
-  opacity:.78!important;
-  z-index:auto!important;
-  pointer-events:auto!important;
-  touch-action:auto!important;
-  will-change:auto!important;
-  transition:transform .2s ease, opacity .2s ease, filter .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease!important;
-}
-#overlay .sprite-options.native-carousel .sprite-option.active,
-#overlay .sprite-options.native-carousel .sprite-option.is-center{
-  transform:scale(1)!important;
-  opacity:1!important;
-}
-@media (min-width:601px) and (max-width:950px){
-  #overlay .sprite-options.native-carousel{
-    --carousel-card-w:168px!important;
-    padding-inline:calc((100% - 168px) / 2)!important;
-    scroll-padding-inline:calc((100% - 168px) / 2)!important;
-  }
-}
 @media (max-width:950px) and (orientation:landscape){
-  #overlay .sprite-options.native-carousel{
-    --carousel-card-w:132px!important;
-    gap:10px!important;
-    padding:5px calc((100% - 132px) / 2) 7px!important;
-    scroll-padding-inline:calc((100% - 132px) / 2)!important;
+  #overlay .selected-run-info .saved-slot-card{
+    grid-template-columns:minmax(0,1fr) 140px !important;
   }
-}
-
-
-/* v1.3.16 iOS/iPad carousel reliability patch */
-#overlay .sprite-select.native-carousel-wrap{
-  overflow:visible!important;
-  overflow-x:visible!important;
-  overflow-y:visible!important;
-}
-#overlay .sprite-options.native-carousel{
-  overflow-x:scroll!important;
-  overflow-y:visible!important;
-  -webkit-overflow-scrolling:touch!important;
-  scroll-snap-type:x mandatory!important;
-  overscroll-behavior-x:contain!important;
-  touch-action:pan-x pan-y!important;
-  user-select:none!important;
-}
-#overlay .sprite-options.native-carousel .sprite-option,
-#overlay .sprite-options.native-carousel .sprite-option:hover,
-#overlay .sprite-options.native-carousel .sprite-option.is-center,
-#overlay .sprite-options.native-carousel .sprite-option.is-center:hover,
-#overlay .sprite-options.native-carousel .sprite-option.is-hidden{
-  transform:scale(.92)!important;
-  opacity:.78!important;
-}
-#overlay .sprite-options.native-carousel .sprite-option.active,
-#overlay .sprite-options.native-carousel .sprite-option.is-center{
-  transform:scale(1)!important;
-  opacity:1!important;
+  #overlay .selected-run-info .saved-slot-info:last-child{
+    width:140px !important;
+  }
+  #overlay .selected-run-info .saved-slot-info:last-child .saved-slot-details{
+    grid-template-columns:86px 28px !important;
+    min-height:28px !important;
+  }
+  #overlay #saveDate{width:86px !important;}
+  #overlay .delete-save-btn{
+    width:28px !important;
+    height:28px !important;
+    flex-basis:28px !important;
+  }
 }
