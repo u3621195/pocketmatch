@@ -1,7 +1,7 @@
-Pocket Match v1.3.23 - iPhone Board Fit + Arcade Buttons
-
-- Reduced unused side gutters on iPhone landscape so the tile board can grow wider.
-- Let the tile board frame reach the bottom edge of the screen in iPhone gameplay.
-- Further slimmed the board frame, board wrap, timer meter, tile gaps, and tile padding.
-- Redesigned iPhone side-panel buttons with arcade-style gradients, highlights, deeper shadows, and clearer helper-count badges.
-- Desktop/tablet layout remains unchanged.
+Pocket Match v1.3.24
+- Corrected iPhone landscape CSS override order so the side-panel layout actually applies.
+- Updated CSS cache-busting query in index.html to v1.3.24.
+- Reduced right-side blank space.
+- Expanded board area to the bottom edge.
+- Hid iPhone board metadata line.
+- Redesigned iPhone gameplay buttons with stronger arcade styling and helper badges.
