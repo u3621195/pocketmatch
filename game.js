@@ -630,8 +630,59 @@ function renderBoard(){
   setTimeout(resizeCanvas,50)
 }
 
+
+function isPhoneLandscapeGameplay(){
+  return window.matchMedia && window.matchMedia('(max-width:950px) and (orientation:landscape)').matches;
+}
+function pxNum(v){
+  const n=parseFloat(v);
+  return Number.isFinite(n)?n:0;
+}
+function fitPhoneGameplayBoard(){
+  const frame=document.querySelector('.board-frame');
+  const wrap=document.querySelector('.board-wrap');
+  if(!frame||!wrap||!boardEl)return;
+  if(!isPhoneLandscapeGameplay()){
+    frame.style.width='';
+    boardEl.style.width='';
+    boardEl.style.height='';
+    return;
+  }
+
+  // Keep the tile grid at its true COLS:ROWS ratio. The earlier CSS-only layout
+  // filled width and height independently on some iPhone webviews, which squeezed
+  // the tiles. This runtime fit uses the actual available rectangle after safe-area
+  // and right-panel spacing are applied.
+  const ratio=COLS/ROWS;
+  const wrapCS=getComputedStyle(wrap);
+  const frameCS=getComputedStyle(frame);
+  const wrapX=pxNum(wrapCS.paddingLeft)+pxNum(wrapCS.paddingRight)+pxNum(wrapCS.borderLeftWidth)+pxNum(wrapCS.borderRightWidth);
+  const frameX=pxNum(frameCS.paddingLeft)+pxNum(frameCS.paddingRight)+pxNum(frameCS.borderLeftWidth)+pxNum(frameCS.borderRightWidth);
+
+  // Start with the full available height, then choose the largest 16:9 board that fits.
+  const wrapRect=wrap.getBoundingClientRect();
+  const maxGridH=Math.max(1, wrap.clientHeight || wrapRect.height - (pxNum(wrapCS.borderTopWidth)+pxNum(wrapCS.borderBottomWidth)));
+  const maxGridW=Math.max(1, wrapRect.width - wrapX);
+  let gridW=Math.min(maxGridW, maxGridH*ratio);
+  let gridH=gridW/ratio;
+
+  // If the frame was previously too wide, tighten it to the board instead of leaving a
+  // stretched empty board frame. A second pass will be naturally corrected on next resize.
+  const desiredFrameW=Math.ceil(gridW + wrapX + frameX);
+  const availableFrameW=Math.max(1, document.querySelector('.game-area').getBoundingClientRect().width);
+  frame.style.width=Math.min(desiredFrameW, availableFrameW)+'px';
+
+  const wrapRect2=wrap.getBoundingClientRect();
+  const maxGridW2=Math.max(1, wrapRect2.width - wrapX);
+  gridW=Math.min(maxGridW2, maxGridH*ratio);
+  gridH=gridW/ratio;
+  boardEl.style.width=Math.floor(gridW)+'px';
+  boardEl.style.height=Math.floor(gridH)+'px';
+}
+
 let pathPadX=0,pathPadY=0;
 function resizeCanvas(){
+  fitPhoneGameplayBoard();
   // Expand the connection-line canvas around the tile grid so border routes
   // (above, below, left, right of the grid) remain fully visible on every device.
   const rect=boardEl.getBoundingClientRect();
@@ -646,7 +697,7 @@ function resizeCanvas(){
   canvas.style.left=(rect.left-wrap.left-pathPadX)+"px";
   canvas.style.top =(rect.top -wrap.top -pathPadY)+"px";
 }
-window.onresize=resizeCanvas;
+window.onresize=()=>{fitPhoneGameplayBoard();resizeCanvas();};
 
 // ─────────────────────────────────────────────
 //  PATH LOGIC
