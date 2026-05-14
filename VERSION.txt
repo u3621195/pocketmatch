@@ -1,8 +1,9 @@
-Pocket Match Clean Base v1.3.16
-Update: Replaced the hybrid controlled/native carousel with a single unified finite scroll-snap carousel for all devices.
-Update: Carousel is now a plain CSS flex scroll container with scroll-snap — no absolute positioning, no JS transform math, no circular wrapping.
-Update: Desktop: arrow buttons step through cards (disabled at first/last); mouse-wheel and pointer-drag also work.
-Update: Mobile/tablet: native swipe with scroll-snap mandatory; arrows hidden on touch devices.
-Update: Active card detected after scroll settles (90ms debounce on scroll event); is-center class drives scale/opacity via CSS transition.
-Update: Arrow buttons correctly disable at the first and last card (finite, no wrap-around).
-Preserved: All v1.3.15 iOS scroll fixes, dots, save pills, applySpriteSet, all gameplay systems.
+Pocket Match v1.3.21 Cleaned
+
+Cleanup pass only. No intentional gameplay, scoring, helper, movement, save, audio, tile-set, or path-routing behavior changes.
+
+Main cleanup items:
+- Re-formatted HTML/CSS/JavaScript for easier maintenance.
+- Removed old patch/version comment blocks that accumulated during prior iterations.
+- Updated page title and cache-busting version labels.
+- Preserved the unified finite scroll-snap tile-set carousel from v1.3.20.
