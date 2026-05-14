@@ -1,8 +1,7 @@
-Pocket Match v1.3.22 Touch Hint Visibility
+Pocket Match v1.3.23
+Hint Glow Tone Down
 
-Focused visual update for the helper hint flash.
-- Made hinted tiles brighter and more visible on iPhone.
-- Added a stronger glow/ring pulse and small scale pulse.
-- Increased hint visibility duration from 1.8s to 2.4s.
-
-No intentional gameplay, scoring, helper count, movement, save, audio, tile-set, carousel, or path-routing behavior changes.
+Changes:
+- Toned down the hint glow intensity from v1.3.22.
+- Kept the hint pulse visible on iPhone, but reduced brightness, outer glow, ring opacity, and sprite shadow.
+- No intentional gameplay, scoring, helper count, carousel, tile movement, save, or sound changes.

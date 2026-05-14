@@ -117,8 +117,8 @@
   --tile-sel-sh2: rgba(255, 79, 243, 0.25);
   --tile-sel-glow1: rgba(255, 79, 243, 0.28);
   --tile-sel-glow2: rgba(255, 79, 243, 0.42);
-  --hint-glow1: rgba(183, 224, 124, 0.35);
-  --hint-glow2: rgba(183, 224, 124, 0.45);
+  --hint-glow1: rgba(183, 224, 124, 0.26);
+  --hint-glow2: rgba(183, 224, 124, 0.34);
 
   --path-halo: rgba(255, 79, 243, 0.3);
   --path-line: #ff4ff3;
@@ -234,8 +234,8 @@
   --tile-sel-sh2: rgba(125, 232, 216, 0.15);
   --tile-sel-glow1: rgba(125, 232, 216, 0.25);
   --tile-sel-glow2: rgba(125, 232, 216, 0.35);
-  --hint-glow1: rgba(240, 192, 96, 0.3);
-  --hint-glow2: rgba(240, 192, 96, 0.4);
+  --hint-glow1: rgba(240, 192, 96, 0.24);
+  --hint-glow2: rgba(240, 192, 96, 0.32);
   --path-halo: rgba(125, 232, 216, 0.25);
   --path-line: #7de8d8;
   --path-core: #f0ffff;
@@ -345,8 +345,8 @@
   --tile-sel-sh2: rgba(200, 168, 74, 0.15);
   --tile-sel-glow1: rgba(200, 168, 74, 0.22);
   --tile-sel-glow2: rgba(200, 168, 74, 0.32);
-  --hint-glow1: rgba(232, 208, 144, 0.28);
-  --hint-glow2: rgba(232, 208, 144, 0.38);
+  --hint-glow1: rgba(232, 208, 144, 0.22);
+  --hint-glow2: rgba(232, 208, 144, 0.30);
   --path-halo: rgba(200, 168, 74, 0.22);
   --path-line: #c8a84a;
   --path-core: #fff8e8;
@@ -456,8 +456,8 @@
   --tile-sel-sh2: rgba(64, 200, 240, 0.12);
   --tile-sel-glow1: rgba(64, 200, 240, 0.2);
   --tile-sel-glow2: rgba(64, 200, 240, 0.3);
-  --hint-glow1: rgba(128, 232, 255, 0.28);
-  --hint-glow2: rgba(128, 232, 255, 0.38);
+  --hint-glow1: rgba(128, 232, 255, 0.22);
+  --hint-glow2: rgba(128, 232, 255, 0.30);
   --path-halo: rgba(64, 200, 240, 0.22);
   --path-line: #40c8f0;
   --path-core: #f0ffff;
@@ -567,8 +567,8 @@
   --tile-sel-sh2: rgba(200, 144, 248, 0.12);
   --tile-sel-glow1: rgba(200, 144, 248, 0.2);
   --tile-sel-glow2: rgba(200, 144, 248, 0.32);
-  --hint-glow1: rgba(232, 200, 255, 0.28);
-  --hint-glow2: rgba(232, 200, 255, 0.38);
+  --hint-glow1: rgba(232, 200, 255, 0.22);
+  --hint-glow2: rgba(232, 200, 255, 0.30);
   --path-halo: rgba(200, 144, 248, 0.22);
   --path-line: #c890f8;
   --path-core: #faf0ff;
@@ -1108,7 +1108,7 @@ body {
   z-index: 3;
 }
 .tile.hint {
-  border-color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.82);
   animation: hintPulse 0.42s ease-in-out infinite alternate;
   z-index: 6;
 }
@@ -1118,12 +1118,12 @@ body {
   inset: -6px;
   border-radius: 12px;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.42) 0%, rgba(255, 235, 80, 0.24) 45%, transparent 72%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, rgba(255, 235, 80, 0.16) 45%, transparent 72%);
   animation: hintRingPulse 0.42s ease-in-out infinite alternate;
   z-index: 1;
 }
 .tile.hint .entity-sprite {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 16px rgba(255, 222, 60, 0.75));
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 10px rgba(255, 222, 60, 0.48));
 }
 .tile.removed {
   opacity: 0;
@@ -1514,14 +1514,14 @@ body {
       0 0 0 2px rgba(255, 255, 255, 0.55);
   }
   to {
-    filter: brightness(1.75) saturate(1.45);
-    transform: scale(1.09);
+    filter: brightness(1.48) saturate(1.28);
+    transform: scale(1.06);
     box-shadow:
-      inset 0 0 0 3px rgba(255, 255, 255, 0.9),
-      inset 0 0 18px rgba(255, 244, 140, 0.85),
-      0 0 0 5px rgba(255, 255, 255, 0.72),
-      0 0 22px rgba(255, 230, 60, 0.95),
-      0 0 42px var(--hint-glow2);
+      inset 0 0 0 2px rgba(255, 255, 255, 0.72),
+      inset 0 0 12px rgba(255, 244, 140, 0.58),
+      0 0 0 3px rgba(255, 255, 255, 0.46),
+      0 0 14px rgba(255, 230, 60, 0.62),
+      0 0 26px var(--hint-glow2);
   }
 }
 @keyframes hintRingPulse {
@@ -1530,8 +1530,8 @@ body {
     transform: scale(0.96);
   }
   to {
-    opacity: 1;
-    transform: scale(1.12);
+    opacity: 0.72;
+    transform: scale(1.08);
   }
 }
 @keyframes dangerPulse {

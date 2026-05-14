@@ -1,4 +1,4 @@
-# Pocket Match v1.3.22 Touch Hint Visibility
+# Pocket Match v1.3.23 Hint Glow Tone Down
 
 This is a maintenance cleanup of the existing Pocket Match build.
 
@@ -38,6 +38,12 @@ This is a maintenance cleanup of the existing Pocket Match build.
 6. Test Hint, Shuffle, Pause, Save & Quit, and Resume.
 
 
-## v1.3.22 Touch Hint Visibility
+## v1.3.23 Hint Glow Tone Down
 - Stronger tile flash for the Hint helper, especially on iPhone.
 - Added bright ring/glow pulse and extended hint display duration.
+
+
+## v1.3.23 Hint Glow Tone Down
+- Reduced hint flash/glow intensity after v1.3.22 was visually too bright.
+- Kept improved visibility duration and pulse behavior.
+- Upload `style.css` for this visual tuning. `game.js` is unchanged from v1.3.22.
