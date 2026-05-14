@@ -6,3 +6,6 @@ Update: Mobile/tablet: native swipe with scroll-snap mandatory; arrows hidden on
 Update: Active card detected after scroll settles (90ms debounce on scroll event); is-center class drives scale/opacity via CSS transition.
 Update: Arrow buttons correctly disable at the first and last card (finite, no wrap-around).
 Preserved: All v1.3.15 iOS scroll fixes, dots, save pills, applySpriteSet, all gameplay systems.
+
+
+v1.3.21 - iPhone landscape side-panel gameplay layout; hides board metadata, moves controls to sides, slims board frame.
