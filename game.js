@@ -1191,7 +1191,7 @@ function quitFromGameOver(){
 
 
 // ─────────────────────────────────────────────
-//  v1.3.14 START SCREEN HYBRID CAROUSEL
+//  v1.3.16 START SCREEN HYBRID CAROUSEL
 //  Desktop: controlled circular carousel with arrows
 //  iPhone/iPad: native momentum scroll-snap carousel from V1.8 pattern
 // ─────────────────────────────────────────────
@@ -1214,7 +1214,20 @@ function getSpriteCarouselIds(){
 }
 
 function useNativeSpriteCarousel(){
-  return (window.matchMedia&&window.matchMedia("(pointer: coarse)").matches) || ("ontouchstart" in window&&window.matchMedia&&window.matchMedia("(max-width:950px)").matches);
+  const hasTouch=("ontouchstart" in window)||(navigator.maxTouchPoints||0)>0||(window.matchMedia&&window.matchMedia("(pointer: coarse)").matches);
+  const isNarrow=window.matchMedia&&window.matchMedia("(max-width:950px)").matches;
+  // iPadOS can report itself as MacIntel when using desktop-class Safari.
+  const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&(navigator.maxTouchPoints||0)>1);
+  return !!(hasTouch&&(isNarrow||isiOS));
+}
+
+function applySpriteCarouselModeClass(){
+  const el=$("spriteOptions");
+  if(!el)return;
+  const native=spriteCarouselMode==="native";
+  el.classList.toggle("native-carousel",native);
+  el.classList.toggle("controlled-carousel",!native);
+  el.closest(".sprite-select")?.classList.toggle("native-carousel-wrap",native);
 }
 
 function getCircularOffset(i,active,n){
@@ -1231,7 +1244,7 @@ function setupSpriteCarousel(){
   el.querySelectorAll(".sprite-clone").forEach(node=>node.remove());
   el.dataset.carouselReady="1";
   spriteCarouselMode=useNativeSpriteCarousel()?"native":"controlled";
-  el.classList.toggle("native-carousel",spriteCarouselMode==="native");
+  applySpriteCarouselModeClass();
   buildSpriteCarouselDots();
 
   const ids=getSpriteCarouselIds();
@@ -1256,7 +1269,7 @@ function setupSpriteCarousel(){
       const newMode=useNativeSpriteCarousel()?"native":"controlled";
       if(newMode!==spriteCarouselMode){
         spriteCarouselMode=newMode;
-        el.classList.toggle("native-carousel",spriteCarouselMode==="native");
+        applySpriteCarouselModeClass();
       }
       renderSpriteCarousel();
       if(spriteCarouselMode==="native")scrollNativeCarouselToIndex(spriteCarouselIndex,false);
@@ -1269,24 +1282,35 @@ function setupSpriteCarousel(){
   updateSpriteCarouselDots();
 }
 
-function getSpriteCarouselStep(cards){
+function getSpriteCarouselGeometry(cards){
   const first=cards[0];
   const cardW=first?(first.getBoundingClientRect().width||parseFloat(getComputedStyle(first).width)||178):178;
   const isLandscape=window.matchMedia("(max-width:950px) and (orientation:landscape)").matches;
   const isMobile=window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;
   const isTablet=window.matchMedia("(min-width:601px) and (max-width:950px)").matches;
-  // Visual gap between the center card and its neighbor must account for the
-  // neighbor being scaled to 0.925. Without this, the perceived gap between the
-  // center and adjacent cards is smaller than the gap between adjacent and far cards.
-  // Formula: step = cardW * centerScale * 0.5 + cardW * neighborScale * 0.5 + desiredGap
-  // Simplified to: step = cardW * (1 + 0.925) / 2 + desiredGap = cardW * 0.9625 + desiredGap
-  // We solve for step such that the visual gap (empty space) is consistent.
-  // The raw pixel gap we want between card edges:
-  const desiredGap=isLandscape?14:(isMobile||isTablet?16:20);
-  const centerScale=1;
-  const neighborScale=0.925;
-  // step = half-width of center + desired gap + half-width of neighbor
-  return cardW*centerScale*0.5 + desiredGap + cardW*neighborScale*0.5;
+  const gap=isLandscape?16:(isMobile||isTablet?22:28);
+  return {cardW,gap};
+}
+
+function getSpriteCarouselScaleForAbs(abs){
+  if(abs===0)return 1;
+  if(abs===1)return .925;
+  if(abs===2)return .85;
+  return .78;
+}
+
+function getSpriteCarouselXForOffset(offset,cards){
+  const {cardW,gap}=getSpriteCarouselGeometry(cards);
+  const dir=Math.sign(offset);
+  const steps=Math.abs(offset);
+  let x=0;
+  let previousScale=getSpriteCarouselScaleForAbs(0);
+  for(let k=1;k<=steps;k++){
+    const currentScale=getSpriteCarouselScaleForAbs(Math.min(k,3));
+    x+=(cardW*((previousScale+currentScale)/2))+gap;
+    previousScale=currentScale;
+  }
+  return dir*x;
 }
 
 function renderSpriteCarousel(){
@@ -1311,14 +1335,13 @@ function renderSpriteCarousel(){
     return;
   }
 
-  const step=getSpriteCarouselStep(cards);
   cards.forEach((card,i)=>{
     const offset=getCircularOffset(i,spriteCarouselIndex,n);
     const abs=Math.abs(offset);
-    const scale=abs===0?1:(abs===1?.925:(abs===2?.85:.78));
+    const scale=getSpriteCarouselScaleForAbs(abs);
     const opacity=abs===0?1:(abs===1?.82:(abs===2?.64:0));
     card.dataset.carouselOffset=String(offset);
-    card.style.setProperty("--carousel-x",`${offset*step}px`);
+    card.style.setProperty("--carousel-x",`${getSpriteCarouselXForOffset(offset,cards)}px`);
     card.style.setProperty("--carousel-scale",String(scale));
     card.style.setProperty("--carousel-opacity",String(opacity));
     card.classList.toggle("is-center",offset===0);
@@ -1336,14 +1359,14 @@ function scrollNativeCarouselToIndex(idx,smooth=true){
   const cards=baseSpriteOptions();
   const card=cards[idx];
   if(!el||!card)return;
+  const target=card.offsetLeft-(el.clientWidth-card.offsetWidth)/2;
   spriteCarouselSuppressScroll=true;
-  // scrollIntoView is unreliable on iOS Safari inside overflow scroll containers.
-  // Use direct scrollLeft arithmetic instead for reliable cross-platform behavior.
-  const cardRect=card.getBoundingClientRect();
-  const containerRect=el.getBoundingClientRect();
-  const delta=(cardRect.left+cardRect.width/2)-(containerRect.left+containerRect.width/2);
-  el.scrollLeft=el.scrollLeft+delta;
-  window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?340:80);
+  if(smooth&&typeof el.scrollTo==="function"){
+    el.scrollTo({left:target,behavior:"smooth"});
+  }else{
+    el.scrollLeft=target;
+  }
+  window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?260:60);
 }
 
 function selectNearestNativeCarouselCard(){
@@ -1550,6 +1573,12 @@ function handleSpritePointerDown(e){
 function handleSpriteOptionPress(e){
   const opt=e.target.closest(".sprite-option");
   if(!opt)return;
+
+  // Native mobile/tablet carousel uses the browser's own momentum scroll.
+  // Do not cancel pointerup in this mode, otherwise iOS Safari can treat the
+  // carousel like a locked button strip instead of a scrollable area.
+  if(spriteCarouselMode==="native" && e.type==="pointerup")return;
+
   if(e.type==="pointerup" && handleSpriteCarouselPointerUp(e)){
     e.preventDefault();
     e.stopPropagation();
