@@ -1,5 +1,4 @@
-Pocket Match v1.3.30
-Fix: iPhone landscape layout now triggers by viewport height, not width, so Safari/PWA modes that report a wider viewport still use the iPhone layout.
-Fix: Old top HUD visuals are force-hidden in iPhone landscape.
-Fix: Board sizing script now runs in iPhone landscape and preserves the 16:9 grid ratio.
-Preserved: Desktop/tablet layout and core gameplay systems remain unchanged.
+Pocket Match v1.3.31
+Rollback: Restored the iPhone gameplay view from the previous v1.3.9 Ultrawide Scaling Fix package.
+Removed: All experimental iPhone side-panel/asymmetric layout changes from v1.3.21-v1.3.30.
+Preserved: The uploaded previous version package structure, assets, sounds, fonts, and tile sets.

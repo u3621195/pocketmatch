@@ -506,7 +506,7 @@ body{background:
 .modal-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.18),0 3px 0 rgba(9,14,28,.42)}
 .save-modal{width:min(92vw,640px)}
 .save-modal .popup-actions{max-width:520px}
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   .modal{width:min(82vw,620px);padding:20px 24px 18px;border-radius:20px}
   .modal:before{inset:7px;border-radius:14px}.modal-kicker{font-size:9px;margin-bottom:8px}.modal h1{font-size:clamp(34px,6vw,52px);margin-bottom:10px}.modal p{font-size:13px;margin-bottom:14px;max-width:500px}.popup-actions{gap:10px;max-width:500px}.modal-btn{min-height:52px;font-size:22px;border-width:3px;border-radius:12px}.modal-btn:before{width:32px;height:32px;font-size:17px}
 }
@@ -722,7 +722,7 @@ body{background:
 .saved-slot.hidden{display:block}.saved-slot-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:14px 22px;border-radius:14px;background:rgba(255,255,255,.32);border:1.5px solid rgba(42,47,70,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
 .saved-slot-label{font-size:11px;letter-spacing:.14em;color:#4e5368;font-weight:800;text-transform:uppercase;display:block;margin-bottom:5px}.saved-slot-details{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:#151b32;font-family:'Space Grotesk',system-ui,sans-serif;flex-wrap:wrap}.saved-slot-sep{color:#8a8d9c;font-size:12px}.delete-save-btn{display:block;background:transparent;border:1.5px solid rgba(42,47,70,.25);border-radius:9px;color:#666b7a;font-size:13px;padding:7px 11px;cursor:pointer;font-family:'Space Grotesk',system-ui,sans-serif}
 .delete-save-btn:hover{border-color:#d99a00;color:#4b35bd}
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   .start-modal{width:96vw;max-height:96dvh;padding:14px 26px 14px;border-radius:22px}
   .start-modal .modal-kicker{font-size:9px;padding:5px 26px;margin-bottom:7px;letter-spacing:.30em}
   .start-modal h1{font-size:clamp(38px,8.3vw,72px)}
@@ -733,7 +733,7 @@ body{background:
   .start-modal{padding:20px 16px}.start-modal h1{font-size:42px}.start-modal p{font-size:11px}.start-modal p:before,.start-modal p:after{display:none}.sprite-options{grid-template-columns:repeat(var(--sprite-count),minmax(0,1fr));gap:10px}.sprite-option{min-height:100px}.start-btn{min-height:58px;font-size:20px;letter-spacing:.08em}.saved-slot-card{grid-template-columns:1fr;gap:8px;text-align:left}.delete-save-btn{justify-self:end}
 }
 
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   html,body{
     width:100%;
     height:100%;
@@ -945,7 +945,7 @@ body{background:
   .saved-slot-btns{margin-left:0}
 }
 
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   .overlay{padding:10px}
   .start-modal{
     width:min(92vw,500px);
@@ -975,7 +975,7 @@ body{background:
   .start-modal{max-height:none;overflow:visible;}
 }
 
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   .start-modal{width:min(96vw,760px);padding:10px 20px 12px;border-radius:18px;}
   .start-modal .modal-kicker{font-size:8px;padding:4px 22px;margin-bottom:5px;letter-spacing:.28em;}
   .start-modal h1{font-size:clamp(32px,7vw,52px);line-height:.9;}
@@ -1409,7 +1409,7 @@ body{background:
   height:64px;
 }
 
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   #overlay .sprite-option{
     gap:5px;
   }
@@ -1541,10 +1541,7 @@ body{background:
   transform:none;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(42,47,70,.08),0 3px 0 rgba(42,47,70,.18);
 }
-#overlay .delete-save-btn.hidden{
-  visibility:hidden;    /* holds its space — no layout shift when toggled */
-  pointer-events:none;
-}
+#overlay .delete-save-btn.hidden{display:none;}
 .confirm-modal .popup-actions{grid-template-columns:1fr 1fr;}
 @media (max-width: 760px){
   #overlay .action-grid{grid-template-columns:1fr;gap:8px;width:min(86%,420px);}
@@ -1554,7 +1551,7 @@ body{background:
   #overlay .sprite-option .sprite-save-pill{min-height:18px;min-width:42px;font-size:8px;padding:3px 8px;}
   #overlay .selected-run-info{width:min(86%,420px);margin-bottom:10px;}
 }
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   #overlay .action-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(78%,620px);}
   #overlay .action-btn{min-height:40px;font-size:12px;border-radius:10px;}
   #overlay .action-btn:before{width:22px;height:22px;font-size:13px;}
@@ -1617,7 +1614,7 @@ body{background:
   }
 }
 
-@media (orientation: landscape) and (max-height: 540px){
+@media (max-width: 950px) and (orientation: landscape){
   #overlay{
     align-items:flex-start !important;
     justify-content:center !important;
@@ -2656,471 +2653,5 @@ body{background:
     max-width:none!important;
     height:auto!important;
     aspect-ratio:16 / 9!important;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   v1.3.16  FINITE SCROLL-SNAP CAROUSEL  (desktop + mobile unified)
-   All cards are flex children in a single scroll container.
-   Scroll-snap centres each card. No absolute positioning, no JS
-   transforms for layout — just padding + gap + scroll-snap.
-   ───────────────────────────────────────────────────────────────── */
-
-/* Icon sizing preserved from v1.3.11 */
-#overlay .sprite-option .sprite-icon.icon-shell{
-  width:72px!important;height:72px!important;
-  display:grid!important;place-items:center!important;
-  margin:0 auto!important;line-height:1!important;
-  filter:drop-shadow(0 4px 0 rgba(20,24,38,.14))!important;
-}
-#overlay .sprite-option .sprite-icon.icon-shell svg,
-#overlay .sprite-option .sprite-icon.icon-shell img,
-#overlay .sprite-option[data-set="original"] .sprite-icon-img{
-  width:72px!important;height:72px!important;
-  display:block!important;object-fit:contain!important;image-rendering:auto!important;
-}
-#overlay .sprite-option .sprite-name{
-  font-size:14px!important;letter-spacing:.07em!important;
-  line-height:1.05!important;margin-top:0!important;
-}
-#overlay .sprite-option .sprite-save-pill{
-  min-height:21px!important;min-width:52px!important;
-  font-size:9px!important;padding:3px 10px!important;
-}
-
-/* Container */
-#overlay .sprite-select{
-  position:relative!important;
-  width:min(92vw, 840px)!important;
-  max-width:840px!important;
-  margin:0 auto 14px!important;
-  overflow:visible!important;    /* arrows sit outside; mask handles visual clip */
-}
-
-/* Scroll track */
-#overlay .sprite-options{
-  display:flex!important;
-  grid-template-columns:none!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  gap:16px!important;
-  width:100%!important;
-  max-width:none!important;
-  height:auto!important;
-  min-height:160px!important;
-  padding:10px var(--carousel-side-pad, 0px) 12px!important;
-  box-sizing:border-box!important;
-  overflow-x:scroll!important;
-  overflow-y:hidden!important;
-  scroll-snap-type:x mandatory!important;
-  scroll-padding-inline:var(--carousel-side-pad, 0px)!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  touch-action:pan-x!important;
-  cursor:grab!important;
-  /* Fade edges so partial cards look intentional */
-  mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)!important;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%)!important;
-}
-#overlay .sprite-options:active{cursor:grabbing!important;}
-#overlay .sprite-options::-webkit-scrollbar{display:none!important;}
-
-/* Each card */
-#overlay .sprite-option{
-  position:relative!important;
-  left:auto!important;top:auto!important;
-  flex:0 0 var(--carousel-card-w, 176px)!important;
-  width:var(--carousel-card-w, 176px)!important;
-  min-width:var(--carousel-card-w, 176px)!important;
-  max-width:var(--carousel-card-w, 176px)!important;
-  min-height:148px!important;
-  padding:14px 12px 12px!important;
-  gap:8px!important;
-  margin:0!important;
-  scroll-snap-align:center!important;
-  scroll-snap-stop:always!important;
-  /* Inactive cards: slightly shrunk + dimmed */
-  transform:scale(.91)!important;
-  opacity:.76!important;
-  transition:transform .22s ease, opacity .22s ease, box-shadow .22s ease,
-             background .22s ease, border-color .22s ease!important;
-  will-change:transform,opacity!important;
-}
-/* Active (centred) card */
-#overlay .sprite-option.is-center,
-#overlay .sprite-option.active{
-  transform:scale(1)!important;
-  opacity:1!important;
-}
-#overlay .sprite-option:hover{
-  transform:scale(.94) translateY(-1px)!important;
-}
-#overlay .sprite-option.is-center:hover,
-#overlay .sprite-option.active:hover{
-  transform:scale(1.02) translateY(-1px)!important;
-}
-
-/* Dots */
-#overlay .sprite-carousel-dots{
-  display:flex!important;align-items:center!important;
-  justify-content:center!important;gap:6px!important;
-  margin:0 auto!important;min-height:14px!important;
-}
-#overlay .sprite-carousel-dot{
-  width:7px!important;height:7px!important;
-  border:0!important;border-radius:999px!important;
-  background:rgba(66,71,98,.28)!important;padding:0!important;
-  cursor:pointer!important;
-  transition:width .18s ease, background .18s ease!important;
-}
-#overlay .sprite-carousel-dot.active{
-  width:18px!important;background:#d99a00!important;
-}
-
-/* Arrows (desktop only, hidden on touch) */
-#overlay .sprite-carousel-arrow{
-  position:absolute!important;
-  top:50%!important;
-  transform:translateY(-50%)!important;
-  z-index:50!important;
-  width:42px!important;height:54px!important;
-  border-radius:16px!important;
-  border:2px solid rgba(66,71,98,.34)!important;
-  background:linear-gradient(180deg,#fffdf8,#e7e3dc)!important;
-  color:#42365f!important;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.72),inset 0 -3px 0 rgba(25,30,48,.12),0 4px 0 rgba(15,18,32,.18)!important;
-  font-family:'Space Grotesk',system-ui,sans-serif!important;
-  font-size:36px!important;font-weight:800!important;line-height:1!important;
-  display:grid!important;place-items:center!important;
-  cursor:pointer!important;user-select:none!important;
-}
-#overlay .sprite-carousel-prev{left:4px!important;}
-#overlay .sprite-carousel-next{right:4px!important;}
-#overlay .sprite-carousel-arrow:hover{
-  border-color:#d99a00!important;color:#4b35bd!important;
-  transform:translateY(calc(-50% - 1px))!important;
-}
-#overlay .sprite-carousel-arrow:active{
-  transform:translateY(calc(-50% + 1px))!important;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(25,30,48,.12),0 2px 0 rgba(15,18,32,.18)!important;
-}
-/* Disable arrows when at first/last card */
-#overlay .sprite-carousel-arrow[disabled]{
-  opacity:.35!important;cursor:default!important;pointer-events:none!important;
-}
-/* Hide arrows on touch devices — swipe is enough */
-@media (pointer:coarse){
-  #overlay .sprite-carousel-arrow{display:none!important;}
-}
-
-/* ── Breakpoint tweaks ── */
-
-/* Desktop wide */
-@media (min-width:951px){
-  #overlay .sprite-select{padding:0 52px!important;box-sizing:border-box!important;}
-  #overlay .sprite-options{
-    --carousel-card-w:178px;
-    --carousel-side-pad:calc((100% - 178px) / 2);
-    min-height:162px!important;
-  }
-}
-
-/* Tablet */
-@media (min-width:601px) and (max-width:950px){
-  #overlay .sprite-select{width:min(90vw,620px)!important;max-width:620px!important;}
-  #overlay .sprite-options{
-    --carousel-card-w:168px;
-    --carousel-side-pad:calc((100% - 168px) / 2);
-    gap:14px!important;
-    min-height:150px!important;
-  }
-  #overlay .sprite-option{min-height:136px!important;padding:12px 10px 10px!important;}
-  #overlay .sprite-option .sprite-icon.icon-shell,
-  #overlay .sprite-option .sprite-icon.icon-shell svg,
-  #overlay .sprite-option .sprite-icon.icon-shell img,
-  #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:66px!important;height:66px!important;}
-}
-
-/* Mobile portrait */
-@media (max-width:600px) and (orientation:portrait){
-  #overlay .sprite-select{width:min(92vw,430px)!important;max-width:430px!important;margin-bottom:10px!important;}
-  #overlay .sprite-select-label{margin-bottom:3px!important;}
-  #overlay .sprite-options{
-    --carousel-card-w:min(64vw,214px);
-    --carousel-side-pad:calc((100% - min(64vw,214px)) / 2);
-    gap:14px!important;min-height:160px!important;
-  }
-  #overlay .sprite-option{min-height:150px!important;padding:14px 12px 12px!important;}
-  #overlay .sprite-option .sprite-icon.icon-shell,
-  #overlay .sprite-option .sprite-icon.icon-shell svg,
-  #overlay .sprite-option .sprite-icon.icon-shell img,
-  #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:76px!important;height:76px!important;}
-  #overlay .sprite-option .sprite-name{font-size:13px!important;}
-  #overlay .saved-slot-card{grid-template-columns:1fr!important;gap:6px!important;}
-  #overlay .saved-slot-info:last-child .saved-slot-details{grid-template-columns:minmax(72px,1fr) 32px!important;justify-items:start!important;}
-}
-
-/* Landscape small */
-@media (max-width:950px) and (orientation:landscape){
-  #overlay .sprite-select{width:min(84vw,600px)!important;max-width:600px!important;margin:0 auto 5px!important;}
-  #overlay .sprite-options{
-    --carousel-card-w:132px;
-    --carousel-side-pad:calc((100% - 132px) / 2);
-    gap:10px!important;min-height:0!important;
-    padding-top:5px!important;padding-bottom:7px!important;
-  }
-  #overlay .sprite-option{min-height:88px!important;padding:7px 8px 6px!important;gap:3px!important;}
-  #overlay .sprite-option .sprite-icon.icon-shell,
-  #overlay .sprite-option .sprite-icon.icon-shell svg,
-  #overlay .sprite-option .sprite-icon.icon-shell img,
-  #overlay .sprite-option[data-set="original"] .sprite-icon-img{width:42px!important;height:42px!important;}
-  #overlay .sprite-option .sprite-name{font-size:9px!important;letter-spacing:.055em!important;}
-  #overlay .sprite-option .sprite-save-pill{min-height:16px!important;min-width:38px!important;font-size:7px!important;padding:2px 7px!important;}
-  #overlay .sprite-carousel-dots{gap:5px!important;min-height:10px!important;}
-  #overlay .sprite-carousel-dot{width:5px!important;height:5px!important;}
-  #overlay .sprite-carousel-dot.active{width:14px!important;}
-  #overlay .saved-slot-card{grid-template-columns:minmax(0,1fr) minmax(120px,auto)!important;}
-  #overlay .saved-slot-info:last-child .saved-slot-details{grid-template-columns:minmax(58px,1fr) 28px!important;min-height:28px!important;gap:8px!important;}
-  #overlay .delete-save-btn{width:28px!important;height:28px!important;}
-}
-
-
-/* =========================================================
-   v1.3.29 — Fresh iPhone landscape gameplay layout rewrite
-   Goal: preserve a true game-board aspect ratio, maximize height,
-   and place all gameplay UI neatly in a single right-side panel.
-   ========================================================= */
-@media (orientation: landscape) and (max-height: 540px){
-  :root{
-    --pm-phone-left-dead: 78px;
-    --pm-phone-right-inset: 6px;
-    --pm-phone-gap: 6px;
-    --pm-phone-panel-w: 98px;
-    --pm-phone-unit: clamp(34px, 11dvh, 46px);
-    --pm-phone-unit-lg: clamp(42px, 13dvh, 58px);
-    --pm-phone-round: clamp(40px, 11dvh, 50px);
-  }
-
-  html,body{
-    width:100vw;
-    height:100dvh;
-    overflow:hidden;
-  }
-
-  .app-shell{
-    width:100vw;
-    height:100dvh;
-    padding:0 !important;
-    display:block;
-    overflow:hidden;
-  }
-
-  .topbar{
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100dvh;
-    display:block;
-    padding:0;
-    margin:0;
-    border:0;
-    border-radius:0;
-    background:transparent;
-    box-shadow:none;
-    pointer-events:none;
-    z-index:30;
-  }
-
-  .topbar > *{ pointer-events:auto; }
-  .brand, #themeBtn, #saveBtn{ display:none !important; }
-
-  #levelPill,
-  #rulePill,
-  #scorePanel,
-  #timerPanel,
-  #hintBtn,
-  #shuffleBtn,
-  #musicBtn,
-  #pauseBtn{
-    position:fixed !important;
-    right:var(--pm-phone-right-inset) !important;
-    width:var(--pm-phone-panel-w) !important;
-    margin:0 !important;
-    box-sizing:border-box;
-    z-index:35;
-  }
-
-  #levelPill,
-  #rulePill,
-  #hintBtn,
-  #shuffleBtn{
-    min-height:var(--pm-phone-unit);
-  }
-
-  #levelPill,
-  #rulePill{
-    justify-content:space-between;
-    padding:0 10px;
-    font-size:9px;
-  }
-  #levelPill strong,
-  #rulePill .rule-tag{
-    margin-left:8px;
-    white-space:nowrap;
-  }
-
-  #levelPill{ top: max(4px, env(safe-area-inset-top)); }
-  #rulePill{ top: calc(max(4px, env(safe-area-inset-top)) + var(--pm-phone-unit) + var(--pm-phone-gap)); }
-
-  #scorePanel{
-    top: calc(max(4px, env(safe-area-inset-top)) + var(--pm-phone-unit) * 2 + var(--pm-phone-gap) * 2 + 6px);
-    min-height:var(--pm-phone-unit-lg);
-    min-width:0;
-    padding:6px 10px 7px;
-  }
-  #scorePanel strong{ font-size:clamp(16px, 4vw, 22px); }
-
-  #timerPanel{
-    top: calc(max(4px, env(safe-area-inset-top)) + var(--pm-phone-unit) * 2 + var(--pm-phone-unit-lg) + var(--pm-phone-gap) * 3 + 8px);
-    min-width:0;
-    width:var(--pm-phone-panel-w);
-    display:block;
-  }
-  #timerPanel .timer-rail{ display:none !important; }
-  #timerPanel .timer-text{
-    width:100% !important;
-    min-width:0 !important;
-    font-size:clamp(15px, 4.6vw, 20px);
-    padding:7px 0;
-    border-width:3px;
-  }
-
-  #hintBtn,
-  #shuffleBtn{
-    justify-content:space-between;
-    padding:0 10px;
-  }
-  #hintBtn{ top: calc(max(4px, env(safe-area-inset-top)) + var(--pm-phone-unit) * 3 + var(--pm-phone-unit-lg) + var(--pm-phone-gap) * 4 + 14px); }
-  #shuffleBtn{ top: calc(max(4px, env(safe-area-inset-top)) + var(--pm-phone-unit) * 4 + var(--pm-phone-unit-lg) + var(--pm-phone-gap) * 5 + 14px); }
-  #hintBtn span, #shuffleBtn span{ font-size:20px; }
-  #hintBtn strong, #shuffleBtn strong{ font-size:15px; padding:1px 8px; }
-
-  #musicBtn,
-  #pauseBtn{
-    width:var(--pm-phone-round) !important;
-    height:var(--pm-phone-round);
-    min-height:var(--pm-phone-round);
-    right:calc(var(--pm-phone-right-inset) + (var(--pm-phone-panel-w) - var(--pm-phone-round)) / 2) !important;
-  }
-  #pauseBtn{ bottom:max(4px, env(safe-area-inset-bottom)); }
-  #musicBtn{ bottom:calc(max(4px, env(safe-area-inset-bottom)) + var(--pm-phone-round) + var(--pm-phone-gap) + 2px); }
-
-  .game-area{
-    position:fixed;
-    left:calc(var(--pm-phone-left-dead) + var(--pm-phone-gap));
-    top:max(4px, env(safe-area-inset-top));
-    width:auto;
-    height:auto;
-    padding:0;
-    margin:0;
-    justify-content:flex-start;
-    align-items:flex-start;
-    overflow:visible;
-  }
-
-  .board-frame{
-    margin:0;
-    width:auto;
-    max-width:none;
-    max-height:none;
-    height:auto;
-    display:flex;
-    flex-direction:column;
-    padding:8px 10px 10px;
-    border-width:4px;
-    border-radius:20px;
-    box-shadow:inset 0 3px 0 var(--frame-sh1), inset 0 -5px 0 var(--frame-sh2), 0 10px 0 var(--frame-sh3), 0 0 18px rgba(124,96,255,.18);
-  }
-  .board-frame:before{ display:none; }
-
-  .board-header{ display:none; }
-
-  .board-time-meter{
-    height:12px;
-    margin:0 0 6px;
-    border-width:3px;
-    border-radius:8px;
-  }
-
-  .board-wrap{
-    flex:1 1 auto;
-    min-height:0;
-    padding:5px;
-    border-width:4px;
-    border-radius:14px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  }
-
-  .board{
-    width:auto;
-    max-width:none;
-    max-height:none;
-    aspect-ratio:16/9;
-    gap:3px;
-    padding:4px;
-    border-radius:10px;
-  }
-
-  .tile{
-    border-width:2px;
-    border-radius:8px;
-    box-shadow:inset 1px 1px 0 var(--tile-sh1), inset -2px -2px 0 var(--tile-sh2), 0 2px 0 var(--tile-sh3);
-  }
-  .tile:before{ inset:4px; border-radius:5px; }
-  .entity-sprite{ max-width:80%; max-height:80%; }
-}
-
-
-/* =========================================================
-   v1.3.30 — Robust iPhone landscape trigger
-   Uses viewport height, not width, because some iPhone/PWA modes
-   report a wider layout viewport than expected.
-   ========================================================= */
-@media (orientation: landscape) and (max-height: 540px){
-  .topbar{
-    background:transparent !important;
-    border:0 !important;
-    box-shadow:none !important;
-    min-height:0 !important;
-    height:100dvh !important;
-    width:100vw !important;
-    display:block !important;
-  }
-
-  .topbar .brand,
-  #themeBtn,
-  #saveBtn{
-    display:none !important;
-  }
-
-  .game-area{
-    left:calc(var(--pm-phone-left-dead) + var(--pm-phone-gap)) !important;
-    top:max(4px, env(safe-area-inset-top)) !important;
-    padding:0 !important;
-  }
-
-  .board-frame{
-    max-width:none !important;
-    max-height:none !important;
-    overflow:visible !important;
-  }
-
-  .board{
-    aspect-ratio:16 / 9 !important;
-    min-width:0 !important;
-    min-height:0 !important;
-    overflow:visible !important;
   }
 }

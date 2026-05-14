@@ -265,17 +265,13 @@ function buildEntities(setId){
   return set.sprites.map(e=>({id:e.id,name:e.n,img:e.img,scale:e.scale||set.scale||0.85}));
 }
 
-function applySpriteSet(setId,opts={}){
+function applySpriteSet(setId){
   currentSpriteSetId=SPRITE_SETS[setId]?setId:"original";
   entities=buildEntities(currentSpriteSetId);
   try{localStorage.setItem(SPRITE_SET_KEY,currentSpriteSetId)}catch(e){}
   document.querySelectorAll(".sprite-option").forEach(el=>el.classList.toggle("active",el.dataset.set===currentSpriteSetId));
   updateBoardInfo();
   if(typeof refreshStartScreen==="function")refreshStartScreen();
-  if(typeof updateSpriteCarouselDots==="function")updateSpriteCarouselDots();
-  if(typeof centerSpriteCarouselOn==="function" && !opts.fromCarousel && document.getElementById("spriteOptions")?.dataset.carouselReady==="1"){
-    centerSpriteCarouselOn(currentSpriteSetId,true);
-  }
 }
 
 function randomSpriteSetId(excludeId=null){
@@ -630,91 +626,8 @@ function renderBoard(){
   setTimeout(resizeCanvas,50)
 }
 
-
-function isPhoneLandscapeGameplay(){
-  return !!(window.matchMedia && window.matchMedia('(orientation:landscape) and (max-height:540px)').matches);
-}
-function pxNum(v){
-  const n=parseFloat(v);
-  return Number.isFinite(n)?n:0;
-}
-function fitPhoneGameplayLayout(){
-  const frame=document.querySelector('.board-frame');
-  const wrap=document.querySelector('.board-wrap');
-  const area=document.querySelector('.game-area');
-  const meter=document.querySelector('.board-time-meter');
-  if(!frame||!wrap||!area||!boardEl)return;
-
-  const root=document.documentElement;
-  if(!isPhoneLandscapeGameplay()){
-    root.style.removeProperty('--pm-phone-panel-w');
-    root.style.removeProperty('--pm-phone-right-inset');
-    root.style.removeProperty('--pm-phone-left-dead');
-    area.style.width='';
-    area.style.height='';
-    frame.style.width='';
-    frame.style.height='';
-    boardEl.style.width='';
-    boardEl.style.height='';
-    return;
-  }
-
-  const vw=Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
-  const vh=Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
-  const ratio=COLS/ROWS;
-  const top=4;
-  const bottom=4;
-  const gap=6;
-  const rightInset=6;
-  const leftDead=vw <= 760 ? 78 : 86;
-  const minPanelW=vw <= 760 ? 88 : 96;
-
-  root.style.setProperty('--pm-phone-left-dead', leftDead + 'px');
-  root.style.setProperty('--pm-phone-right-inset', rightInset + 'px');
-
-  const maxAreaH = Math.max(220, vh - top - bottom);
-  frame.style.height = Math.floor(maxAreaH) + 'px';
-
-  const frameCS=getComputedStyle(frame);
-  const wrapCS=getComputedStyle(wrap);
-  const meterCS=meter?getComputedStyle(meter):null;
-  const frameX=pxNum(frameCS.paddingLeft)+pxNum(frameCS.paddingRight)+pxNum(frameCS.borderLeftWidth)+pxNum(frameCS.borderRightWidth);
-  const frameY=pxNum(frameCS.paddingTop)+pxNum(frameCS.paddingBottom)+pxNum(frameCS.borderTopWidth)+pxNum(frameCS.borderBottomWidth);
-  const wrapX=pxNum(wrapCS.paddingLeft)+pxNum(wrapCS.paddingRight)+pxNum(wrapCS.borderLeftWidth)+pxNum(wrapCS.borderRightWidth);
-  const wrapY=pxNum(wrapCS.paddingTop)+pxNum(wrapCS.paddingBottom)+pxNum(wrapCS.borderTopWidth)+pxNum(wrapCS.borderBottomWidth);
-  const meterY=meter?(meter.getBoundingClientRect().height + pxNum(meterCS.marginTop)+pxNum(meterCS.marginBottom)):0;
-  const chromeX=frameX + wrapX;
-  const chromeY=frameY + wrapY + meterY;
-
-  let gridH=Math.max(100, maxAreaH - chromeY);
-  let gridW=gridH * ratio;
-  let frameW=gridW + chromeX;
-  let frameH=maxAreaH;
-
-  const usableW = vw - leftDead - rightInset - gap*2;
-  const maxFrameW = usableW - minPanelW;
-  if(frameW > maxFrameW){
-    frameW = Math.max(220, maxFrameW);
-    gridW = Math.max(120, frameW - chromeX);
-    gridH = gridW / ratio;
-    frameH = Math.ceil(gridH + chromeY);
-  }
-
-  let panelW = Math.floor(usableW - frameW);
-  panelW = Math.max(minPanelW, panelW);
-  root.style.setProperty('--pm-phone-panel-w', panelW + 'px');
-
-  area.style.width = Math.ceil(frameW) + 'px';
-  area.style.height = Math.ceil(frameH) + 'px';
-  frame.style.width = Math.ceil(frameW) + 'px';
-  frame.style.height = Math.ceil(frameH) + 'px';
-  boardEl.style.width = Math.floor(gridW) + 'px';
-  boardEl.style.height = Math.floor(gridH) + 'px';
-}
-
 let pathPadX=0,pathPadY=0;
 function resizeCanvas(){
-  fitPhoneGameplayLayout();
   // Expand the connection-line canvas around the tile grid so border routes
   // (above, below, left, right of the grid) remain fully visible on every device.
   const rect=boardEl.getBoundingClientRect();
@@ -1272,224 +1185,6 @@ function quitFromGameOver(){
   returnToTitleAfterSave();
 }
 
-
-// ─────────────────────────────────────────────
-//  v1.3.16  FINITE SCROLL-SNAP CAROUSEL
-//  Single unified approach for desktop + mobile.
-//  Layout: CSS flex scroll-snap (no absolute positioning, no JS transforms).
-//  JS responsibility: track active index, update is-center class,
-//  scroll active card into view, update dots, update arrow disabled state.
-// ─────────────────────────────────────────────
-let spriteCarouselIndex=0;
-let spriteCarouselScrollTimer=0;
-let spriteCarouselSuppressScroll=false;
-let spriteCarouselWheelLock=false;
-let spriteCarouselPointerStart=null;
-let spriteCarouselPointerMoved=false;
-let spriteCarouselResizeRAF=0;
-
-function baseSpriteOptions(){
-  const el=$("spriteOptions");
-  return el?[...el.querySelectorAll(".sprite-option:not(.sprite-clone)")]:[];
-}
-
-function getSpriteCarouselIds(){
-  return baseSpriteOptions().map(card=>card.dataset.set).filter(Boolean);
-}
-
-function setupSpriteCarousel(){
-  const el=$("spriteOptions");
-  if(!el||el.dataset.carouselReady==="1")return;
-  el.dataset.carouselReady="1";
-  buildSpriteCarouselDots();
-
-  const ids=getSpriteCarouselIds();
-  spriteCarouselIndex=Math.max(0,ids.indexOf(currentSpriteSetId));
-
-  // Arrow buttons
-  const prev=$("spriteCarouselPrev");
-  const next=$("spriteCarouselNext");
-  if(prev)prev.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(-1,true);});
-  if(next)next.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(1,true);});
-
-  // Scroll → detect which card is centred after scrolling settles
-  el.addEventListener("scroll",()=>{
-    if(spriteCarouselSuppressScroll)return;
-    window.clearTimeout(spriteCarouselScrollTimer);
-    spriteCarouselScrollTimer=window.setTimeout(selectNearestCarouselCard,90);
-  },{passive:true});
-
-  // Mouse-wheel: step one card at a time
-  el.addEventListener("wheel",handleSpriteCarouselWheel,{passive:false});
-
-  // Re-centre on resize
-  window.addEventListener("resize",()=>{
-    if(spriteCarouselResizeRAF)return;
-    spriteCarouselResizeRAF=requestAnimationFrame(()=>{
-      spriteCarouselResizeRAF=0;
-      scrollCarouselToIndex(spriteCarouselIndex,false);
-    });
-  },{passive:true});
-
-  refreshSpriteSavePills();
-  renderSpriteCarousel();
-  // Defer first scroll so layout is complete
-  setTimeout(()=>scrollCarouselToIndex(spriteCarouselIndex,false),80);
-  updateSpriteCarouselDots();
-}
-
-function renderSpriteCarousel(){
-  const cards=baseSpriteOptions();
-  const n=cards.length;
-  if(!n)return;
-  spriteCarouselIndex=Math.max(0,Math.min(spriteCarouselIndex,n-1));
-  cards.forEach((card,i)=>{
-    card.classList.toggle("is-center",i===spriteCarouselIndex);
-  });
-  updateSpriteCarouselDots();
-  updateCarouselArrows();
-}
-
-function scrollCarouselToIndex(idx,smooth=true){
-  const el=$("spriteOptions");
-  const cards=baseSpriteOptions();
-  const card=cards[idx];
-  if(!el||!card)return;
-  spriteCarouselSuppressScroll=true;
-  // Scroll so the card centre aligns with the container centre
-  const cardRect=card.getBoundingClientRect();
-  const containerRect=el.getBoundingClientRect();
-  const delta=(cardRect.left+cardRect.width/2)-(containerRect.left+containerRect.width/2);
-  if(smooth){
-    el.scrollTo({left:el.scrollLeft+delta,behavior:"smooth"});
-  }else{
-    el.scrollLeft=el.scrollLeft+delta;
-  }
-  window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?340:80);
-}
-
-function selectNearestCarouselCard(){
-  const el=$("spriteOptions");
-  const cards=baseSpriteOptions();
-  if(!el||!cards.length)return;
-  const mid=el.getBoundingClientRect().left+el.clientWidth/2;
-  let bestIdx=spriteCarouselIndex,bestDist=Infinity;
-  cards.forEach((card,i)=>{
-    const r=card.getBoundingClientRect();
-    const dist=Math.abs((r.left+r.width/2)-mid);
-    if(dist<bestDist){bestDist=dist;bestIdx=i;}
-  });
-  if(bestIdx!==spriteCarouselIndex){
-    spriteCarouselIndex=bestIdx;
-    const ids=getSpriteCarouselIds();
-    const setId=ids[spriteCarouselIndex];
-    if(setId&&setId!==currentSpriteSetId)applySpriteSet(setId,{fromCarousel:true});
-    renderSpriteCarousel();
-  }
-}
-
-function centerSpriteCarouselOn(setId,smooth=true){
-  const ids=getSpriteCarouselIds();
-  const idx=ids.indexOf(setId);
-  if(idx<0)return;
-  spriteCarouselIndex=idx;
-  renderSpriteCarousel();
-  scrollCarouselToIndex(idx,smooth);
-}
-
-function moveSpriteCarousel(direction,playSound=false){
-  const ids=getSpriteCarouselIds();
-  if(!ids.length)return;
-  // Finite: clamp at ends, no wrap-around
-  spriteCarouselIndex=Math.max(0,Math.min(spriteCarouselIndex+direction,ids.length-1));
-  const setId=ids[spriteCarouselIndex];
-  applySpriteSet(setId,{fromCarousel:true});
-  renderSpriteCarousel();
-  scrollCarouselToIndex(spriteCarouselIndex,true);
-  if(playSound&&typeof sfx!=="undefined")sfx.select();
-}
-
-function selectSpriteCarouselSet(setId,playSound=false){
-  const ids=getSpriteCarouselIds();
-  const idx=ids.indexOf(setId);
-  if(idx<0)return;
-  spriteCarouselIndex=idx;
-  applySpriteSet(setId,{fromCarousel:true});
-  renderSpriteCarousel();
-  scrollCarouselToIndex(idx,true);
-  if(playSound&&typeof sfx!=="undefined")sfx.select();
-}
-
-function getCenteredSpriteCard(){
-  return baseSpriteOptions()[spriteCarouselIndex]||null;
-}
-
-function normalizeSpriteCarouselPosition(){
-  renderSpriteCarousel();
-  scrollCarouselToIndex(spriteCarouselIndex,false);
-}
-
-function updateCarouselArrows(){
-  const ids=getSpriteCarouselIds();
-  const prev=$("spriteCarouselPrev");
-  const next=$("spriteCarouselNext");
-  if(prev)prev.disabled=spriteCarouselIndex===0;
-  if(next)next.disabled=spriteCarouselIndex===ids.length-1;
-}
-
-function handleSpriteCarouselWheel(e){
-  const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
-  if(Math.abs(amount)<8)return;
-  e.preventDefault();
-  if(spriteCarouselWheelLock)return;
-  spriteCarouselWheelLock=true;
-  moveSpriteCarousel(amount>0?1:-1,true);
-  setTimeout(()=>{spriteCarouselWheelLock=false;},260);
-}
-
-function buildSpriteCarouselDots(){
-  const dots=$("spriteCarouselDots");
-  if(!dots)return;
-  dots.innerHTML="";
-  baseSpriteOptions().forEach(card=>{
-    const dot=document.createElement("button");
-    dot.type="button";
-    dot.className="sprite-carousel-dot";
-    dot.dataset.set=card.dataset.set;
-    dot.setAttribute("aria-label",`Select ${(SPRITE_SETS[card.dataset.set]||{}).name||card.dataset.set}`);
-    dot.addEventListener("click",e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      selectSpriteCarouselSet(dot.dataset.set,true);
-    });
-    dots.appendChild(dot);
-  });
-}
-
-function updateSpriteCarouselDots(){
-  document.querySelectorAll(".sprite-carousel-dot").forEach(dot=>dot.classList.toggle("active",dot.dataset.set===currentSpriteSetId));
-}
-
-function handleSpriteCarouselPointerDown(e){
-  spriteCarouselPointerStart={x:e.clientX,y:e.clientY,t:Date.now()};
-  spriteCarouselPointerMoved=false;
-}
-
-function handleSpriteCarouselPointerUp(e){
-  if(!spriteCarouselPointerStart)return false;
-  const dx=(e.clientX||0)-spriteCarouselPointerStart.x;
-  const dy=(e.clientY||0)-spriteCarouselPointerStart.y;
-  const dt=Date.now()-spriteCarouselPointerStart.t;
-  spriteCarouselPointerStart=null;
-  if(Math.abs(dx)>32&&Math.abs(dx)>Math.abs(dy)*1.25&&dt<900){
-    spriteCarouselPointerMoved=true;
-    moveSpriteCarousel(dx<0?1:-1,true);
-    setTimeout(()=>{spriteCarouselPointerMoved=false;},120);
-    return true;
-  }
-  return false;
-}
-
 // ─────────────────────────────────────────────
 //  BUTTON BINDINGS
 // ─────────────────────────────────────────────
@@ -1572,35 +1267,20 @@ $("deleteSaveBtn").onclick=()=>{
 // Delegated pointer/click handling keeps the full cartridge-style button tappable
 // on iPhone/iPad, including taps on the small subtitle text.
 let lastSpritePressAt=0;
-function handleSpritePointerDown(e){
-  handleSpriteCarouselPointerDown(e);
-}
 function handleSpriteOptionPress(e){
   const opt=e.target.closest(".sprite-option");
   if(!opt)return;
-  if(e.type==="pointerup" && handleSpriteCarouselPointerUp(e)){
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
-  if(e.type==="click" && spriteCarouselPointerMoved){
-    e.preventDefault();
-    e.stopPropagation();
-    spriteCarouselPointerMoved=false;
-    return;
-  }
-  const now=Date.now();
   e.preventDefault();
   e.stopPropagation();
+  const now=Date.now();
   if(now-lastSpritePressAt<180)return;
   lastSpritePressAt=now;
-  selectSpriteCarouselSet(opt.dataset.set,true);
+  applySpriteSet(opt.dataset.set);
+  if(typeof sfx!=="undefined")sfx.select();
 }
 const spriteOptionsEl=$("spriteOptions");
 if(spriteOptionsEl){
   spriteOptionsEl.style.setProperty("--sprite-count", Math.min(6, spriteOptionsEl.querySelectorAll(".sprite-option").length));
-  setupSpriteCarousel();
-  spriteOptionsEl.addEventListener("pointerdown",handleSpritePointerDown,true);
   spriteOptionsEl.addEventListener("pointerup",handleSpriteOptionPress,true);
   spriteOptionsEl.addEventListener("click",handleSpriteOptionPress,true);
 }
