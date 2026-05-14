@@ -789,6 +789,38 @@ const BRAND_SPRITES = [
   { id: 29, n: "Facebook", img: "assets/sprites/brands/29-facebook.png" },
   { id: 30, n: "Honda", img: "assets/sprites/brands/30-honda.png" },
 ];
+const TRAVEL_SPRITES = [
+  { id: 1, n: "Airplane", img: "assets/sprites/travel/01-airplane.png" },
+  { id: 2, n: "Shinkansen", img: "assets/sprites/travel/02-shinkansen.png" },
+  { id: 3, n: "Suitcase", img: "assets/sprites/travel/03-suitcase.png" },
+  { id: 4, n: "Backpack", img: "assets/sprites/travel/04-backpack.png" },
+  { id: 5, n: "Water Bottle", img: "assets/sprites/travel/05-water-bottle.png" },
+  { id: 6, n: "Sweater", img: "assets/sprites/travel/06-sweater.png" },
+  { id: 7, n: "Headphone", img: "assets/sprites/travel/07-headphone.png" },
+  { id: 8, n: "Sweatpant", img: "assets/sprites/travel/08-sweatpant.png" },
+  { id: 9, n: "Jacket", img: "assets/sprites/travel/09-jacket.png" },
+  { id: 10, n: "Toiletry Set", img: "assets/sprites/travel/10-toiletry-set.png" },
+  { id: 11, n: "Flip Flops", img: "assets/sprites/travel/11-flip-flops.png" },
+  { id: 12, n: "Diving Goggles", img: "assets/sprites/travel/12-diving-goggles.png" },
+  { id: 13, n: "Action Camera", img: "assets/sprites/travel/13-action-camera.png" },
+  { id: 14, n: "Surf Board", img: "assets/sprites/travel/14-surf-board.png" },
+  { id: 15, n: "DSLR Camera", img: "assets/sprites/travel/15-dslr-camera.png" },
+  { id: 16, n: "Beach Ball", img: "assets/sprites/travel/16-beach-ball.png" },
+  { id: 17, n: "Propeller Plane", img: "assets/sprites/travel/17-propeller-plane.png" },
+  { id: 18, n: "Passport", img: "assets/sprites/travel/18-passport.png" },
+  { id: 19, n: "Boarding Passes", img: "assets/sprites/travel/19-boarding-passes.png" },
+  { id: 20, n: "First Aid Set", img: "assets/sprites/travel/20-first-aid-set.png" },
+  { id: 21, n: "Universal Adaptor", img: "assets/sprites/travel/21-universal-adaptor.png" },
+  { id: 22, n: "Packaged Snacks", img: "assets/sprites/travel/22-packaged-snacks.png" },
+  { id: 23, n: "Aviator Sunglasses", img: "assets/sprites/travel/23-aviator-sunglasses.png" },
+  { id: 24, n: "Neck Pillow", img: "assets/sprites/travel/24-neck-pillow.png" },
+  { id: 25, n: "Yellow Cab", img: "assets/sprites/travel/25-yellow-cab.png" },
+  { id: 26, n: "TSA Lock", img: "assets/sprites/travel/26-tsa-lock.png" },
+  { id: 27, n: "Route 66 Sign", img: "assets/sprites/travel/27-route-66-sign.png" },
+  { id: 28, n: "Beach Bed", img: "assets/sprites/travel/28-beach-bed.png" },
+  { id: 29, n: "Disposable Camera", img: "assets/sprites/travel/29-disposable-camera.png" },
+  { id: 30, n: "Postcard", img: "assets/sprites/travel/30-postcard.png" },
+];
 const SPRITE_SETS = {
   original: {
     name: "POKÉMON",
@@ -886,6 +918,12 @@ const SPRITE_SETS = {
     label: "Brand logo sprites",
     sprites: BRAND_SPRITES,
     scale: 1.12,
+  },
+  travel: {
+    name: "TRAVEL",
+    label: "Travel item sprites",
+    sprites: TRAVEL_SPRITES,
+    scale: 1,
   },
 };
 let currentSpriteSetId = determineInitialSpriteSet();

@@ -1,36 +1,26 @@
-# Pocket Match v1.3.30 - Brand Card Icon Fix
+# Pocket Match v1.3.31 Travel Set Added
 
-This package adds a new **BRANDS** tile set to the game.
+This package adds the **TRAVEL** tile set to Pocket Match.
 
 ## Added
 
-- New sprite folder: `assets/sprites/brands/`
-- 30 brand-logo PNG sprites
-- New sprite array in `game.js`: `BRAND_SPRITES`
-- New `SPRITE_SETS.brands` registration
-- New **Brands** card in the start-screen tile-set carousel
-- Updated cache-busters in `index.html`
+- `assets/sprites/travel/` with 30 travel item sprites
+- `TRAVEL_SPRITES` array in `game.js`
+- `travel` entry in `SPRITE_SETS`
+- Startup carousel card for **Travel**
+- Custom embedded SVG icon for the Travel card
+- Cache-buster update in `index.html`
 
-## Upload guide
+## Upload for this update
 
-For this update, upload:
+Upload these files/folders to your hosting:
 
 ```text
 index.html
 game.js
-assets/sprites/brands/
+assets/sprites/travel/
 VERSION.txt
 README.md
 ```
 
-`style.css` is included in the package but was not functionally changed for this update.
-
-## Notes
-
-No gameplay, scoring, audio, popup, helper, carousel logic, or save-system behavior was intentionally changed.
-
-
-## v1.3.30 update
-
-- Replaced the Brands carousel card icon with a custom embedded SVG icon.
-- No gameplay logic changed.
+No intentional gameplay, scoring, audio, popup, helper, save, or carousel behavior changes were made.
