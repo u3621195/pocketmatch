@@ -2824,8 +2824,6 @@ body{background:
   cursor:grab!important;
 }
 #overlay .sprite-options:active{cursor:grabbing!important;}
-#overlay .sprite-options.dragging{cursor:grabbing!important;}
-#overlay .sprite-options.dragging .sprite-option{transition:none!important;}
 #overlay .sprite-option{
   position:absolute!important;
   left:50%!important;
@@ -2951,4 +2949,74 @@ body{background:
 }
 #overlay .sprite-option.is-center:hover{
   transform:translateX(calc(-50% + var(--carousel-x, 0px))) scale(1.02) translateY(-1px)!important;
+}
+
+
+/* v1.3.14 iPhone/iPad native momentum carousel fix, adapted from V1.8 */
+@media (pointer: coarse){
+  #overlay .sprite-select{
+    overflow:hidden!important;
+  }
+  #overlay .sprite-options.native-carousel{
+    position:relative!important;
+    display:flex!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:12px!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    scroll-snap-type:x proximity!important;
+    scroll-padding-inline:calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2)!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    touch-action:pan-x pan-y!important;
+    cursor:auto!important;
+    padding:8px calc((100% - var(--carousel-card-w, min(64vw, 214px))) / 2) 10px!important;
+    mask-image:linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%)!important;
+  }
+  #overlay .sprite-options.native-carousel::-webkit-scrollbar{display:none!important;}
+  #overlay .sprite-options.native-carousel .sprite-option,
+  #overlay .sprite-options.native-carousel .sprite-option:hover,
+  #overlay .sprite-options.native-carousel .sprite-option.is-center,
+  #overlay .sprite-options.native-carousel .sprite-option.is-center:hover,
+  #overlay .sprite-options.native-carousel .sprite-option.is-hidden{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    flex:0 0 var(--carousel-card-w, min(64vw, 214px))!important;
+    width:var(--carousel-card-w, min(64vw, 214px))!important;
+    min-width:var(--carousel-card-w, min(64vw, 214px))!important;
+    max-width:var(--carousel-card-w, min(64vw, 214px))!important;
+    margin:0!important;
+    scroll-snap-align:center!important;
+    scroll-snap-stop:normal!important;
+    transform:scale(.92)!important;
+    opacity:.78!important;
+    z-index:auto!important;
+    pointer-events:auto!important;
+    transition:transform .2s ease, opacity .2s ease, filter .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease!important;
+  }
+  #overlay .sprite-options.native-carousel .sprite-option.active,
+  #overlay .sprite-options.native-carousel .sprite-option.is-center{
+    transform:scale(1)!important;
+    opacity:1!important;
+  }
+}
+@media (pointer: coarse) and (min-width:601px) and (max-width:950px){
+  #overlay .sprite-options.native-carousel{
+    --carousel-card-w:168px!important;
+    padding-inline:calc((100% - 168px) / 2)!important;
+    scroll-padding-inline:calc((100% - 168px) / 2)!important;
+  }
+}
+@media (pointer: coarse) and (max-width:950px) and (orientation:landscape){
+  #overlay .sprite-options.native-carousel{
+    --carousel-card-w:132px!important;
+    gap:10px!important;
+    padding:5px calc((100% - 132px) / 2) 7px!important;
+    scroll-padding-inline:calc((100% - 132px) / 2)!important;
+  }
 }

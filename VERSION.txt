@@ -1,4 +1,5 @@
-Pocket Match Clean Base v1.3.13
-Update: Upgraded the startup theme selector to a smooth draggable circular carousel feel on iPhone and iPad, with cards following the drag and snapping to the nearest centered theme on release.
-Update: Preserved the controlled infinite loop to avoid desktop bounce/jump at loop points, while keeping desktop left/right arrows, wheel/trackpad support, and synced dots.
-Update: Preserved the startup Selected Run card stability fix and all previous gameplay/layout/audio/path improvements.
+Pocket Match Clean Base v1.3.14
+Update: Replaced the iPhone/iPad carousel interaction with a native momentum scroll-snap carousel adapted from the V1.8 reference mobile layout.
+Update: Touch devices now use natural swipe/scroll behavior; the centered card auto-selects after scrolling settles.
+Update: Desktop keeps the controlled circular carousel, left/right arrows, synced dots, and no Landmarks-to-Pokémon bounce.
+Update: Preserved v1.3.12 startup card stability fix and all gameplay/scoring/helper/sound/path systems.

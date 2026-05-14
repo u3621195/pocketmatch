@@ -135,8 +135,8 @@ Testing checklist:
 - No gameplay, scoring, helper, sound, movement, or path-routing logic was intentionally changed.
 
 
-## v1.3.13
+## v1.3.14
 
-- Improved the startup theme carousel on iPhone and iPad so it behaves like a smoother draggable carousel rather than a strict one-swipe/one-card stepper.
-- Cards now follow the drag gesture and snap to the nearest centered theme on release.
-- Preserved the controlled circular loop logic, desktop arrows, dots, and selected-run stability behavior from v1.3.12.
+- Fixed iPhone/iPad carousel failure by switching touch devices to a V1.8-style native momentum scroll-snap carousel.
+- The centered card still auto-selects after scrolling settles.
+- Desktop keeps the controlled circular carousel and arrow navigation.
