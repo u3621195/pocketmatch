@@ -2958,3 +2958,447 @@ body{background:
     flex-basis:28px !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   iPHONE LANDSCAPE GAMEPLAY REDESIGN  v1.4.0
+   Layout: narrow left strip (LV + RULE) | board column | right panel
+   Right panel: timer · score · hint · shuffle · music · pause
+   Dynamic Island handled automatically via safe-area-inset-left
+   Board header text & move status hidden (thin frame, no room)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 950px) and (orientation: landscape) {
+
+  /* ── Root lock ── */
+  html, body {
+    height: 100dvh !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    inset: 0 !important;
+    touch-action: manipulation !important;
+  }
+
+  /* ── App shell: 3-column layout
+     col1 = left strip (safe-area + 48px)
+     col2 = board (flex fill)
+     col3 = right action panel (68px)              ── */
+  .app-shell {
+    height: 100dvh !important;
+    width: 100vw !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns:
+      calc(env(safe-area-inset-left, 0px) + 48px)
+      1fr
+      72px !important;
+    grid-template-rows: 100dvh !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+  }
+
+  /* ── Topbar → LEFT STRIP ── */
+  .topbar {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 10px)
+      5px
+      calc(env(safe-area-inset-bottom, 0px) + 10px)
+      calc(env(safe-area-inset-left, 0px) + 5px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    border: none !important;
+    border-right: 2px solid var(--topbar-border) !important;
+    border-radius: 0 !important;
+    background: linear-gradient(180deg, var(--topbar-bg1), var(--topbar-bg2)) !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,.20) !important;
+    overflow: hidden !important;
+    z-index: 6 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Hide everything in topbar except LV pill and RULE pill ── */
+  .topbar > .brand,
+  .topbar > .timer-panel,
+  .topbar > .score-panel,
+  .topbar > #hintBtn,
+  .topbar > #shuffleBtn,
+  .topbar > #musicBtn,
+  .topbar > #pauseBtn,
+  .topbar > #saveBtn,
+  .topbar > #themeBtn {
+    display: none !important;
+  }
+
+  /* ── LV pill: compact vertical ── */
+  .hud-pill {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    height: auto !important;
+    padding: 4px 3px !important;
+    border: 2px solid var(--hud-border) !important;
+    border-radius: 8px !important;
+    font-size: 6px !important;
+    letter-spacing: .09em !important;
+    gap: 2px !important;
+    background: linear-gradient(180deg, var(--hud-bg1), var(--hud-bg2)) !important;
+    box-shadow: inset 0 1px 0 var(--hud-sh1), inset 0 -2px 0 var(--hud-sh2) !important;
+  }
+
+  .hud-pill strong {
+    font-size: 15px !important;
+    margin-left: 0 !important;
+    padding: 1px 5px !important;
+    border-width: 1px !important;
+    border-radius: 4px !important;
+  }
+
+  /* ── RULE pill: stacked below LV ── */
+  .rule-pill {
+    width: 38px !important;
+    min-height: 32px !important;
+    padding: 3px 3px !important;
+    font-size: 6px !important;
+    letter-spacing: .06em !important;
+    gap: 2px !important;
+    flex-direction: column !important;
+  }
+
+  .rule-pill span.rule-tag {
+    font-size: 6px !important;
+    padding: 1px 3px !important;
+    border-width: 1px !important;
+    margin-left: 0 !important;
+    max-width: 36px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+  }
+
+  /* ── Game area → CENTRE column ── */
+  .game-area {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+    height: 100dvh !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 5px)
+      4px
+      calc(env(safe-area-inset-bottom, 0px) + 5px)
+      4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    overflow: hidden !important;
+    gap: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Board frame: fills centre column, thin border ── */
+  .board-frame {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 3px !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-shadow:
+      inset 0 2px 0 var(--frame-sh1),
+      inset 0 -2px 0 var(--frame-sh2),
+      0 3px 0 var(--frame-sh3),
+      0 0 12px var(--frame-glow) !important;
+    box-sizing: border-box !important;
+  }
+
+  .board-frame::before,
+  .board-frame::after { display: none !important; }
+
+  /* ── Board header: hidden on iPhone ── */
+  .board-header { display: none !important; }
+
+  /* ── Thin timer bar at top of board frame ── */
+  .board-time-meter {
+    display: block !important;
+    flex: 0 0 7px !important;
+    height: 7px !important;
+    width: calc(100% - 4px) !important;
+    margin: 0 auto 3px !important;
+    padding: 1px !important;
+    border-width: 1.5px !important;
+    border-radius: 3px !important;
+  }
+
+  /* ── Board wrap and tiles ── */
+  .board-wrap {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 3px !important;
+    border-width: 3px !important;
+    border-radius: 7px !important;
+    overflow: hidden !important;
+  }
+
+  .board {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    border-radius: 5px !important;
+  }
+
+  .tile {
+    border-width: 1.5px !important;
+    border-radius: 5px !important;
+    box-shadow:
+      inset 1px 1px 0 var(--tile-sh1),
+      inset -2px -2px 0 var(--tile-sh2),
+      0 2px 0 var(--tile-sh3) !important;
+  }
+
+  .tile::before { inset: 2px !important; border-radius: 3px !important; }
+  .entity-sprite { width: 84% !important; height: 84% !important; }
+
+  /* ══════════════════════════════════════════════════
+     RIGHT ACTION PANEL
+     Uses fixed positioning to escape the topbar parent
+     and sit in the 3rd grid column (right edge)
+     ══════════════════════════════════════════════════ */
+
+  /* Panel background strip */
+  .app-shell::before {
+    content: '' !important;
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: calc(env(safe-area-inset-right, 0px) + 72px) !important;
+    height: 100dvh !important;
+    background: linear-gradient(180deg, var(--topbar-bg1), var(--topbar-bg2)) !important;
+    border-left: 2px solid var(--topbar-border) !important;
+    box-shadow: -2px 0 10px rgba(0,0,0,.20) !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
+  }
+
+  /* Show score-panel and action buttons, repositioned via fixed */
+  .topbar > .score-panel,
+  .topbar > #hintBtn,
+  .topbar > #shuffleBtn,
+  .topbar > #musicBtn,
+  .topbar > #pauseBtn {
+    display: flex !important;
+    position: fixed !important;
+    right: calc(env(safe-area-inset-right, 0px) + 8px) !important;
+    z-index: 10 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Score panel: top of right strip ── */
+  .topbar > .score-panel {
+    top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 56px !important;
+    min-height: 44px !important;
+    padding: 4px 4px !important;
+    border: 2px solid var(--hud-border) !important;
+    border-radius: 9px !important;
+    background: linear-gradient(180deg, var(--hud-bg1), var(--hud-bg2)) !important;
+    box-shadow: inset 0 1px 0 var(--hud-sh1), inset 0 -2px 0 var(--hud-sh2) !important;
+    min-width: 0 !important;
+  }
+
+  .topbar > .score-panel span {
+    font-size: 6px !important;
+    letter-spacing: .10em !important;
+    line-height: 1 !important;
+    color: var(--pill-text) !important;
+  }
+
+  .topbar > .score-panel strong {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    font-variant-numeric: tabular-nums !important;
+    color: var(--score-text) !important;
+  }
+
+  /* ── Timer text: below score ── */
+  .timer-panel { display: none !important; }
+
+  /* ── Action buttons: large square, 56×56 ── */
+  .topbar > #hintBtn,
+  .topbar > #shuffleBtn,
+  .topbar > #musicBtn,
+  .topbar > #pauseBtn {
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
+    border-width: 2px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    position: relative !important;
+  }
+
+  /* Pause — very bottom */
+  .topbar > #pauseBtn {
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+    border-radius: 12px !important;
+    font-size: 0 !important;
+  }
+
+  .topbar > #pauseBtn .pause-icon {
+    width: 18px !important;
+    height: 20px !important;
+    gap: 5px !important;
+  }
+
+  /* Music — above pause */
+  .topbar > #musicBtn {
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px) !important;
+    border-radius: 50% !important;
+    font-size: 22px !important;
+  }
+
+  /* Shuffle — above music */
+  .topbar > #shuffleBtn {
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 136px) !important;
+    border-radius: 12px !important;
+    font-size: 0 !important;
+  }
+
+  /* Hint — above shuffle */
+  .topbar > #hintBtn {
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 200px) !important;
+    border-radius: 12px !important;
+    font-size: 0 !important;
+  }
+
+  /* Hint icon */
+  .topbar > #hintBtn span,
+  .topbar > #shuffleBtn span {
+    font-size: 24px !important;
+    display: block !important;
+    line-height: 1 !important;
+    color: var(--btn-icon-color) !important;
+  }
+
+  /* ── Badge counts: top-right corner overlay ── */
+  #hintCount,
+  #shuffleCount {
+    position: absolute !important;
+    top: -7px !important;
+    right: -7px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
+    border: 1.5px solid var(--lcd-border) !important;
+    background: var(--lcd-bg) !important;
+    color: var(--lcd2-color) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    z-index: 2 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Timer text: fixed between score and hint ──
+     Shown as compact LCD below score               */
+  .timer-panel {
+    display: block !important;
+    position: fixed !important;
+    right: calc(env(safe-area-inset-right, 0px) + 8px) !important;
+    z-index: 10 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-width: 0 !important;
+    top: calc(env(safe-area-inset-top, 0px) + 60px) !important;
+  }
+
+  .timer-rail { display: none !important; }
+
+  .timer-text {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 56px !important;
+    height: 28px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    border-width: 2px !important;
+    border-radius: 7px !important;
+    padding: 0 4px !important;
+    min-width: 56px !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Modals: centered over full screen ── */
+  .overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 200 !important;
+  }
+
+  .modal:not(.start-modal) {
+    width: min(78vw, 360px) !important;
+    padding: 18px 20px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  /* ── Combo/feedback layer ── */
+  .combo-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    z-index: 50 !important;
+  }
+
+  /* ── Canvas (path drawing): stays inside board-wrap ── */
+  #pathCanvas {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+  }
+}
+
