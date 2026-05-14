@@ -1,11 +1,7 @@
-Pocket Match Clean Base v1.3.16
-Update: Replaced the hybrid controlled/native carousel with a single unified finite scroll-snap carousel for all devices.
-Update: Carousel is now a plain CSS flex scroll container with scroll-snap — no absolute positioning, no JS transform math, no circular wrapping.
-Update: Desktop: arrow buttons step through cards (disabled at first/last); mouse-wheel and pointer-drag also work.
-Update: Mobile/tablet: native swipe with scroll-snap mandatory; arrows hidden on touch devices.
-Update: Active card detected after scroll settles (90ms debounce on scroll event); is-center class drives scale/opacity via CSS transition.
-Update: Arrow buttons correctly disable at the first and last card (finite, no wrap-around).
-Preserved: All v1.3.15 iOS scroll fixes, dots, save pills, applySpriteSet, all gameplay systems.
+Pocket Match v1.3.23 - iPhone Board Fit + Arcade Buttons
 
-
-v1.3.21 - iPhone landscape side-panel gameplay layout; hides board metadata, moves controls to sides, slims board frame.
+- Reduced unused side gutters on iPhone landscape so the tile board can grow wider.
+- Let the tile board frame reach the bottom edge of the screen in iPhone gameplay.
+- Further slimmed the board frame, board wrap, timer meter, tile gaps, and tile padding.
+- Redesigned iPhone side-panel buttons with arcade-style gradients, highlights, deeper shadows, and clearer helper-count badges.
+- Desktop/tablet layout remains unchanged.

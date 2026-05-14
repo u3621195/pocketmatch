@@ -3078,3 +3078,333 @@ body{background:
   #shuffleBtn{top:calc(107px + env(safe-area-inset-top))!important;}
   #pauseBtn{right:calc(5px + env(safe-area-inset-right))!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;}
 }
+
+/* v1.3.22 iPhone landscape side-panel correction
+   - Keep the audio toggle in the same safe left column as LV/RULE.
+   - Avoid the Dynamic Island center zone by placing audio below RULE, not at bottom-left.
+   - Slightly reduce side-control width and board chrome thickness. */
+@media (max-width:950px) and (orientation:landscape){
+  .app-shell{
+    padding:
+      calc(2px + env(safe-area-inset-top))
+      calc(58px + env(safe-area-inset-right))
+      calc(2px + env(safe-area-inset-bottom))
+      calc(58px + env(safe-area-inset-left))!important;
+  }
+
+  .hud-pill{
+    left:calc(6px + env(safe-area-inset-left))!important;
+    width:46px!important;min-width:46px!important;
+    height:34px!important;min-height:34px!important;
+    border-radius:10px!important;
+    font-size:6px!important;
+  }
+  .hud-pill strong{font-size:11px!important;padding:1px 4px!important;}
+  .hud-pill:not(.rule-pill){top:calc(7px + env(safe-area-inset-top))!important;}
+
+  .rule-pill{
+    top:calc(47px + env(safe-area-inset-top))!important;
+    height:38px!important;min-height:38px!important;
+  }
+  .rule-pill span.rule-tag{font-size:6px!important;max-width:40px!important;padding:1px 3px!important;}
+
+  /* Sound belongs to the left status column, but not in the Dynamic Island middle area. */
+  #musicBtn{
+    left:calc(6px + env(safe-area-inset-left))!important;
+    right:auto!important;
+    top:calc(93px + env(safe-area-inset-top))!important;
+    bottom:auto!important;
+    width:46px!important;min-width:46px!important;
+    height:42px!important;min-height:42px!important;
+    border-radius:14px!important;
+    font-size:22px!important;
+  }
+
+  .score-panel{
+    right:calc(6px + env(safe-area-inset-right))!important;
+    top:calc(7px + env(safe-area-inset-top))!important;
+    width:46px!important;min-width:46px!important;
+    height:38px!important;min-height:38px!important;
+    border-radius:10px!important;
+  }
+  .score-panel span{font-size:5px!important;}
+  .score-panel strong{font-size:10px!important;}
+
+  #hintBtn,#shuffleBtn{
+    right:calc(6px + env(safe-area-inset-right))!important;
+    width:46px!important;min-width:46px!important;
+    height:46px!important;min-height:46px!important;
+    border-radius:12px!important;
+  }
+  #hintBtn{top:calc(57px + env(safe-area-inset-top))!important;}
+  #shuffleBtn{top:calc(109px + env(safe-area-inset-top))!important;}
+  #hintBtn span,#shuffleBtn span{font-size:21px!important;}
+  #hintBtn strong,#shuffleBtn strong{
+    right:-5px!important;top:-6px!important;
+    width:20px!important;height:20px!important;min-width:20px!important;
+    font-size:9px!important;
+  }
+
+  #pauseBtn{
+    right:calc(6px + env(safe-area-inset-right))!important;
+    bottom:calc(8px + env(safe-area-inset-bottom))!important;
+    width:46px!important;min-width:46px!important;
+    height:46px!important;min-height:46px!important;
+    border-radius:14px!important;
+  }
+
+  .board-frame{
+    padding:1px!important;
+    border-width:1px!important;
+    border-radius:8px!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.45),0 1px 0 rgba(0,0,0,.28)!important;
+  }
+  .board-time-meter{
+    flex-basis:11px!important;height:11px!important;
+    margin:1px auto 1px!important;
+    padding:2px!important;
+  }
+  .timer-text{
+    top:calc(3px + env(safe-area-inset-top))!important;
+    height:14px!important;min-height:14px!important;
+    font-size:9px!important;
+  }
+  .board-wrap{
+    padding:1px!important;
+    border-width:1px!important;
+    border-radius:7px!important;
+    box-shadow:inset 0 0 0 1px var(--wrap-inner),inset 0 0 8px rgba(0,0,0,.40)!important;
+  }
+  .board{gap:1.5px!important;padding:1.5px!important;border-radius:5px!important;}
+  .tile{border-width:1px!important;border-radius:4px!important;}
+  .tile:before{inset:1.5px!important;border-radius:3px!important;}
+}
+
+@media (max-width:760px) and (orientation:landscape){
+  .app-shell{
+    padding:
+      calc(2px + env(safe-area-inset-top))
+      calc(54px + env(safe-area-inset-right))
+      calc(2px + env(safe-area-inset-bottom))
+      calc(54px + env(safe-area-inset-left))!important;
+  }
+  .hud-pill{left:calc(5px + env(safe-area-inset-left))!important;width:44px!important;min-width:44px!important;height:32px!important;min-height:32px!important;}
+  .rule-pill{top:calc(44px + env(safe-area-inset-top))!important;height:36px!important;min-height:36px!important;}
+  #musicBtn{left:calc(5px + env(safe-area-inset-left))!important;right:auto!important;top:calc(87px + env(safe-area-inset-top))!important;bottom:auto!important;width:44px!important;min-width:44px!important;height:40px!important;min-height:40px!important;}
+  .score-panel{right:calc(5px + env(safe-area-inset-right))!important;width:44px!important;min-width:44px!important;height:36px!important;min-height:36px!important;}
+  #hintBtn,#shuffleBtn{right:calc(5px + env(safe-area-inset-right))!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;}
+  #hintBtn{top:calc(53px + env(safe-area-inset-top))!important;}
+  #shuffleBtn{top:calc(103px + env(safe-area-inset-top))!important;}
+  #pauseBtn{right:calc(5px + env(safe-area-inset-right))!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;}
+}
+
+/* v1.3.23 iPhone landscape board-fit + arcade button redesign
+   - Reduce unused right/left side gutter so the board can grow horizontally.
+   - Let the board frame run down to the bottom edge of the viewport.
+   - Restyle iPhone side-panel buttons with stronger arcade depth, glow, shine, and clearer badges.
+   - Desktop/tablet rules above remain unchanged. */
+@media (max-width:950px) and (orientation:landscape){
+  html,body{height:100dvh!important;overflow:hidden!important;}
+
+  .app-shell{
+    padding:
+      calc(1px + env(safe-area-inset-top))
+      calc(49px + env(safe-area-inset-right))
+      0
+      calc(49px + env(safe-area-inset-left))!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+  }
+
+  .game-area{
+    height:100%!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+    align-items:stretch!important;
+  }
+
+  .board-frame{
+    height:100%!important;
+    min-height:0!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    border-width:1px!important;
+    border-radius:7px 7px 0 0!important;
+    border-bottom-width:0!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.35)!important;
+  }
+
+  .board-time-meter{
+    flex:0 0 9px!important;
+    height:9px!important;
+    width:calc(100% - 6px)!important;
+    margin:1px auto 1px!important;
+    padding:1.5px!important;
+    border-width:1px!important;
+  }
+
+  .board-wrap{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    padding:1px!important;
+    border-width:1px!important;
+    border-radius:6px 6px 0 0!important;
+    border-bottom-width:0!important;
+  }
+
+  .board{
+    height:100%!important;
+    width:100%!important;
+    gap:1.25px!important;
+    padding:1.25px!important;
+    border-radius:5px 5px 0 0!important;
+  }
+
+  .tile{border-width:1px!important;border-radius:3.75px!important;}
+  .tile:before{inset:1.25px!important;border-radius:2.75px!important;}
+  .entity-sprite{width:91%!important;height:91%!important;}
+
+  /* Shared iPhone arcade-button treatment */
+  .hud-pill,.score-panel,#musicBtn,#pauseBtn,#hintBtn,#shuffleBtn{
+    overflow:visible!important;
+    border:1.5px solid #332c4e!important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.80) 0%,rgba(255,255,255,.30) 18%,rgba(151,139,178,.92) 52%,rgba(91,82,121,.98) 100%)!important;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.82),
+      inset 0 -3px 0 rgba(41,33,64,.52),
+      0 2px 0 rgba(26,22,42,.70),
+      0 5px 10px rgba(18,16,32,.18)!important;
+    color:#221d33!important;
+    transform:translateZ(0);
+  }
+
+  .hud-pill::after,.score-panel::after,#musicBtn::after,#pauseBtn::after,#hintBtn::after,#shuffleBtn::after{
+    content:"";
+    position:absolute;
+    left:7px;right:7px;top:5px;height:30%;
+    border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,0));
+    pointer-events:none;
+    opacity:.9;
+  }
+
+  .hud-pill{
+    left:calc(4px + env(safe-area-inset-left))!important;
+    width:42px!important;min-width:42px!important;
+    height:31px!important;min-height:31px!important;
+    border-radius:10px!important;
+    font-size:5.5px!important;
+    letter-spacing:.05em!important;
+  }
+  .hud-pill strong{
+    font-size:10px!important;
+    padding:1px 4px!important;
+    border-radius:5px!important;
+    background:linear-gradient(180deg,#272241,#11101f)!important;
+    color:#fff4a8!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 1px 0 rgba(0,0,0,.35)!important;
+  }
+  .hud-pill:not(.rule-pill){top:calc(5px + env(safe-area-inset-top))!important;}
+  .rule-pill{
+    top:calc(41px + env(safe-area-inset-top))!important;
+    height:34px!important;min-height:34px!important;
+  }
+  .rule-pill span.rule-tag{
+    font-size:5.5px!important;max-width:38px!important;padding:1px 3px!important;
+    background:linear-gradient(180deg,#7a64f1,#4932b6)!important;color:#fff!important;
+    border-radius:999px!important;
+  }
+
+  #musicBtn{
+    left:calc(4px + env(safe-area-inset-left))!important;
+    top:calc(82px + env(safe-area-inset-top))!important;
+    width:42px!important;min-width:42px!important;
+    height:42px!important;min-height:42px!important;
+    border-radius:15px!important;
+    font-size:0!important;
+    background:
+      radial-gradient(circle at 50% 35%,rgba(255,255,255,.95),rgba(255,255,255,.20) 24%,transparent 25%),
+      linear-gradient(180deg,#9c8fff 0%,#6c54e6 48%,#3e2a9c 100%)!important;
+    color:#fff!important;
+  }
+  #musicBtn::before{content:"🔊";font-size:20px;line-height:1;filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));}
+
+  .score-panel{
+    right:calc(4px + env(safe-area-inset-right))!important;
+    top:calc(5px + env(safe-area-inset-top))!important;
+    width:42px!important;min-width:42px!important;
+    height:34px!important;min-height:34px!important;
+    border-radius:10px!important;
+  }
+  .score-panel span{font-size:4.5px!important;color:#6f687f!important;}
+  .score-panel strong{font-size:10px!important;color:#171426!important;}
+
+  #hintBtn,#shuffleBtn{
+    right:calc(4px + env(safe-area-inset-right))!important;
+    width:42px!important;min-width:42px!important;
+    height:43px!important;min-height:43px!important;
+    border-radius:14px!important;
+    background:
+      radial-gradient(circle at 50% 34%,rgba(255,255,255,.95),rgba(255,255,255,.22) 25%,transparent 26%),
+      linear-gradient(180deg,#f5efff 0%,#bdb3d5 48%,#766b94 100%)!important;
+  }
+  #hintBtn{top:calc(49px + env(safe-area-inset-top))!important;}
+  #shuffleBtn{top:calc(98px + env(safe-area-inset-top))!important;}
+  #hintBtn span,#shuffleBtn span{
+    font-size:21px!important;
+    color:#271f3f!important;
+    filter:drop-shadow(0 1px 0 rgba(255,255,255,.65));
+  }
+  #hintBtn strong,#shuffleBtn strong{
+    right:-5px!important;top:-7px!important;
+    width:20px!important;height:20px!important;min-width:20px!important;
+    border:1.5px solid #4b5430!important;
+    border-radius:50%!important;
+    background:linear-gradient(180deg,#e7f79f 0%,#aac458 100%)!important;
+    color:#162010!important;
+    font-size:9px!important;font-weight:900!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 2px 0 rgba(55,63,31,.45)!important;
+  }
+
+  #pauseBtn{
+    right:calc(4px + env(safe-area-inset-right))!important;
+    bottom:calc(3px + env(safe-area-inset-bottom))!important;
+    width:42px!important;min-width:42px!important;
+    height:42px!important;min-height:42px!important;
+    border-radius:15px!important;
+    background:
+      radial-gradient(circle at 50% 34%,rgba(255,255,255,.94),rgba(255,255,255,.20) 25%,transparent 26%),
+      linear-gradient(180deg,#b48bff 0%,#733bd2 52%,#3b227f 100%)!important;
+  }
+  .pause-icon{width:15px!important;height:19px!important;gap:5px!important;}
+  .pause-icon:before,.pause-icon:after{
+    background:linear-gradient(180deg,#ffffff 0%,#e9dcff 24%,#875df4 100%)!important;
+    border-color:#2c1d64!important;
+    box-shadow:0 1px 0 rgba(0,0,0,.25)!important;
+  }
+
+  .timer-text{display:none!important;}
+}
+
+@media (max-width:760px) and (orientation:landscape){
+  .app-shell{
+    padding:
+      calc(1px + env(safe-area-inset-top))
+      calc(47px + env(safe-area-inset-right))
+      0
+      calc(47px + env(safe-area-inset-left))!important;
+  }
+  .hud-pill{left:calc(3px + env(safe-area-inset-left))!important;width:40px!important;min-width:40px!important;height:30px!important;min-height:30px!important;}
+  .rule-pill{top:calc(39px + env(safe-area-inset-top))!important;height:33px!important;min-height:33px!important;}
+  #musicBtn{left:calc(3px + env(safe-area-inset-left))!important;top:calc(78px + env(safe-area-inset-top))!important;width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;}
+  .score-panel{right:calc(3px + env(safe-area-inset-right))!important;width:40px!important;min-width:40px!important;height:33px!important;min-height:33px!important;}
+  #hintBtn,#shuffleBtn{right:calc(3px + env(safe-area-inset-right))!important;width:40px!important;min-width:40px!important;height:41px!important;min-height:41px!important;}
+  #hintBtn{top:calc(47px + env(safe-area-inset-top))!important;}
+  #shuffleBtn{top:calc(94px + env(safe-area-inset-top))!important;}
+  #pauseBtn{right:calc(3px + env(safe-area-inset-right))!important;bottom:calc(2px + env(safe-area-inset-bottom))!important;width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;}
+}
