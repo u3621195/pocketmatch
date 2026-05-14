@@ -133,3 +133,10 @@ Testing checklist:
 - Kept mobile swipe support, center-card auto-selection, and subtle dots.
 - Stabilized the Selected Run card by reserving the delete-save button space even when the selected theme has no saved game.
 - No gameplay, scoring, helper, sound, movement, or path-routing logic was intentionally changed.
+
+
+## v1.3.13
+
+- Improved the startup theme carousel on iPhone and iPad so it behaves like a smoother draggable carousel rather than a strict one-swipe/one-card stepper.
+- Cards now follow the drag gesture and snap to the nearest centered theme on release.
+- Preserved the controlled circular loop logic, desktop arrows, dots, and selected-run stability behavior from v1.3.12.

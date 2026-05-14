@@ -2824,6 +2824,8 @@ body{background:
   cursor:grab!important;
 }
 #overlay .sprite-options:active{cursor:grabbing!important;}
+#overlay .sprite-options.dragging{cursor:grabbing!important;}
+#overlay .sprite-options.dragging .sprite-option{transition:none!important;}
 #overlay .sprite-option{
   position:absolute!important;
   left:50%!important;

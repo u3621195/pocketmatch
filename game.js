@@ -1191,13 +1191,17 @@ function quitFromGameOver(){
 
 
 // ─────────────────────────────────────────────
-//  v1.3.12 START SCREEN CONTROLLED CIRCULAR CAROUSEL
+//  v1.3.13 START SCREEN DRAGGABLE CIRCULAR CAROUSEL
 // ─────────────────────────────────────────────
 let spriteCarouselIndex=0;
 let spriteCarouselWheelLock=false;
 let spriteCarouselPointerStart=null;
 let spriteCarouselPointerMoved=false;
 let spriteCarouselResizeRAF=0;
+let spriteCarouselDragOffset=0;
+let spriteCarouselDragging=false;
+let spriteCarouselPointerId=null;
+let spriteCarouselVelocitySamples=[];
 
 function baseSpriteOptions(){
   const el=$("spriteOptions");
@@ -1255,27 +1259,31 @@ function getSpriteCarouselStep(cards){
   return cardW+gap;
 }
 
-function renderSpriteCarousel(){
+function renderSpriteCarousel(dragOffset=spriteCarouselDragOffset){
   const cards=baseSpriteOptions();
   const n=cards.length;
   if(!n)return;
   spriteCarouselIndex=((spriteCarouselIndex%n)+n)%n;
   const step=getSpriteCarouselStep(cards);
+  const fractionalShift=dragOffset/step;
   cards.forEach((card,i)=>{
     const offset=getCircularOffset(i,spriteCarouselIndex,n);
-    const abs=Math.abs(offset);
-    const scale=abs===0?1:(abs===1?.925:(abs===2?.85:.78));
-    const opacity=abs===0?1:(abs===1?.82:(abs===2?.64:0));
-    card.dataset.carouselOffset=String(offset);
-    card.style.setProperty("--carousel-x",`${offset*step}px`);
+    const visualOffset=offset+fractionalShift;
+    const abs=Math.abs(visualOffset);
+    const clampedAbs=Math.min(abs,2.8);
+    const scale=Math.max(.78,1-(clampedAbs*.075));
+    const opacity=Math.max(0,1-(clampedAbs*.18));
+    card.dataset.carouselOffset=String(visualOffset);
+    card.style.setProperty("--carousel-x",`${(offset*step)+dragOffset}px`);
     card.style.setProperty("--carousel-scale",String(scale));
     card.style.setProperty("--carousel-opacity",String(opacity));
-    card.classList.toggle("is-center",offset===0);
-    card.classList.toggle("is-near",abs===1);
-    card.classList.toggle("is-far",abs===2);
-    card.classList.toggle("is-hidden",abs>2);
-    card.setAttribute("aria-hidden",abs>2?"true":"false");
-    card.tabIndex=abs>2?-1:0;
+    card.classList.toggle("is-center",abs<.5);
+    card.classList.toggle("is-near",abs>=.5&&abs<1.5);
+    card.classList.toggle("is-far",abs>=1.5&&abs<2.5);
+    card.classList.toggle("is-hidden",abs>2.55);
+    card.setAttribute("aria-hidden",abs>2.55?"true":"false");
+    card.tabIndex=abs>2.55?-1:0;
+    card.style.zIndex=String(50-Math.round(clampedAbs*10));
   });
   updateSpriteCarouselDots();
 }
@@ -1291,6 +1299,7 @@ function centerSpriteCarouselOn(setId,smooth=true){
 function moveSpriteCarousel(direction,playSound=false){
   const ids=getSpriteCarouselIds();
   if(!ids.length)return;
+  spriteCarouselDragOffset=0;
   spriteCarouselIndex=(spriteCarouselIndex+direction+ids.length)%ids.length;
   const setId=ids[spriteCarouselIndex];
   applySpriteSet(setId,{fromCarousel:true});
@@ -1302,6 +1311,7 @@ function selectSpriteCarouselSet(setId,playSound=false){
   const ids=getSpriteCarouselIds();
   const idx=ids.indexOf(setId);
   if(idx<0)return;
+  spriteCarouselDragOffset=0;
   spriteCarouselIndex=idx;
   applySpriteSet(setId,{fromCarousel:true});
   renderSpriteCarousel();
@@ -1313,6 +1323,7 @@ function getCenteredSpriteCard(){
 }
 
 function normalizeSpriteCarouselPosition(){
+  spriteCarouselDragOffset=0;
   renderSpriteCarousel();
 }
 
@@ -1350,23 +1361,97 @@ function updateSpriteCarouselDots(){
 }
 
 function handleSpriteCarouselPointerDown(e){
+  if(e.pointerType==="mouse"&&e.button!==0)return;
+  const el=$("spriteOptions");
+  spriteCarouselPointerId=e.pointerId;
   spriteCarouselPointerStart={x:e.clientX,y:e.clientY,t:Date.now()};
   spriteCarouselPointerMoved=false;
+  spriteCarouselDragging=false;
+  spriteCarouselDragOffset=0;
+  spriteCarouselVelocitySamples=[{x:e.clientX,t:performance.now()}];
+  if(el&&el.setPointerCapture){
+    try{el.setPointerCapture(e.pointerId);}catch(_err){}
+  }
+}
+
+function handleSpriteCarouselPointerMove(e){
+  if(!spriteCarouselPointerStart||spriteCarouselPointerId!==e.pointerId)return;
+  const dx=(e.clientX||0)-spriteCarouselPointerStart.x;
+  const dy=(e.clientY||0)-spriteCarouselPointerStart.y;
+  if(!spriteCarouselDragging){
+    if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
+    if(Math.abs(dx)<=Math.abs(dy)*1.05)return;
+    spriteCarouselDragging=true;
+    spriteCarouselPointerMoved=true;
+    $("spriteOptions")?.classList.add("dragging");
+  }
+  e.preventDefault();
+  spriteCarouselDragOffset=dx;
+  const now=performance.now();
+  spriteCarouselVelocitySamples.push({x:e.clientX,t:now});
+  spriteCarouselVelocitySamples=spriteCarouselVelocitySamples.filter(sample=>now-sample.t<=140);
+  renderSpriteCarousel(spriteCarouselDragOffset);
+}
+
+function finishSpriteCarouselDrag(shift=0,playSound=false){
+  const el=$("spriteOptions");
+  el?.classList.remove("dragging");
+  const ids=getSpriteCarouselIds();
+  if(ids.length){
+    const normalized=((shift%ids.length)+ids.length)%ids.length;
+    spriteCarouselIndex=(spriteCarouselIndex+normalized)%ids.length;
+    const setId=ids[spriteCarouselIndex];
+    spriteCarouselDragOffset=0;
+    applySpriteSet(setId,{fromCarousel:true});
+    renderSpriteCarousel();
+    if(playSound&&typeof sfx!=="undefined")sfx.select();
+  }else{
+    spriteCarouselDragOffset=0;
+    renderSpriteCarousel();
+  }
+  setTimeout(()=>{spriteCarouselPointerMoved=false;},120);
+}
+
+function cancelSpriteCarouselPointer(){
+  $("spriteOptions")?.classList.remove("dragging");
+  spriteCarouselPointerStart=null;
+  spriteCarouselPointerId=null;
+  spriteCarouselDragging=false;
+  spriteCarouselDragOffset=0;
+  spriteCarouselVelocitySamples=[];
+  renderSpriteCarousel();
 }
 
 function handleSpriteCarouselPointerUp(e){
-  if(!spriteCarouselPointerStart)return false;
+  if(!spriteCarouselPointerStart||spriteCarouselPointerId!==e.pointerId)return false;
   const dx=(e.clientX||0)-spriteCarouselPointerStart.x;
   const dy=(e.clientY||0)-spriteCarouselPointerStart.y;
-  const dt=Date.now()-spriteCarouselPointerStart.t;
-  spriteCarouselPointerStart=null;
-  if(Math.abs(dx)>32&&Math.abs(dx)>Math.abs(dy)*1.25&&dt<900){
-    spriteCarouselPointerMoved=true;
-    moveSpriteCarousel(dx<0?1:-1,true);
-    setTimeout(()=>{spriteCarouselPointerMoved=false;},120);
-    return true;
+  const wasDragging=spriteCarouselDragging;
+  let didSwipe=false;
+  if(wasDragging){
+    const cards=baseSpriteOptions();
+    const step=getSpriteCarouselStep(cards);
+    const now=performance.now();
+    const samples=spriteCarouselVelocitySamples.filter(sample=>now-sample.t<=120);
+    const first=samples[0]||{x:spriteCarouselPointerStart.x,t:spriteCarouselPointerStart.t};
+    const last=samples[samples.length-1]||{x:e.clientX||0,t:now};
+    const dt=Math.max(16,last.t-first.t);
+    const velocity=(last.x-first.x)/dt;
+    let projected=(-dx-(velocity*180))/step;
+    let shift=Math.round(projected);
+    const maxShift=Math.max(1,Math.floor(cards.length/2));
+    shift=Math.max(-maxShift,Math.min(maxShift,shift));
+    if(shift===0&&(Math.abs(dx)>step*.18||Math.abs(velocity)>.35)){
+      shift=dx<0?1:-1;
+    }
+    didSwipe=Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.05;
+    finishSpriteCarouselDrag(shift,Math.abs(shift)>0);
   }
-  return false;
+  spriteCarouselPointerStart=null;
+  spriteCarouselPointerId=null;
+  spriteCarouselDragging=false;
+  spriteCarouselVelocitySamples=[];
+  return wasDragging&&didSwipe;
 }
 
 // ─────────────────────────────────────────────
@@ -1480,7 +1565,10 @@ if(spriteOptionsEl){
   spriteOptionsEl.style.setProperty("--sprite-count", Math.min(6, spriteOptionsEl.querySelectorAll(".sprite-option").length));
   setupSpriteCarousel();
   spriteOptionsEl.addEventListener("pointerdown",handleSpritePointerDown,true);
+  spriteOptionsEl.addEventListener("pointermove",handleSpriteCarouselPointerMove,true);
   spriteOptionsEl.addEventListener("pointerup",handleSpriteOptionPress,true);
+  spriteOptionsEl.addEventListener("pointercancel",cancelSpriteCarouselPointer,true);
+  spriteOptionsEl.addEventListener("lostpointercapture",cancelSpriteCarouselPointer,true);
   spriteOptionsEl.addEventListener("click",handleSpriteOptionPress,true);
 }
 
