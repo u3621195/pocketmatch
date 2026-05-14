@@ -1,0 +1,5 @@
+Pocket Match Clean Base v1.3.12
+Update: Replaced fake infinite native scrolling with a controlled circular carousel to remove desktop bounce/jump at loop points.
+Update: Added desktop left/right carousel arrows while keeping mobile swipe support and synced dots.
+Update: Fixed startup Selected Run card shifting by reserving delete-button space for unsaved themes.
+Update: Preserved v1.3.11 consistent card icons, v1.3.10 Landmarks icon fix, and v1.3.9 ultrawide scaling fix.

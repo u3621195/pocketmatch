@@ -265,13 +265,17 @@ function buildEntities(setId){
   return set.sprites.map(e=>({id:e.id,name:e.n,img:e.img,scale:e.scale||set.scale||0.85}));
 }
 
-function applySpriteSet(setId){
+function applySpriteSet(setId,opts={}){
   currentSpriteSetId=SPRITE_SETS[setId]?setId:"original";
   entities=buildEntities(currentSpriteSetId);
   try{localStorage.setItem(SPRITE_SET_KEY,currentSpriteSetId)}catch(e){}
   document.querySelectorAll(".sprite-option").forEach(el=>el.classList.toggle("active",el.dataset.set===currentSpriteSetId));
   updateBoardInfo();
   if(typeof refreshStartScreen==="function")refreshStartScreen();
+  if(typeof updateSpriteCarouselDots==="function")updateSpriteCarouselDots();
+  if(typeof centerSpriteCarouselOn==="function" && !opts.fromCarousel && document.getElementById("spriteOptions")?.dataset.carouselReady==="1"){
+    centerSpriteCarouselOn(currentSpriteSetId,true);
+  }
 }
 
 function randomSpriteSetId(excludeId=null){
@@ -1185,6 +1189,186 @@ function quitFromGameOver(){
   returnToTitleAfterSave();
 }
 
+
+// ─────────────────────────────────────────────
+//  v1.3.12 START SCREEN CONTROLLED CIRCULAR CAROUSEL
+// ─────────────────────────────────────────────
+let spriteCarouselIndex=0;
+let spriteCarouselWheelLock=false;
+let spriteCarouselPointerStart=null;
+let spriteCarouselPointerMoved=false;
+let spriteCarouselResizeRAF=0;
+
+function baseSpriteOptions(){
+  const el=$("spriteOptions");
+  return el?[...el.querySelectorAll(".sprite-option:not(.sprite-clone)")]:[];
+}
+
+function getSpriteCarouselIds(){
+  return baseSpriteOptions().map(card=>card.dataset.set).filter(Boolean);
+}
+
+function getCircularOffset(i,active,n){
+  let offset=i-active;
+  const half=n/2;
+  if(offset>half)offset-=n;
+  if(offset<-half)offset+=n;
+  return offset;
+}
+
+function setupSpriteCarousel(){
+  const el=$("spriteOptions");
+  if(!el||el.dataset.carouselReady==="1")return;
+  // Remove old fake-infinite clones if this package is opened from a cached/session-modified DOM.
+  el.querySelectorAll(".sprite-clone").forEach(node=>node.remove());
+  el.dataset.carouselReady="1";
+  buildSpriteCarouselDots();
+
+  const ids=getSpriteCarouselIds();
+  spriteCarouselIndex=Math.max(0,ids.indexOf(currentSpriteSetId));
+  renderSpriteCarousel();
+
+  const prev=$("spriteCarouselPrev");
+  const next=$("spriteCarouselNext");
+  if(prev)prev.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(-1,true);});
+  if(next)next.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();moveSpriteCarousel(1,true);});
+
+  el.addEventListener("wheel",handleSpriteCarouselWheel,{passive:false});
+  window.addEventListener("resize",()=>{
+    if(spriteCarouselResizeRAF)return;
+    spriteCarouselResizeRAF=requestAnimationFrame(()=>{
+      spriteCarouselResizeRAF=0;
+      renderSpriteCarousel();
+    });
+  },{passive:true});
+  refreshSpriteSavePills();
+  updateSpriteCarouselDots();
+}
+
+function getSpriteCarouselStep(cards){
+  const first=cards[0];
+  const cardW=first?(first.getBoundingClientRect().width||parseFloat(getComputedStyle(first).width)||178):178;
+  const isLandscape=window.matchMedia("(max-width:950px) and (orientation:landscape)").matches;
+  const isMobile=window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;
+  const isTablet=window.matchMedia("(min-width:601px) and (max-width:950px)").matches;
+  const gap=isLandscape?16:(isMobile||isTablet?22:28);
+  return cardW+gap;
+}
+
+function renderSpriteCarousel(){
+  const cards=baseSpriteOptions();
+  const n=cards.length;
+  if(!n)return;
+  spriteCarouselIndex=((spriteCarouselIndex%n)+n)%n;
+  const step=getSpriteCarouselStep(cards);
+  cards.forEach((card,i)=>{
+    const offset=getCircularOffset(i,spriteCarouselIndex,n);
+    const abs=Math.abs(offset);
+    const scale=abs===0?1:(abs===1?.925:(abs===2?.85:.78));
+    const opacity=abs===0?1:(abs===1?.82:(abs===2?.64:0));
+    card.dataset.carouselOffset=String(offset);
+    card.style.setProperty("--carousel-x",`${offset*step}px`);
+    card.style.setProperty("--carousel-scale",String(scale));
+    card.style.setProperty("--carousel-opacity",String(opacity));
+    card.classList.toggle("is-center",offset===0);
+    card.classList.toggle("is-near",abs===1);
+    card.classList.toggle("is-far",abs===2);
+    card.classList.toggle("is-hidden",abs>2);
+    card.setAttribute("aria-hidden",abs>2?"true":"false");
+    card.tabIndex=abs>2?-1:0;
+  });
+  updateSpriteCarouselDots();
+}
+
+function centerSpriteCarouselOn(setId,smooth=true){
+  const ids=getSpriteCarouselIds();
+  const idx=ids.indexOf(setId);
+  if(idx<0)return;
+  spriteCarouselIndex=idx;
+  renderSpriteCarousel();
+}
+
+function moveSpriteCarousel(direction,playSound=false){
+  const ids=getSpriteCarouselIds();
+  if(!ids.length)return;
+  spriteCarouselIndex=(spriteCarouselIndex+direction+ids.length)%ids.length;
+  const setId=ids[spriteCarouselIndex];
+  applySpriteSet(setId,{fromCarousel:true});
+  renderSpriteCarousel();
+  if(playSound&&typeof sfx!=="undefined")sfx.select();
+}
+
+function selectSpriteCarouselSet(setId,playSound=false){
+  const ids=getSpriteCarouselIds();
+  const idx=ids.indexOf(setId);
+  if(idx<0)return;
+  spriteCarouselIndex=idx;
+  applySpriteSet(setId,{fromCarousel:true});
+  renderSpriteCarousel();
+  if(playSound&&typeof sfx!=="undefined")sfx.select();
+}
+
+function getCenteredSpriteCard(){
+  return baseSpriteOptions()[spriteCarouselIndex]||null;
+}
+
+function normalizeSpriteCarouselPosition(){
+  renderSpriteCarousel();
+}
+
+function handleSpriteCarouselWheel(e){
+  const amount=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+  if(Math.abs(amount)<8)return;
+  e.preventDefault();
+  if(spriteCarouselWheelLock)return;
+  spriteCarouselWheelLock=true;
+  moveSpriteCarousel(amount>0?1:-1,true);
+  setTimeout(()=>{spriteCarouselWheelLock=false;},260);
+}
+
+function buildSpriteCarouselDots(){
+  const dots=$("spriteCarouselDots");
+  if(!dots)return;
+  dots.innerHTML="";
+  baseSpriteOptions().forEach(card=>{
+    const dot=document.createElement("button");
+    dot.type="button";
+    dot.className="sprite-carousel-dot";
+    dot.dataset.set=card.dataset.set;
+    dot.setAttribute("aria-label",`Select ${(SPRITE_SETS[card.dataset.set]||{}).name||card.dataset.set}`);
+    dot.addEventListener("click",e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      selectSpriteCarouselSet(dot.dataset.set,true);
+    });
+    dots.appendChild(dot);
+  });
+}
+
+function updateSpriteCarouselDots(){
+  document.querySelectorAll(".sprite-carousel-dot").forEach(dot=>dot.classList.toggle("active",dot.dataset.set===currentSpriteSetId));
+}
+
+function handleSpriteCarouselPointerDown(e){
+  spriteCarouselPointerStart={x:e.clientX,y:e.clientY,t:Date.now()};
+  spriteCarouselPointerMoved=false;
+}
+
+function handleSpriteCarouselPointerUp(e){
+  if(!spriteCarouselPointerStart)return false;
+  const dx=(e.clientX||0)-spriteCarouselPointerStart.x;
+  const dy=(e.clientY||0)-spriteCarouselPointerStart.y;
+  const dt=Date.now()-spriteCarouselPointerStart.t;
+  spriteCarouselPointerStart=null;
+  if(Math.abs(dx)>32&&Math.abs(dx)>Math.abs(dy)*1.25&&dt<900){
+    spriteCarouselPointerMoved=true;
+    moveSpriteCarousel(dx<0?1:-1,true);
+    setTimeout(()=>{spriteCarouselPointerMoved=false;},120);
+    return true;
+  }
+  return false;
+}
+
 // ─────────────────────────────────────────────
 //  BUTTON BINDINGS
 // ─────────────────────────────────────────────
@@ -1267,20 +1451,35 @@ $("deleteSaveBtn").onclick=()=>{
 // Delegated pointer/click handling keeps the full cartridge-style button tappable
 // on iPhone/iPad, including taps on the small subtitle text.
 let lastSpritePressAt=0;
+function handleSpritePointerDown(e){
+  handleSpriteCarouselPointerDown(e);
+}
 function handleSpriteOptionPress(e){
   const opt=e.target.closest(".sprite-option");
   if(!opt)return;
+  if(e.type==="pointerup" && handleSpriteCarouselPointerUp(e)){
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  if(e.type==="click" && spriteCarouselPointerMoved){
+    e.preventDefault();
+    e.stopPropagation();
+    spriteCarouselPointerMoved=false;
+    return;
+  }
+  const now=Date.now();
   e.preventDefault();
   e.stopPropagation();
-  const now=Date.now();
   if(now-lastSpritePressAt<180)return;
   lastSpritePressAt=now;
-  applySpriteSet(opt.dataset.set);
-  if(typeof sfx!=="undefined")sfx.select();
+  selectSpriteCarouselSet(opt.dataset.set,true);
 }
 const spriteOptionsEl=$("spriteOptions");
 if(spriteOptionsEl){
   spriteOptionsEl.style.setProperty("--sprite-count", Math.min(6, spriteOptionsEl.querySelectorAll(".sprite-option").length));
+  setupSpriteCarousel();
+  spriteOptionsEl.addEventListener("pointerdown",handleSpritePointerDown,true);
   spriteOptionsEl.addEventListener("pointerup",handleSpriteOptionPress,true);
   spriteOptionsEl.addEventListener("click",handleSpriteOptionPress,true);
 }
