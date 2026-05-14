@@ -1009,7 +1009,11 @@ let bgmWasPlayingBeforeLifecyclePause = false;
 function playBgmIfAllowed() {
   if (muted || !gameStarted || paused || document.hidden) return;
   try {
-    bgm.play().catch(() => {});
+    bgm.muted = false;
+    const playPromise = bgm.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
   } catch (e) {}
 }
 
@@ -2015,9 +2019,6 @@ function startGame(options = {}) {
   gameOverOverlay.classList.add("hidden");
   $("themePicker").classList.add("hidden");
   appShell.classList.remove("paused");
-  unlockAudio();
-  sfx.level();
-  playBgmIfAllowed();
   score = 0;
   levelScore = 0;
   level = 1;
@@ -2030,6 +2031,9 @@ function startGame(options = {}) {
   shuffleCount = SHUFFLES;
   paused = false;
   gameStarted = true;
+  unlockAudio();
+  sfx.level();
+  playBgmIfAllowed();
   levelEl.textContent = "01";
   setScoreDisplay();
   updateHelperDisplay();
@@ -2072,13 +2076,13 @@ function continueFromSave() {
   gameOverOverlay.classList.add("hidden");
   $("themePicker").classList.add("hidden");
   appShell.classList.remove("paused");
-  unlockAudio();
-  sfx.level();
-  playBgmIfAllowed();
   restoreGame(save);
   timerWarned = false;
   paused = false;
   gameStarted = true;
+  unlockAudio();
+  sfx.level();
+  playBgmIfAllowed();
   startTimer();
   moveStatus.textContent = `SAVE RESTORED  LV ${level}`;
 }
@@ -2174,7 +2178,9 @@ function resumeGame() {
   appShell.classList.remove("paused");
   document.body.classList.toggle("low-time", timeLeft <= 60 && gameStarted);
   moveStatus.textContent = "SYSTEM ONLINE";
+  unlockAudio();
   sfx.level();
+  playBgmIfAllowed();
   startTimer();
   resizeCanvas();
 }

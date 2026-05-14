@@ -1,40 +1,25 @@
-# Pocket Match v1.3.24 Audio Lifecycle Fix
+# Pocket Match v1.3.25 BGM Resume Fix
 
-This package is based on v1.3.23 and keeps the toned-down hint glow.
+This version fixes the BGM issue introduced by the audio lifecycle patch.
 
-## What changed in v1.3.24
-- Fixed iPhone web app issue where background music could continue playing after exiting to the home screen or switching apps.
-- Added audio lifecycle guards for `visibilitychange`, `pagehide`, `pageshow`, `blur`, and `focus`.
-- Background music pauses immediately when the app is hidden or loses focus.
-- Short UI sound effects are also stopped when the app is hidden.
-- Background music resumes only when returning to an active, unpaused game and music is enabled.
+## What changed
 
-## Not changed
-- Gameplay logic
-- Scoring
-- Tile movement
-- Save/continue logic
-- Carousel layout
-- Tile sets
-- Hint glow styling from v1.3.23
+The v1.3.24 patch correctly stopped BGM when the iPhone web app was sent to the background, but the BGM start call was happening before the game was marked as active. Because of that, `playBgmIfAllowed()` exited early and the player had to toggle the sound button off/on to force playback.
 
-## Upload guidance
+In v1.3.25:
+
+- New game marks the game as active before starting BGM.
+- Continue from save marks the game as active before starting BGM.
+- Resume from pause also re-checks BGM playback.
+- iPhone background/foreground audio stopping behavior is preserved.
+
+## Upload
+
 For this fix, upload:
 
-```text
-game.js
-VERSION.txt
-README.md
-```
+- `game.js`
 
-The required file for the audio fix is:
+Optional documentation files:
 
-```text
-game.js
-```
-
-If your browser or iPhone web app keeps using the old script, clear cache or open the game once with a version query such as:
-
-```text
-index.html?v=1324
-```
+- `VERSION.txt`
+- `README.md`

@@ -1,7 +1,15 @@
-Pocket Match v1.3.24
-Audio Lifecycle Fix
+Pocket Match v1.3.25 BGM Resume Fix
 
-- Pauses background music when the iPhone web app is sent to the background, hidden, or loses focus.
-- Stops short UI sound effects when the app is hidden.
-- Resumes background music only when returning to an active, unpaused game and music is enabled.
-- No gameplay, scoring, tile set, carousel, or hint-visual changes.
+Fixes:
+- Corrected BGM start timing after the v1.3.24 audio lifecycle update.
+- BGM now starts when starting a new game without needing to toggle the sound button.
+- BGM now starts when continuing a saved game without needing to toggle the sound button.
+- BGM resumes properly after returning from the pause overlay when sound is enabled.
+- Keeps the v1.3.24 behavior where BGM stops when the iPhone web app is backgrounded or exited.
+
+Upload required:
+- game.js
+
+Optional:
+- VERSION.txt
+- README.md
