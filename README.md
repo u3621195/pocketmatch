@@ -1,49 +1,40 @@
-# Pocket Match v1.3.23 Hint Glow Tone Down
+# Pocket Match v1.3.24 Audio Lifecycle Fix
 
-This is a maintenance cleanup of the existing Pocket Match build.
+This package is based on v1.3.23 and keeps the toned-down hint glow.
 
-## Files
+## What changed in v1.3.24
+- Fixed iPhone web app issue where background music could continue playing after exiting to the home screen or switching apps.
+- Added audio lifecycle guards for `visibilitychange`, `pagehide`, `pageshow`, `blur`, and `focus`.
+- Background music pauses immediately when the app is hidden or loses focus.
+- Short UI sound effects are also stopped when the app is hidden.
+- Background music resumes only when returning to an active, unpaused game and music is enabled.
 
-- `index.html` — app structure and overlays
-- `style.css` — visual layout, responsive rules, carousel styling, popups
-- `game.js` — gameplay, scoring, save flow, audio, carousel logic
-- `assets/` — fonts, sounds, and sprite sets
+## Not changed
+- Gameplay logic
+- Scoring
+- Tile movement
+- Save/continue logic
+- Carousel layout
+- Tile sets
+- Hint glow styling from v1.3.23
 
-## What changed in this cleanup
+## Upload guidance
+For this fix, upload:
 
-- Re-formatted the source files for easier reading and future editing.
-- Removed old version/patch comments that were no longer useful.
-- Updated title/cache labels to `v1.3.21-clean`.
-- Kept the current finite scroll-snap carousel approach.
+```text
+game.js
+VERSION.txt
+README.md
+```
 
-## What was intentionally preserved
+The required file for the audio fix is:
 
-- Gameplay rules
-- Scoring and combo logic
-- Helper availability
-- Level movement progression
-- Save/resume behavior
-- Quick Game behavior
-- Sound effects and background music
-- Tile-set assets and IDs
-- Board path-routing behavior
+```text
+game.js
+```
 
-## Recommended smoke test
+If your browser or iPhone web app keeps using the old script, clear cache or open the game once with a version query such as:
 
-1. Open `index.html`.
-2. Select each tile set card and confirm the selected highlight moves correctly.
-3. Use carousel arrows on desktop and swipe/scroll on mobile.
-4. Start New Game, Continue, and Quick Game.
-5. Complete a match and verify score/timer updates.
-6. Test Hint, Shuffle, Pause, Save & Quit, and Resume.
-
-
-## v1.3.23 Hint Glow Tone Down
-- Stronger tile flash for the Hint helper, especially on iPhone.
-- Added bright ring/glow pulse and extended hint display duration.
-
-
-## v1.3.23 Hint Glow Tone Down
-- Reduced hint flash/glow intensity after v1.3.22 was visually too bright.
-- Kept improved visibility duration and pulse behavior.
-- Upload `style.css` for this visual tuning. `game.js` is unchanged from v1.3.22.
+```text
+index.html?v=1324
+```

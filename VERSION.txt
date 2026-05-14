@@ -1,7 +1,7 @@
-Pocket Match v1.3.23
-Hint Glow Tone Down
+Pocket Match v1.3.24
+Audio Lifecycle Fix
 
-Changes:
-- Toned down the hint glow intensity from v1.3.22.
-- Kept the hint pulse visible on iPhone, but reduced brightness, outer glow, ring opacity, and sprite shadow.
-- No intentional gameplay, scoring, helper count, carousel, tile movement, save, or sound changes.
+- Pauses background music when the iPhone web app is sent to the background, hidden, or loses focus.
+- Stops short UI sound effects when the app is hidden.
+- Resumes background music only when returning to an active, unpaused game and music is enabled.
+- No gameplay, scoring, tile set, carousel, or hint-visual changes.

@@ -1003,6 +1003,68 @@ function playUiAudio(name) {
   } catch (e) {}
 }
 
+let bgmPausedByLifecycle = false;
+let bgmWasPlayingBeforeLifecyclePause = false;
+
+function playBgmIfAllowed() {
+  if (muted || !gameStarted || paused || document.hidden) return;
+  try {
+    bgm.play().catch(() => {});
+  } catch (e) {}
+}
+
+function pauseAudioForLifecycle() {
+  bgmWasPlayingBeforeLifecyclePause = !muted && !bgm.paused;
+  bgmPausedByLifecycle = true;
+
+  try {
+    bgm.pause();
+  } catch (e) {}
+
+  Object.values(uiAudio).forEach((a) => {
+    try {
+      a.pause();
+      a.currentTime = 0;
+    } catch (e) {}
+  });
+
+  try {
+    if (audioCtx && audioCtx.state === "running") {
+      audioCtx.suspend().catch(() => {});
+    }
+  } catch (e) {}
+}
+
+function resumeAudioFromLifecycle() {
+  if (!bgmPausedByLifecycle) return;
+  const shouldResumeBgm =
+    bgmWasPlayingBeforeLifecyclePause &&
+    !muted &&
+    gameStarted &&
+    !paused &&
+    !document.hidden;
+
+  bgmPausedByLifecycle = false;
+  bgmWasPlayingBeforeLifecyclePause = false;
+
+  if (shouldResumeBgm) {
+    unlockAudio();
+    playBgmIfAllowed();
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    pauseAudioForLifecycle();
+  } else {
+    resumeAudioFromLifecycle();
+  }
+});
+window.addEventListener("pagehide", pauseAudioForLifecycle);
+window.addEventListener("pageshow", resumeAudioFromLifecycle);
+window.addEventListener("blur", pauseAudioForLifecycle);
+window.addEventListener("focus", resumeAudioFromLifecycle);
+
 // ─────────────────────────────────────────────
 //  SAVE / LOAD
 // ─────────────────────────────────────────────
@@ -1955,7 +2017,7 @@ function startGame(options = {}) {
   appShell.classList.remove("paused");
   unlockAudio();
   sfx.level();
-  bgm.play().catch(() => {});
+  playBgmIfAllowed();
   score = 0;
   levelScore = 0;
   level = 1;
@@ -2012,7 +2074,7 @@ function continueFromSave() {
   appShell.classList.remove("paused");
   unlockAudio();
   sfx.level();
-  bgm.play().catch(() => {});
+  playBgmIfAllowed();
   restoreGame(save);
   timerWarned = false;
   paused = false;
@@ -2445,7 +2507,7 @@ $("musicBtn").onclick = () => {
   bgm.muted = muted;
   Object.values(uiAudio).forEach((a) => (a.muted = muted));
   $("musicBtn").textContent = muted ? "×" : "♪";
-  if (!muted) bgm.play().catch(() => {});
+  if (!muted) playBgmIfAllowed();
 };
 
 // Save buttons
