@@ -1,5 +1,7 @@
-Pocket Match Clean Base v1.3.14
-Update: Replaced the iPhone/iPad carousel interaction with a native momentum scroll-snap carousel adapted from the V1.8 reference mobile layout.
-Update: Touch devices now use natural swipe/scroll behavior; the centered card auto-selects after scrolling settles.
-Update: Desktop keeps the controlled circular carousel, left/right arrows, synced dots, and no Landmarks-to-Pokémon bounce.
-Update: Preserved v1.3.12 startup card stability fix and all gameplay/scoring/helper/sound/path systems.
+Pocket Match Clean Base v1.3.15
+Update: Fixed iPhone/iPad carousel — replaced unreliable scrollIntoView() with direct scrollLeft arithmetic for reliable iOS Safari scroll-snap behavior.
+Update: Fixed iPhone/iPad carousel — parent .sprite-select was overflow:hidden, killing touch-scroll on iOS. Changed to overflow:visible so native swipe works correctly.
+Update: Fixed native carousel scroll container: overflow-x changed from auto to scroll, scroll-snap-type from proximity to mandatory, touch-action tightened to pan-x only.
+Update: Fixed desktop carousel gap inconsistency — getSpriteCarouselStep() now accounts for neighbor card scaling (0.925) so the visual gap between all card pairs is uniform.
+Update: Added -webkit-mask-image prefix for full Safari/iOS mask-image support.
+Preserved: All v1.3.14 systems — gameplay, scoring, sound, save/load, theme, quick game, helper, level complete, game over flows.

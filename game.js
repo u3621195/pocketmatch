@@ -1275,8 +1275,18 @@ function getSpriteCarouselStep(cards){
   const isLandscape=window.matchMedia("(max-width:950px) and (orientation:landscape)").matches;
   const isMobile=window.matchMedia("(max-width:600px) and (orientation:portrait)").matches;
   const isTablet=window.matchMedia("(min-width:601px) and (max-width:950px)").matches;
-  const gap=isLandscape?16:(isMobile||isTablet?22:28);
-  return cardW+gap;
+  // Visual gap between the center card and its neighbor must account for the
+  // neighbor being scaled to 0.925. Without this, the perceived gap between the
+  // center and adjacent cards is smaller than the gap between adjacent and far cards.
+  // Formula: step = cardW * centerScale * 0.5 + cardW * neighborScale * 0.5 + desiredGap
+  // Simplified to: step = cardW * (1 + 0.925) / 2 + desiredGap = cardW * 0.9625 + desiredGap
+  // We solve for step such that the visual gap (empty space) is consistent.
+  // The raw pixel gap we want between card edges:
+  const desiredGap=isLandscape?14:(isMobile||isTablet?16:20);
+  const centerScale=1;
+  const neighborScale=0.925;
+  // step = half-width of center + desired gap + half-width of neighbor
+  return cardW*centerScale*0.5 + desiredGap + cardW*neighborScale*0.5;
 }
 
 function renderSpriteCarousel(){
@@ -1322,11 +1332,17 @@ function renderSpriteCarousel(){
 }
 
 function scrollNativeCarouselToIndex(idx,smooth=true){
+  const el=$("spriteOptions");
   const cards=baseSpriteOptions();
   const card=cards[idx];
-  if(!card)return;
+  if(!el||!card)return;
   spriteCarouselSuppressScroll=true;
-  card.scrollIntoView({behavior:smooth?"smooth":"auto",inline:"center",block:"nearest"});
+  // scrollIntoView is unreliable on iOS Safari inside overflow scroll containers.
+  // Use direct scrollLeft arithmetic instead for reliable cross-platform behavior.
+  const cardRect=card.getBoundingClientRect();
+  const containerRect=el.getBoundingClientRect();
+  const delta=(cardRect.left+cardRect.width/2)-(containerRect.left+containerRect.width/2);
+  el.scrollLeft=el.scrollLeft+delta;
   window.setTimeout(()=>{spriteCarouselSuppressScroll=false;},smooth?340:80);
 }
 
