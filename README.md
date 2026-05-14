@@ -1,36 +1,29 @@
-# Pocket Match v1.3.25 BGM Resume Fix
+# Pocket Match v1.3.28 - Popup Centering Fix
 
-This version fixes the BGM issue introduced by the audio lifecycle patch.
+This build focuses only on popup layout stability across iPhone portrait, iPhone landscape, Safari, and Home Screen web-app mode.
 
-## What changed
+## Fixed
 
-The v1.3.24 patch correctly stopped BGM when the iPhone web app was sent to the background, but the BGM start call was happening before the game was marked as active. Because of that, `playBgmIfAllowed()` exited early and the player had to toggle the sound button off/on to force playback.
+- All in-game popups are forced to center within the visible screen.
+- Popups now use safe-area-aware padding.
+- Tall popups use internal scrolling rather than clipping off-screen.
+- The CSS cache-buster in `index.html` was updated so iPhone browsers load the new popup CSS.
 
-In v1.3.25:
+## Popups covered
 
-- New game marks the game as active before starting BGM.
-- Continue from save marks the game as active before starting BGM.
-- Resume from pause also re-checks BGM playback.
-- iPhone background/foreground audio stopping behavior is preserved.
+- Start New Game confirmation
+- Save confirmation
+- Pause menu
+- Level Complete
+- Game Over
+- Helper message
+- End Quick Game confirmation
 
-## Upload
+## Upload files
 
-For this fix, upload:
+Upload these files for this fix:
 
-- `game.js`
+- `style.css`
+- `index.html`
 
-Optional documentation files:
-
-- `VERSION.txt`
-- `README.md`
-
-## v1.3.26 iPhone BGM Return Fix
-
-This build fixes the remaining iPhone standalone web app audio lifecycle issue where BGM stopped correctly when exiting the app, but did not resume when returning.
-
-Technical notes:
-- Preserves the original BGM playing state across multiple iOS lifecycle events such as `visibilitychange`, `pagehide`, and `blur`.
-- Avoids a later `blur` event overwriting the remembered playing state after BGM has already been paused.
-- Uses the same guarded BGM restart path after `pageshow` / `focus`, with a short retry for iOS timing.
-
-Only `game.js` needs to be uploaded for this fix.
+No JavaScript or asset files were changed.

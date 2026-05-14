@@ -1,12 +1,13 @@
-Pocket Match v1.3.26 iPhone BGM Return Fix
+Pocket Match v1.3.28 - Popup Centering Fix
 
-Change summary:
-- Fixed iPhone/PWA return-to-app BGM resume behavior.
-- Preserved BGM stop behavior when the app is sent to background.
-- Prevented duplicate lifecycle events from overwriting the original BGM playing state.
-- Added a short iOS-safe retry after returning from pageshow/focus.
+Fix:
+- Centered all in-game popup overlays in the visible screen on iPhone portrait and landscape.
+- Added overflow protection so tall popups scroll inside the modal instead of being clipped.
+- Applied the fix to New Game confirmation, Save, Pause, Level Complete, Game Over, Helper message, and End Quick Game popups.
+- Updated the CSS cache-buster in index.html so mobile browsers load the new popup layout.
 
-Upload required:
-- game.js
+Changed files:
+- style.css
+- index.html
 
-No intentional gameplay, scoring, helper, tile-set, carousel, or visual changes.
+No gameplay, scoring, audio, carousel, tile set, helper, or save logic changes.
