@@ -676,7 +676,7 @@ body{background:
   position:relative;z-index:1;margin:16px auto 18px;color:#3f455f;font-family:'Space Grotesk',system-ui,sans-serif;font-weight:800;font-size:clamp(13px,2.05vw,18px);letter-spacing:.06em;text-transform:uppercase;max-width:none;
 }
 .start-modal p:before,.start-modal p:after{content:"···";color:#8a8d9c;margin:0 34px;letter-spacing:.25em}
-.sprite-select{position:relative;z-index:2;margin:0 auto 22px;width:100%;max-width:900px;text-align:center}
+.sprite-select{position:relative;z-index:2;margin:0 auto 22px;width:100%;max-width:1100px;text-align:center}
 .sprite-select-label{
   display:flex;align-items:center;justify-content:center;gap:22px;margin:0 0 12px;
   font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;letter-spacing:.25em;color:#332a86;font-weight:800;text-transform:uppercase;text-align:center;
@@ -686,7 +686,7 @@ body{background:
 .sprite-options{
   --sprite-count:3;
   display:grid;
-  grid-template-columns:repeat(var(--sprite-count),minmax(0,150px));
+  grid-template-columns:repeat(var(--sprite-count),minmax(0,142px));
   justify-content:center;
   gap:clamp(10px,2vw,18px);
   width:100%;
@@ -706,7 +706,7 @@ body{background:
 .sprite-option:hover{filter:brightness(1.04);transform:translateY(-2px)}
 .sprite-option.active{border-color:#d99a00;background:linear-gradient(180deg,#fff8e4,#f2e2b8);box-shadow:inset 0 2px 0 rgba(255,255,255,.86),0 0 0 2px rgba(217,154,0,.28),0 7px 12px rgba(22,24,36,.20)}
 .sprite-option.active:after{content:"✓";position:absolute;right:-9px;top:-10px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e0a000;color:#fff;border:2px solid #b97800;font-size:18px;box-shadow:0 3px 0 rgba(111,73,0,.28)}
-.sprite-option[data-set="original"] .sprite-icon{color:#e8b900}.sprite-option[data-set="foodies"] .sprite-icon{color:#d99a00}.sprite-option[data-set="gadgets"] .sprite-icon{color:#18a8ff}.sprite-option[data-set="sports"] .sprite-icon{color:#d99a00}.sprite-option[data-set="home"] .sprite-icon{color:#6b4bd7}
+.sprite-option[data-set="original"] .sprite-icon{color:#e8b900}.sprite-option[data-set="foodies"] .sprite-icon{color:#d99a00}.sprite-option[data-set="gadgets"] .sprite-icon{color:#18a8ff}.sprite-option[data-set="sports"] .sprite-icon{color:#d99a00}.sprite-option[data-set="home"] .sprite-icon{color:#6b4bd7}.sprite-option[data-set="landmarks"] .sprite-icon{color:#2f7fc3}
 .start-actions{position:relative;z-index:2;display:grid;gap:11px;width:min(92%,560px);margin:0 auto 16px}
 .start-btn{
   width:100%;min-height:70px;border-radius:13px;border:3px solid #10182e;
@@ -983,7 +983,7 @@ body{background:
   .start-modal p:before,.start-modal p:after{margin:0 12px;}
   .sprite-select{margin:0 auto 8px;max-width:560px;}
   .sprite-select-label{font-size:10px;margin-bottom:5px;letter-spacing:.20em;}
-  .sprite-options{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;}
+  .sprite-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;}
   .sprite-option{min-height:62px;padding:6px 6px 5px;font-size:10px;border-radius:10px;gap:3px;}
   .sprite-option .sprite-icon{font-size:22px;}.sprite-option .sprite-icon-img{width:26px;height:26px;}
   .sprite-option span:not(.sprite-icon){font-size:6px;letter-spacing:.12em;}
@@ -1149,7 +1149,7 @@ body{background:
   #overlay .start-modal p:after{margin:0 8px;}
   #overlay .sprite-select{margin:0 auto 6px;max-width:520px;}
   #overlay .sprite-select-label{font-size:9px;margin-bottom:4px;gap:14px;letter-spacing:.18em;}
-  #overlay .sprite-options{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;}
+  #overlay .sprite-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}
   #overlay .sprite-option{
     min-height:48px;
     padding:4px 5px 3px;
@@ -2631,4 +2631,27 @@ body{background:
   .score-panel{min-width:86px!important;padding:0 7px!important;gap:5px!important;}
   .score-panel span{font-size:5px!important;letter-spacing:.06em!important;}
   .score-panel strong{font-size:10.5px!important;}
+}
+
+/* v1.3.9 ultrawide desktop scaling fix
+   Previous desktop rules capped the playable shell at 1540px and the board at 1360px.
+   On 34-inch ultrawide monitors this made the game look too narrow even when vertical
+   space was available. These overrides let the game scale from viewport height while
+   keeping the 16:9 board ratio and preserving the compact mobile/iPad rules. */
+@media (min-width:951px){
+  .topbar,
+  .board-frame{
+    width:min(96vw, calc((100dvh - 90px) * 1.7777778 + 78px), 2440px)!important;
+  }
+
+  .board-wrap{
+    justify-content:center!important;
+  }
+
+  .board{
+    width:min(100%, calc((100dvh - 170px) * 1.7777778), 2320px)!important;
+    max-width:none!important;
+    height:auto!important;
+    aspect-ratio:16 / 9!important;
+  }
 }
