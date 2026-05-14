@@ -632,7 +632,7 @@ function renderBoard(){
 
 
 function isPhoneLandscapeGameplay(){
-  return !!(window.matchMedia && window.matchMedia('(max-width:950px) and (orientation:landscape)').matches);
+  return !!(window.matchMedia && window.matchMedia('(orientation:landscape) and (max-height:540px)').matches);
 }
 function pxNum(v){
   const n=parseFloat(v);

@@ -1,6 +1,5 @@
-Pocket Match v1.3.29
-Update: Rewrote the iPhone landscape gameplay layout from scratch.
-Update: The game board now preserves a true 16:9 aspect ratio and is fitted from height first without squeezing.
-Update: All gameplay controls are rearranged into a single right-side iPhone panel using the app's existing visual language.
-Update: Dynamic Island conflict is avoided by reserving a left dead-zone and shifting the board accordingly.
-Preserved: Desktop/tablet layouts and core gameplay systems remain unchanged.
+Pocket Match v1.3.30
+Fix: iPhone landscape layout now triggers by viewport height, not width, so Safari/PWA modes that report a wider viewport still use the iPhone layout.
+Fix: Old top HUD visuals are force-hidden in iPhone landscape.
+Fix: Board sizing script now runs in iPhone landscape and preserves the 16:9 grid ratio.
+Preserved: Desktop/tablet layout and core gameplay systems remain unchanged.

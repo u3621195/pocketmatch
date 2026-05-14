@@ -506,7 +506,7 @@ body{background:
 .modal-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.18),0 3px 0 rgba(9,14,28,.42)}
 .save-modal{width:min(92vw,640px)}
 .save-modal .popup-actions{max-width:520px}
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   .modal{width:min(82vw,620px);padding:20px 24px 18px;border-radius:20px}
   .modal:before{inset:7px;border-radius:14px}.modal-kicker{font-size:9px;margin-bottom:8px}.modal h1{font-size:clamp(34px,6vw,52px);margin-bottom:10px}.modal p{font-size:13px;margin-bottom:14px;max-width:500px}.popup-actions{gap:10px;max-width:500px}.modal-btn{min-height:52px;font-size:22px;border-width:3px;border-radius:12px}.modal-btn:before{width:32px;height:32px;font-size:17px}
 }
@@ -722,7 +722,7 @@ body{background:
 .saved-slot.hidden{display:block}.saved-slot-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:14px 22px;border-radius:14px;background:rgba(255,255,255,.32);border:1.5px solid rgba(42,47,70,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
 .saved-slot-label{font-size:11px;letter-spacing:.14em;color:#4e5368;font-weight:800;text-transform:uppercase;display:block;margin-bottom:5px}.saved-slot-details{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;color:#151b32;font-family:'Space Grotesk',system-ui,sans-serif;flex-wrap:wrap}.saved-slot-sep{color:#8a8d9c;font-size:12px}.delete-save-btn{display:block;background:transparent;border:1.5px solid rgba(42,47,70,.25);border-radius:9px;color:#666b7a;font-size:13px;padding:7px 11px;cursor:pointer;font-family:'Space Grotesk',system-ui,sans-serif}
 .delete-save-btn:hover{border-color:#d99a00;color:#4b35bd}
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   .start-modal{width:96vw;max-height:96dvh;padding:14px 26px 14px;border-radius:22px}
   .start-modal .modal-kicker{font-size:9px;padding:5px 26px;margin-bottom:7px;letter-spacing:.30em}
   .start-modal h1{font-size:clamp(38px,8.3vw,72px)}
@@ -733,7 +733,7 @@ body{background:
   .start-modal{padding:20px 16px}.start-modal h1{font-size:42px}.start-modal p{font-size:11px}.start-modal p:before,.start-modal p:after{display:none}.sprite-options{grid-template-columns:repeat(var(--sprite-count),minmax(0,1fr));gap:10px}.sprite-option{min-height:100px}.start-btn{min-height:58px;font-size:20px;letter-spacing:.08em}.saved-slot-card{grid-template-columns:1fr;gap:8px;text-align:left}.delete-save-btn{justify-self:end}
 }
 
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   html,body{
     width:100%;
     height:100%;
@@ -945,7 +945,7 @@ body{background:
   .saved-slot-btns{margin-left:0}
 }
 
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   .overlay{padding:10px}
   .start-modal{
     width:min(92vw,500px);
@@ -975,7 +975,7 @@ body{background:
   .start-modal{max-height:none;overflow:visible;}
 }
 
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   .start-modal{width:min(96vw,760px);padding:10px 20px 12px;border-radius:18px;}
   .start-modal .modal-kicker{font-size:8px;padding:4px 22px;margin-bottom:5px;letter-spacing:.28em;}
   .start-modal h1{font-size:clamp(32px,7vw,52px);line-height:.9;}
@@ -1409,7 +1409,7 @@ body{background:
   height:64px;
 }
 
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   #overlay .sprite-option{
     gap:5px;
   }
@@ -1554,7 +1554,7 @@ body{background:
   #overlay .sprite-option .sprite-save-pill{min-height:18px;min-width:42px;font-size:8px;padding:3px 8px;}
   #overlay .selected-run-info{width:min(86%,420px);margin-bottom:10px;}
 }
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   #overlay .action-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(78%,620px);}
   #overlay .action-btn{min-height:40px;font-size:12px;border-radius:10px;}
   #overlay .action-btn:before{width:22px;height:22px;font-size:13px;}
@@ -1617,7 +1617,7 @@ body{background:
   }
 }
 
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   #overlay{
     align-items:flex-start !important;
     justify-content:center !important;
@@ -2890,7 +2890,7 @@ body{background:
    Goal: preserve a true game-board aspect ratio, maximize height,
    and place all gameplay UI neatly in a single right-side panel.
    ========================================================= */
-@media (max-width: 950px) and (orientation: landscape){
+@media (orientation: landscape) and (max-height: 540px){
   :root{
     --pm-phone-left-dead: 78px;
     --pm-phone-right-inset: 6px;
@@ -3080,4 +3080,47 @@ body{background:
   }
   .tile:before{ inset:4px; border-radius:5px; }
   .entity-sprite{ max-width:80%; max-height:80%; }
+}
+
+
+/* =========================================================
+   v1.3.30 — Robust iPhone landscape trigger
+   Uses viewport height, not width, because some iPhone/PWA modes
+   report a wider layout viewport than expected.
+   ========================================================= */
+@media (orientation: landscape) and (max-height: 540px){
+  .topbar{
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    min-height:0 !important;
+    height:100dvh !important;
+    width:100vw !important;
+    display:block !important;
+  }
+
+  .topbar .brand,
+  #themeBtn,
+  #saveBtn{
+    display:none !important;
+  }
+
+  .game-area{
+    left:calc(var(--pm-phone-left-dead) + var(--pm-phone-gap)) !important;
+    top:max(4px, env(safe-area-inset-top)) !important;
+    padding:0 !important;
+  }
+
+  .board-frame{
+    max-width:none !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+
+  .board{
+    aspect-ratio:16 / 9 !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    overflow:visible !important;
+  }
 }
