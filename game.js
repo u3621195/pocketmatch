@@ -757,6 +757,38 @@ const LANDMARK_SPRITES = [
     img: "assets/sprites/landmarks/30-white-house.png",
   },
 ];
+const BRAND_SPRITES = [
+  { id: 1, n: "Instagram", img: "assets/sprites/brands/01-instagram.png" },
+  { id: 2, n: "Kodak", img: "assets/sprites/brands/02-kodak.png" },
+  { id: 3, n: "Linux", img: "assets/sprites/brands/03-linux.png" },
+  { id: 4, n: "Maserati", img: "assets/sprites/brands/04-maserati.png" },
+  { id: 5, n: "McDonald's", img: "assets/sprites/brands/05-mcdonalds.png" },
+  { id: 6, n: "Microsoft", img: "assets/sprites/brands/06-microsoft.png" },
+  { id: 7, n: "MTV", img: "assets/sprites/brands/07-mtv.png" },
+  { id: 8, n: "Netflix", img: "assets/sprites/brands/08-netflix.png" },
+  { id: 9, n: "P&G", img: "assets/sprites/brands/09-pandg.png" },
+  { id: 10, n: "Pepsi", img: "assets/sprites/brands/10-pepsi.png" },
+  { id: 11, n: "Philips", img: "assets/sprites/brands/11-philips.png" },
+  { id: 12, n: "Pringles", img: "assets/sprites/brands/12-pringles.png" },
+  { id: 13, n: "Shell", img: "assets/sprites/brands/13-shell.png" },
+  { id: 14, n: "Starbucks", img: "assets/sprites/brands/14-starbucks.png" },
+  { id: 15, n: "Target", img: "assets/sprites/brands/15-target.png" },
+  { id: 16, n: "Uber", img: "assets/sprites/brands/16-uber.png" },
+  { id: 17, n: "Unilever", img: "assets/sprites/brands/17-unilever.png" },
+  { id: 18, n: "UPS", img: "assets/sprites/brands/18-ups.png" },
+  { id: 19, n: "Volkswagen", img: "assets/sprites/brands/19-volkswagen.png" },
+  { id: 20, n: "Yamaha", img: "assets/sprites/brands/20-yamaha.png" },
+  { id: 21, n: "YouTube", img: "assets/sprites/brands/21-youtube.png" },
+  { id: 22, n: "Adidas Original", img: "assets/sprites/brands/22-adidas-original.png" },
+  { id: 23, n: "Apple", img: "assets/sprites/brands/23-apple.png" },
+  { id: 24, n: "BMW", img: "assets/sprites/brands/24-bmw.png" },
+  { id: 25, n: "Caltex", img: "assets/sprites/brands/25-caltex.png" },
+  { id: 26, n: "ChatGPT", img: "assets/sprites/brands/26-chatgpt.png" },
+  { id: 27, n: "Donki", img: "assets/sprites/brands/27-donki.png" },
+  { id: 28, n: "Dairy Queen", img: "assets/sprites/brands/28-dq.png" },
+  { id: 29, n: "Facebook", img: "assets/sprites/brands/29-facebook.png" },
+  { id: 30, n: "Honda", img: "assets/sprites/brands/30-honda.png" },
+];
 const SPRITE_SETS = {
   original: {
     name: "POKÉMON",
@@ -848,6 +880,12 @@ const SPRITE_SETS = {
     label: "World landmark sprites",
     sprites: LANDMARK_SPRITES,
     scale: 1,
+  },
+  brands: {
+    name: "BRANDS",
+    label: "Brand logo sprites",
+    sprites: BRAND_SPRITES,
+    scale: 1.12,
   },
 };
 let currentSpriteSetId = determineInitialSpriteSet();

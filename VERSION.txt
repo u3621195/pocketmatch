@@ -1,13 +1,13 @@
-Pocket Match v1.3.28 - Popup Centering Fix
+Pocket Match v1.3.30 - Brand Card Icon Fix
 
-Fix:
-- Centered all in-game popup overlays in the visible screen on iPhone portrait and landscape.
-- Added overflow protection so tall popups scroll inside the modal instead of being clipped.
-- Applied the fix to New Game confirmation, Save, Pause, Level Complete, Game Over, Helper message, and End Quick Game popups.
-- Updated the CSS cache-buster in index.html so mobile browsers load the new popup layout.
+Update:
+- Replaced the Brands carousel card icon with a custom embedded SVG icon.
+- The Brands card no longer uses one of the gameplay sprites as its card icon.
+- Updated index.html cache-busters.
 
 Changed files:
-- style.css
 - index.html
+- VERSION.txt
+- README.md
 
-No gameplay, scoring, audio, carousel, tile set, helper, or save logic changes.
+No gameplay, scoring, audio, popup, helper, carousel logic, save-system behavior, or brand sprite files were changed.

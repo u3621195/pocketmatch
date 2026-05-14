@@ -1,29 +1,36 @@
-# Pocket Match v1.3.28 - Popup Centering Fix
+# Pocket Match v1.3.30 - Brand Card Icon Fix
 
-This build focuses only on popup layout stability across iPhone portrait, iPhone landscape, Safari, and Home Screen web-app mode.
+This package adds a new **BRANDS** tile set to the game.
 
-## Fixed
+## Added
 
-- All in-game popups are forced to center within the visible screen.
-- Popups now use safe-area-aware padding.
-- Tall popups use internal scrolling rather than clipping off-screen.
-- The CSS cache-buster in `index.html` was updated so iPhone browsers load the new popup CSS.
+- New sprite folder: `assets/sprites/brands/`
+- 30 brand-logo PNG sprites
+- New sprite array in `game.js`: `BRAND_SPRITES`
+- New `SPRITE_SETS.brands` registration
+- New **Brands** card in the start-screen tile-set carousel
+- Updated cache-busters in `index.html`
 
-## Popups covered
+## Upload guide
 
-- Start New Game confirmation
-- Save confirmation
-- Pause menu
-- Level Complete
-- Game Over
-- Helper message
-- End Quick Game confirmation
+For this update, upload:
 
-## Upload files
+```text
+index.html
+game.js
+assets/sprites/brands/
+VERSION.txt
+README.md
+```
 
-Upload these files for this fix:
+`style.css` is included in the package but was not functionally changed for this update.
 
-- `style.css`
-- `index.html`
+## Notes
 
-No JavaScript or asset files were changed.
+No gameplay, scoring, audio, popup, helper, carousel logic, or save-system behavior was intentionally changed.
+
+
+## v1.3.30 update
+
+- Replaced the Brands carousel card icon with a custom embedded SVG icon.
+- No gameplay logic changed.
