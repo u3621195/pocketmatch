@@ -1005,9 +1005,14 @@ function playUiAudio(name) {
 
 let bgmPausedByLifecycle = false;
 let bgmWasPlayingBeforeLifecyclePause = false;
+let bgmResumeRetryTimer = null;
+
+function canPlayBgmNow() {
+  return !muted && gameStarted && !paused && !document.hidden;
+}
 
 function playBgmIfAllowed() {
-  if (muted || !gameStarted || paused || document.hidden) return;
+  if (!canPlayBgmNow()) return;
   try {
     bgm.muted = false;
     const playPromise = bgm.play();
@@ -1017,9 +1022,32 @@ function playBgmIfAllowed() {
   } catch (e) {}
 }
 
+function scheduleBgmResumeAfterLifecycle() {
+  if (!canPlayBgmNow()) return;
+
+  clearTimeout(bgmResumeRetryTimer);
+  unlockAudio();
+  playBgmIfAllowed();
+
+  // iOS standalone web apps can need one short retry after pageshow/focus
+  // because the page becomes visible before audio is fully allowed again.
+  bgmResumeRetryTimer = setTimeout(() => {
+    if (canPlayBgmNow() && bgm.paused) {
+      unlockAudio();
+      playBgmIfAllowed();
+    }
+  }, 250);
+}
+
 function pauseAudioForLifecycle() {
-  bgmWasPlayingBeforeLifecyclePause = !muted && !bgm.paused;
+  // iOS can fire visibilitychange, pagehide, and blur for the same exit.
+  // Preserve the original “was playing” state instead of letting a later blur
+  // overwrite it after the BGM has already been paused.
+  bgmWasPlayingBeforeLifecyclePause =
+    bgmWasPlayingBeforeLifecyclePause || (!muted && !bgm.paused);
   bgmPausedByLifecycle = true;
+
+  clearTimeout(bgmResumeRetryTimer);
 
   try {
     bgm.pause();
@@ -1040,21 +1068,13 @@ function pauseAudioForLifecycle() {
 }
 
 function resumeAudioFromLifecycle() {
-  if (!bgmPausedByLifecycle) return;
   const shouldResumeBgm =
-    bgmWasPlayingBeforeLifecyclePause &&
-    !muted &&
-    gameStarted &&
-    !paused &&
-    !document.hidden;
+    bgmPausedByLifecycle && bgmWasPlayingBeforeLifecyclePause && canPlayBgmNow();
 
   bgmPausedByLifecycle = false;
   bgmWasPlayingBeforeLifecyclePause = false;
 
-  if (shouldResumeBgm) {
-    unlockAudio();
-    playBgmIfAllowed();
-  }
+  if (shouldResumeBgm) scheduleBgmResumeAfterLifecycle();
 }
 
 document.addEventListener("visibilitychange", () => {

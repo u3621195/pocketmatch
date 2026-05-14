@@ -23,3 +23,14 @@ Optional documentation files:
 
 - `VERSION.txt`
 - `README.md`
+
+## v1.3.26 iPhone BGM Return Fix
+
+This build fixes the remaining iPhone standalone web app audio lifecycle issue where BGM stopped correctly when exiting the app, but did not resume when returning.
+
+Technical notes:
+- Preserves the original BGM playing state across multiple iOS lifecycle events such as `visibilitychange`, `pagehide`, and `blur`.
+- Avoids a later `blur` event overwriting the remembered playing state after BGM has already been paused.
+- Uses the same guarded BGM restart path after `pageshow` / `focus`, with a short retry for iOS timing.
+
+Only `game.js` needs to be uploaded for this fix.
