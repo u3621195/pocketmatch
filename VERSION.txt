@@ -1,7 +1,8 @@
-Pocket Match v1.3.24
-- Corrected iPhone landscape CSS override order so the side-panel layout actually applies.
-- Updated CSS cache-busting query in index.html to v1.3.24.
-- Reduced right-side blank space.
-- Expanded board area to the bottom edge.
-- Hid iPhone board metadata line.
-- Redesigned iPhone gameplay buttons with stronger arcade styling and helper badges.
+Pocket Match v1.3.26 - iPhone Asymmetric Right Panel Layout
+
+Pocket Match v1.3.25
+- True iPhone landscape side-panel refinement.
+- Right gutter reduced.
+- Board forced to full gameplay height.
+- Sound button aligned with left status column after Dynamic Island.
+- iPhone controls restyled with stronger arcade/cartridge depth.
