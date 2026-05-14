@@ -1,4 +1,4 @@
-# Pocket Match v1.3.21 Cleaned
+# Pocket Match v1.3.22 Touch Hint Visibility
 
 This is a maintenance cleanup of the existing Pocket Match build.
 
@@ -36,3 +36,8 @@ This is a maintenance cleanup of the existing Pocket Match build.
 4. Start New Game, Continue, and Quick Game.
 5. Complete a match and verify score/timer updates.
 6. Test Hint, Shuffle, Pause, Save & Quit, and Resume.
+
+
+## v1.3.22 Touch Hint Visibility
+- Stronger tile flash for the Hint helper, especially on iPhone.
+- Added bright ring/glow pulse and extended hint display duration.

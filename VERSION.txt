@@ -1,9 +1,8 @@
-Pocket Match v1.3.21 Cleaned
+Pocket Match v1.3.22 Touch Hint Visibility
 
-Cleanup pass only. No intentional gameplay, scoring, helper, movement, save, audio, tile-set, or path-routing behavior changes.
+Focused visual update for the helper hint flash.
+- Made hinted tiles brighter and more visible on iPhone.
+- Added a stronger glow/ring pulse and small scale pulse.
+- Increased hint visibility duration from 1.8s to 2.4s.
 
-Main cleanup items:
-- Re-formatted HTML/CSS/JavaScript for easier maintenance.
-- Removed old patch/version comment blocks that accumulated during prior iterations.
-- Updated page title and cache-busting version labels.
-- Preserved the unified finite scroll-snap tile-set carousel from v1.3.20.
+No intentional gameplay, scoring, helper count, movement, save, audio, tile-set, carousel, or path-routing behavior changes.

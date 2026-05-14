@@ -1812,7 +1812,7 @@ function hint() {
       document
         .querySelectorAll(".tile.hint")
         .forEach((t) => t.classList.remove("hint")),
-    1800,
+    2400,
   );
 }
 
