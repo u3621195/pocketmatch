@@ -1,4 +1,8 @@
-Pocket Match v1.3.31
-Rollback: Restored the iPhone gameplay view from the previous v1.3.9 Ultrawide Scaling Fix package.
-Removed: All experimental iPhone side-panel/asymmetric layout changes from v1.3.21-v1.3.30.
-Preserved: The uploaded previous version package structure, assets, sounds, fonts, and tile sets.
+Pocket Match Clean Base v1.3.16
+Update: Replaced the hybrid controlled/native carousel with a single unified finite scroll-snap carousel for all devices.
+Update: Carousel is now a plain CSS flex scroll container with scroll-snap — no absolute positioning, no JS transform math, no circular wrapping.
+Update: Desktop: arrow buttons step through cards (disabled at first/last); mouse-wheel and pointer-drag also work.
+Update: Mobile/tablet: native swipe with scroll-snap mandatory; arrows hidden on touch devices.
+Update: Active card detected after scroll settles (90ms debounce on scroll event); is-center class drives scale/opacity via CSS transition.
+Update: Arrow buttons correctly disable at the first and last card (finite, no wrap-around).
+Preserved: All v1.3.15 iOS scroll fixes, dots, save pills, applySpriteSet, all gameplay systems.

@@ -115,3 +115,28 @@ Testing checklist:
 - Fixed timer display width and added tabular numerals to prevent top-bar jitter.
 - Polished score box label spacing.
 - Added thousand separators to score displays.
+
+## v1.3.11 update notes
+
+- Changed the start-screen tile-set selector into a one-row horizontal carousel.
+- Carousel behavior is infinite/continuous and auto-selects the card nearest the center.
+- Added subtle carousel dots under the selector.
+- Standardized card icon sizing and layout across all tile sets.
+- Replaced Foodies, Gadgets, Sports, Home, and Landmarks card icons with consistent embedded SVG-style illustrations.
+- Kept the Pokémon private-use PNG icon, but normalized its size/padding to match the other cards.
+- No gameplay, scoring, helper, movement, save, sound, or board-routing logic was intentionally changed.
+
+## v1.3.12 update notes
+
+- Replaced the fake infinite carousel reset with a controlled circular carousel so looping from Landmarks back to Pokémon is smooth and does not bounce/jump on desktop.
+- Added left/right carousel arrows on desktop.
+- Kept mobile swipe support, center-card auto-selection, and subtle dots.
+- Stabilized the Selected Run card by reserving the delete-save button space even when the selected theme has no saved game.
+- No gameplay, scoring, helper, sound, movement, or path-routing logic was intentionally changed.
+
+
+## v1.3.14
+
+- Fixed iPhone/iPad carousel failure by switching touch devices to a V1.8-style native momentum scroll-snap carousel.
+- The centered card still auto-selects after scrolling settles.
+- Desktop keeps the controlled circular carousel and arrow navigation.
