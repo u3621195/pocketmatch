@@ -1,10 +1,9 @@
-Pocket Match v1.3.31 Travel Set Added
+Pocket Match v1.3.32 - iPhone Rotate Screen Polish
+
+Updated the iPhone portrait gameplay orientation warning into a polished full-screen rotate screen.
 
 Changes:
-- Added new TRAVEL tile set with 30 travel item sprites.
-- Added assets/sprites/travel/ folder.
-- Added TRAVEL_SPRITES in game.js and registered the set in SPRITE_SETS.
-- Added a custom embedded SVG icon for the Travel card on the startup carousel.
-- Updated cache-busters in index.html.
-
-No intentional gameplay, scoring, audio, popup, helper, save, or carousel behavior changes.
+- Hides the unfinished/partially scaled board behind an opaque orientation screen.
+- Adds a centered app-style rotate message card.
+- Keeps game popups above the rotate screen when they are intentionally shown.
+- No gameplay, scoring, audio, carousel, tile set, helper, or save logic changes.

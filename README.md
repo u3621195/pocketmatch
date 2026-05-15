@@ -24,3 +24,10 @@ README.md
 ```
 
 No intentional gameplay, scoring, audio, popup, helper, save, or carousel behavior changes were made.
+
+## v1.3.32 - iPhone Rotate Screen Polish
+
+- Replaced the transparent portrait warning with an opaque full-screen orientation screen.
+- Prevents players from seeing the unfinished board layout behind the rotate message on iPhone portrait.
+- Added a centered rotate message card with app-style background/glow.
+- No gameplay, scoring, audio, carousel, tile set, helper, or save logic changes.

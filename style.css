@@ -6715,3 +6715,58 @@ body {
     content: none !important;
   }
 }
+
+/* v1.3.32 - Polished iPhone portrait orientation lock screen
+   Use an opaque, app-like rotate screen during gameplay instead of showing
+   the unfinished/partially scaled board behind the warning. */
+@media (max-width: 700px) and (orientation: portrait) {
+  .app-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    display: block;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(118, 86, 255, 0.32) 0%, rgba(118, 86, 255, 0.12) 30%, transparent 56%),
+      radial-gradient(circle at 50% 88%, rgba(255, 79, 243, 0.16) 0%, transparent 42%),
+      linear-gradient(180deg, #171622 0%, #0b0b14 58%, #05050d 100%);
+    pointer-events: auto;
+  }
+
+  .app-shell::after {
+    content: "▭  ↻\A ROTATE TO PLAY\A Turn your iPhone sideways\A for the best Pocket Match experience." !important;
+    white-space: pre-line !important;
+    position: fixed !important;
+    left: max(22px, env(safe-area-inset-left)) !important;
+    right: max(22px, env(safe-area-inset-right)) !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    z-index: 86 !important;
+    width: auto !important;
+    min-height: 0 !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    padding: 34px 24px 32px !important;
+    border: 3px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 32px !important;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.055)),
+      rgba(15, 14, 26, 0.94) !important;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.46),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 0 34px rgba(118, 86, 255, 0.22) !important;
+    color: #ffffff !important;
+    font-family: "Space Grotesk", system-ui, sans-serif !important;
+    font-size: clamp(18px, 5vw, 26px) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    line-height: 1.35 !important;
+    text-align: center !important;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.42) !important;
+    pointer-events: auto !important;
+  }
+}
