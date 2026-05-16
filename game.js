@@ -1063,6 +1063,7 @@ const TIME_BONUS_PER_SECOND = 50;
 const PERFECT_BONUS = 5000;
 let isQuickGame = false,
   currentSaveSlotId = null;
+let nextLevelReadyAfterComplete = false;
 let currentStrategy = STRATEGIES[0];
 
 function getLevelTime(lvl) {
@@ -2057,6 +2058,7 @@ function updateRuleTag() {
 function showLevelComplete() {
   clearInterval(timerId);
   paused = true;
+  nextLevelReadyAfterComplete = false;
   const nextLvl = level + 1,
     nextStrat = getStrategy(nextLvl);
   const timeBonus = timeLeft * TIME_BONUS_PER_SECOND;
@@ -2072,7 +2074,7 @@ function showLevelComplete() {
   $("lcTitle").textContent = "Level Complete";
   $("lcSummary").textContent = isQuickGame
     ? "Quick Game continues with a new random tile set next level."
-    : "Your progress can be saved before returning to the start screen.";
+    : "Your progress has been auto-saved for the next level.";
   $("lcTime").textContent = `+${formatScore(timeBonus)} pts`;
   $("lcPerfect").textContent = perfect
     ? `+${formatScore(PERFECT_BONUS)} pts`
@@ -2082,6 +2084,18 @@ function showLevelComplete() {
   $("lcNextRule").textContent =
     `Next: LV ${nextLvl} · ${nextStrat.name} · ${nextSetName}`;
   playUiAudio("levelComplete");
+
+  // Auto-save immediately after a normal level is completed.
+  // The saved state is prepared as the next level, so Continue resumes cleanly
+  // from the start of the next board instead of the already-cleared board.
+  if (!isQuickGame) {
+    prepareNextLevelState();
+    saveGame();
+    refreshSpriteSavePills();
+    nextLevelReadyAfterComplete = true;
+    moveStatus.textContent = `AUTO-SAVED  LV ${level}`;
+  }
+
   const quitBtn = $("levelCompleteQuitBtn");
   if (quitBtn)
     quitBtn.textContent = isQuickGame ? "End Quick Game" : "Save & Quit";
@@ -2112,7 +2126,14 @@ function startNextLevel() {
   gameOverOverlay.classList.add("hidden");
   $("endQuickConfirmOverlay")?.classList.add("hidden");
   $("helperMessageOverlay")?.classList.add("hidden");
-  prepareNextLevelState();
+  if (!nextLevelReadyAfterComplete) {
+    prepareNextLevelState();
+    if (!isQuickGame) {
+      saveGame();
+      refreshSpriteSavePills();
+    }
+  }
+  nextLevelReadyAfterComplete = false;
   paused = false;
   gameStarted = true;
   const setName = (SPRITE_SETS[currentSpriteSetId] || SPRITE_SETS.original)
@@ -2129,7 +2150,10 @@ function levelCompleteQuit() {
     endQuickGame(true);
     return;
   }
-  prepareNextLevelState();
+  if (!nextLevelReadyAfterComplete) {
+    prepareNextLevelState();
+  }
+  nextLevelReadyAfterComplete = false;
   saveGame();
   sfx.save();
   returnToTitleAfterSave();
@@ -2146,6 +2170,7 @@ function startGame(options = {}) {
   applySpriteSet(selectedSet);
   isQuickGame = !!mode.quick;
   currentSaveSlotId = isQuickGame ? null : selectedSet;
+  nextLevelReadyAfterComplete = false;
   overlay.classList.add("hidden");
   pauseOverlay.classList.add("hidden");
   levelCompleteOverlay.classList.add("hidden");
@@ -2210,6 +2235,7 @@ function continueFromSave() {
   $("themePicker").classList.add("hidden");
   appShell.classList.remove("paused");
   restoreGame(save);
+  nextLevelReadyAfterComplete = false;
   timerWarned = false;
   paused = false;
   gameStarted = true;
@@ -2319,6 +2345,7 @@ function resumeGame() {
 }
 
 function restartCurrentLevel() {
+  nextLevelReadyAfterComplete = false;
   gameOverOverlay.classList.add("hidden");
   levelScore = 0;
   resetLevelScoring();
