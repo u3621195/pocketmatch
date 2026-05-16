@@ -7,3 +7,13 @@ Changes:
 - Adds a centered app-style rotate message card.
 - Keeps game popups above the rotate screen when they are intentionally shown.
 - No gameplay, scoring, audio, carousel, tile set, helper, or save logic changes.
+
+v1.3.35
+- Added Foodies 2 sprite set.
+- Renamed Foodies to Foodies 1.
+- Added Foodies 2 card immediately after Foodies 1.
+- Refreshed Travel embedded icon.
+
+- Startup card icons updated to use uploaded icon sheet (all non-Pokémon sets)
+
+- Pokémon startup card icon moved to assets/ui-icons/pokemon-card.png for consistency with other card icons
