@@ -22,3 +22,4 @@ v1.3.36
 - Added auto-save immediately when a normal level is completed.
 - Saved state is prepared as the next level, so Continue resumes from the next board.
 - Quick Game remains single-session and does not save progress.
+- Added Tools sprite set before Travel with uploaded startup card icon.
