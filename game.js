@@ -2382,25 +2382,6 @@ function resumeGame() {
   resizeCanvas();
 }
 
-function restartCurrentLevel() {
-  nextLevelReadyAfterComplete = false;
-  gameOverOverlay.classList.add("hidden");
-  levelScore = 0;
-  resetLevelScoring();
-  currentStrategy = getStrategy(level);
-  levelTotalTime = getLevelTime(level);
-  timeLeft = levelTotalTime;
-  timerWarned = false;
-  updateRuleTag();
-  updateTimer();
-  createBoard();
-  renderBoard();
-  paused = false;
-  gameStarted = true;
-  moveStatus.textContent = `RETRY  LV ${level}`;
-  startTimer();
-}
-
 function newGameFromGameOver() {
   gameOverOverlay.classList.add("hidden");
   if (isQuickGame) {
@@ -2601,15 +2582,6 @@ function selectSpriteCarouselSet(setId, playSound = false) {
   renderSpriteCarousel();
   scrollCarouselToIndex(idx, true);
   if (playSound && typeof sfx !== "undefined") sfx.select();
-}
-
-function getCenteredSpriteCard() {
-  return baseSpriteOptions()[spriteCarouselIndex] || null;
-}
-
-function normalizeSpriteCarouselPosition() {
-  renderSpriteCarousel();
-  scrollCarouselToIndex(spriteCarouselIndex, false);
 }
 
 function updateCarouselArrows() {
