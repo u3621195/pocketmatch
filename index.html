@@ -1,444 +1,326 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>Pocket Match</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" name="viewport"/>
+<title>Pocket Match</title>
+<link href="style.css?v=1.3.32-rotate-screen" rel="stylesheet"/>
 </head>
-<!--
-  Body carries the *visual direction* (`data-direction`) and the *gameplay flag*
-  (`data-screen`). game.js does not touch either — revamp-extras.js sets them.
-
-  data-direction = "candy" | "crystal" | "cozy"   (defined in style.css)
-  data-screen    = "menu" | "play"                (toggled when the player
-                                                   leaves / returns to the
-                                                   start overlay)
-
-  When `data-screen="play"` AND the device is in portrait, the .app-shell is
-  CSS-rotated 90deg so gameplay is always experienced in landscape — see
-  the `.rotate-stage` rules in style.css. A friendly "Rotate" prompt sits
-  behind it as a visual fallback (#rotatePrompt).
--->
-<body data-direction="candy" data-screen="menu">
-
-  <!-- ─────────────────────────────────────────────
-       AMBIENT BACKDROP — three soft blobs per direction.
-       Pure decoration; safe to delete or replace.
-       ───────────────────────────────────────────── -->
-  <div class="ambient" aria-hidden="true">
-    <span class="blob blob-1"></span>
-    <span class="blob blob-2"></span>
-    <span class="blob blob-3"></span>
-    <span class="grain"></span>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       ROTATE-DEVICE PROMPT
-       Visible only on small portrait viewports while in gameplay (CSS).
-       The board itself is also CSS-rotated underneath as a working fallback.
-       ───────────────────────────────────────────── -->
-  <div class="rotate-prompt" id="rotatePrompt" aria-hidden="true">
-    <div class="rotate-prompt-inner">
-      <div class="rotate-phone">
-        <span class="rotate-phone-screen"></span>
-        <span class="rotate-phone-arrow"></span>
-      </div>
-      <h2>Rotate to play</h2>
-      <p>Pocket Match plays best in landscape.</p>
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       APP SHELL — the in-game HUD + board.
-       `.app-shell` class is referenced by game.js (paused state toggling).
-       ───────────────────────────────────────────── -->
-  <div class="rotate-stage">
-    <div class="app-shell">
-
-      <!-- TOP BAR ───────────────────────────────── -->
-      <header class="topbar">
-        <!-- Left cluster: brand + level + rule -->
-        <div class="topbar-cluster topbar-left">
-          <div class="brand">
-            <span class="brand-mark" aria-hidden="true"></span>
-            <span class="brand-name">Pocket<span>Match</span></span>
-          </div>
-          <div class="hud-stat hud-level">
-            <span class="hud-stat-label">Lv</span>
-            <strong id="level">01</strong>
-          </div>
-          <div class="hud-stat hud-rule">
-            <span class="hud-stat-label">Rule</span>
-            <span class="rule-tag" id="ruleTag">NORMAL</span>
-          </div>
-        </div>
-
-        <!-- Center cluster: timer + score (the focal HUD) -->
-        <div class="topbar-cluster topbar-center">
-          <div class="timer-panel">
-            <div class="timer-text" id="timerText">08:00</div>
-            <div class="timer-rail" aria-hidden="true">
-              <!-- #timerBar width is set by game.js updateTimer() -->
-              <div class="timer-bar" id="timerBar"></div>
-            </div>
-          </div>
-          <div class="score-panel">
-            <span class="score-label">Score</span>
-            <strong id="score">0</strong>
-          </div>
-        </div>
-
-        <!-- Right cluster: tools + controls -->
-        <div class="topbar-cluster topbar-right">
-          <button class="tool-btn" id="hintBtn" title="Hint" aria-label="Use a hint">
-            <span class="tool-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="6"/>
-                <line x1="15.5" y1="15.5" x2="20" y2="20"/>
-              </svg>
-            </span>
-            <strong id="hintCount">05</strong>
-          </button>
-          <button class="tool-btn" id="shuffleBtn" title="Shuffle" aria-label="Shuffle the board">
-            <span class="tool-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 7h4l9 10h5"/>
-                <path d="M17 4l3 3-3 3"/>
-                <path d="M3 17h4l3-3"/>
-                <path d="M14 10l2-3h4"/>
-                <path d="M17 20l3-3"/>
-              </svg>
-            </span>
-            <strong id="shuffleCount">05</strong>
-          </button>
-
-          <button class="icon-btn audio-btn" id="musicBtn" title="Sound on/off" aria-label="Toggle sound">♪</button>
-          <button class="icon-btn pause-btn" id="pauseBtn" title="Pause" aria-label="Pause game">
-            <span aria-hidden="true" class="pause-icon"></span>
-          </button>
-
-          <!-- Hidden / legacy controls kept for game.js compatibility.
-               The .removed-control + hidden attrs keep them out of layout. -->
-          <button class="icon-btn theme-btn removed-control" hidden id="themeBtn" aria-label="Change theme">◈</button>
-          <button class="icon-btn save-btn removed-control" hidden id="saveBtn" aria-label="Quick save">💾</button>
-        </div>
-      </header>
-
-      <!-- GAME AREA ─────────────────────────────── -->
-      <main class="game-area">
-        <div class="board-frame">
-          <div class="board-meta">
-            <span class="board-meta-info" id="boardInfo">MATCHES: --</span>
-            <span class="status-pill" id="moveStatus">Ready</span>
-          </div>
-          <!-- Secondary thin timer below status, mirrored from #timerBar.
-               game.js writes to #boardTimerBar width too. -->
-          <div class="board-time-meter" aria-hidden="true">
-            <div class="board-time-bar" id="boardTimerBar"></div>
-          </div>
-          <!--
-            .board-wrap is read by game.js (.getBoundingClientRect()).
-            The canvas draws connection paths, the .board fills the tile grid.
-            game.js builds 9 rows × 16 cols of <div class="tile"> here at runtime.
-          -->
-          <div class="board-wrap">
-            <canvas id="pathCanvas"></canvas>
-            <div class="board" id="board"></div>
-          </div>
-        </div>
-
-        <!-- Phone-only single-line breadcrumb. Populated by revamp-extras.js
-             via MutationObserver on #level, #boardInfo, #ruleTag. Hidden on
-             tablet/desktop (where the full topbar carries this info). -->
-        <div class="phone-breadcrumb" aria-hidden="true">
-          <span class="pb-item pb-level">Lv <strong data-mirror="level">01</strong></span>
-          <span class="pb-sep">·</span>
-          <span class="pb-item pb-matches" data-mirror="matches">Matches —</span>
-          <span class="pb-sep">·</span>
-          <span class="pb-item pb-rule" data-mirror="rule">Normal</span>
-          <span class="pb-sep">·</span>
-          <span class="pb-item pb-set" data-mirror="set">—</span>
-        </div>
-      </main>
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       LEGACY THEME PICKER (kept for game.js).
-       Hidden by default — the new visual-direction picker on the start
-       screen and the Tweaks panel replace it. The original element must
-       still exist or game.js throws on $("themePicker").
-       ───────────────────────────────────────────── -->
-  <div class="theme-picker hidden" id="themePicker" hidden>
-    <div class="theme-option active" data-theme="arcade"><span class="theme-name">Arcade</span></div>
-    <div class="theme-option" data-theme="ocean"><span class="theme-name">Ocean</span></div>
-    <div class="theme-option" data-theme="obsidian"><span class="theme-name">Obsidian</span></div>
-    <div class="theme-option" data-theme="cyber"><span class="theme-name">Cyber</span></div>
-    <div class="theme-option" data-theme="amethyst"><span class="theme-name">Amethyst</span></div>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       START SCREEN OVERLAY
-       Works in portrait + landscape on phones / tablets.
-       ───────────────────────────────────────────── -->
-  <section class="overlay start-overlay" id="overlay">
-    <div class="modal start-modal">
-
-      <div class="start-hero">
-        <span class="start-mark" aria-hidden="true">
-          <span class="start-mark-tile"></span>
-          <span class="start-mark-tile"></span>
-          <span class="start-mark-tile"></span>
-        </span>
-        <h1>Pocket <span>Match</span></h1>
-        <p class="start-tagline">Match pairs · trace clean paths · beat the clock</p>
-      </div>
-
-      <!-- Visual-direction picker (in-page; mirrored in the Tweaks panel) -->
-      <div class="direction-picker" role="tablist" aria-label="Visual style">
-        <button type="button" role="tab" class="direction-chip is-active" data-direction="candy">
-          <span class="direction-swatch direction-swatch-candy"></span>
-          <span>Candy</span>
+<body>
+<div class="ambient"></div>
+<div class="scanline"></div>
+<div class="app-shell">
+<header class="topbar">
+<div class="brand">
+<span class="brand-dot"></span>POCKET<span>MATCH</span>
+</div>
+<div class="hud-pill">LV <strong id="level">01</strong></div>
+<div class="hud-pill rule-pill">
+          RULE <span class="rule-tag" id="ruleTag">NORMAL</span>
+</div>
+<button class="hud-btn" id="hintBtn">
+<span>⌕</span><strong id="hintCount">05</strong>
+</button>
+<button class="hud-btn" id="shuffleBtn">
+<span>⇄</span><strong id="shuffleCount">05</strong>
+</button>
+<div class="timer-panel">
+<div class="timer-rail">
+<div class="timer-bar" id="timerBar"></div>
+</div>
+<div class="timer-text" id="timerText">08:00</div>
+</div>
+<div class="score-panel">
+<span>SCORE</span><strong id="score">0</strong>
+</div>
+<button aria-label="Change Theme" class="theme-btn removed-control" hidden="" id="themeBtn" title="Change Theme">
+          ◈
         </button>
-        <button type="button" role="tab" class="direction-chip" data-direction="crystal">
-          <span class="direction-swatch direction-swatch-crystal"></span>
-          <span>Crystal</span>
+<button aria-label="Sound On/Off" class="audio-btn" id="musicBtn" title="Sound On/Off">
+          ♪
         </button>
-        <button type="button" role="tab" class="direction-chip" data-direction="cozy">
-          <span class="direction-swatch direction-swatch-cozy"></span>
-          <span>Cozy</span>
+<button aria-label="Quick Save" class="audio-btn save-btn removed-control" hidden="" id="saveBtn" title="Quick Save">
+          💾
         </button>
-      </div>
-
-      <div class="sprite-select" aria-label="Tile pack picker">
-        <div class="sprite-select-head">
-          <span class="sprite-select-label">Tile Pack</span>
-          <span class="sprite-select-hint">swipe or use arrows</span>
-        </div>
-        <button class="sprite-carousel-arrow sprite-carousel-prev" id="spriteCarouselPrev" type="button" aria-label="Previous pack">‹</button>
-
-        <!--
-          The 10 .sprite-option buttons MUST keep their data-set values
-          (original / foodies / foodies2 / gadgets / sports / home /
-           landmarks / brands / tools / travel). game.js wires the
-          carousel logic against these.
-        -->
-        <div class="sprite-options" id="spriteOptions">
-          <button class="sprite-option active" data-set="original" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/pokemon-card.png" alt=""></span>
-            <span class="sprite-name">Originals</span>
-            <span class="sprite-save-pill">NEW</span>
+<button aria-label="Pause" class="audio-btn pause-btn" id="pauseBtn" title="Pause">
+<span aria-hidden="true" class="pause-icon"></span>
+</button>
+</header>
+<main class="game-area">
+<div class="board-frame">
+<div class="board-header">
+<span id="boardInfo">MATCHES: --</span>
+<span id="moveStatus">SYSTEM READY</span>
+</div>
+<div aria-hidden="true" class="board-time-meter">
+<div class="board-time-bar" id="boardTimerBar"></div>
+</div>
+<div class="board-wrap">
+<canvas id="pathCanvas"></canvas>
+<div class="board" id="board"></div>
+</div>
+</div>
+</main>
+</div>
+<div class="theme-picker hidden" id="themePicker">
+<div class="theme-picker-label">Select Theme</div>
+<div class="theme-option active" data-theme="arcade">
+<div class="theme-dots">
+<div class="theme-dot" style="background: #171622"></div>
+<div class="theme-dot" style="background: #a66cff"></div>
+<div class="theme-dot" style="background: #ff4ff3"></div>
+</div>
+<span class="theme-name">NEON ARCADE</span>
+</div>
+<div class="theme-option" data-theme="ocean">
+<div class="theme-dots">
+<div class="theme-dot" style="background: #04182a"></div>
+<div class="theme-dot" style="background: #7de8d8"></div>
+<div class="theme-dot" style="background: #f0c060"></div>
+</div>
+<span class="theme-name">DEEP OCEAN</span>
+</div>
+<div class="theme-option" data-theme="obsidian">
+<div class="theme-dots">
+<div class="theme-dot" style="background: #0e0e0e"></div>
+<div class="theme-dot" style="background: #c8a84a"></div>
+<div class="theme-dot" style="background: #e8d090"></div>
+</div>
+<span class="theme-name">OBSIDIAN GOLD</span>
+</div>
+<div class="theme-option" data-theme="cyber">
+<div class="theme-dots">
+<div class="theme-dot" style="background: #080c14"></div>
+<div class="theme-dot" style="background: #40c8f0"></div>
+<div class="theme-dot" style="background: #80e8ff"></div>
+</div>
+<span class="theme-name">CYBER SLATE</span>
+</div>
+<div class="theme-option" data-theme="amethyst">
+<div class="theme-dots">
+<div class="theme-dot" style="background: #08060e"></div>
+<div class="theme-dot" style="background: #c890f8"></div>
+<div class="theme-dot" style="background: #e8c8ff"></div>
+</div>
+<span class="theme-name">VOID AMETHYST</span>
+</div>
+</div>
+<section class="overlay" id="overlay">
+<div class="modal start-modal">
+<div class="modal-kicker">RETRO CARTRIDGE SYSTEM</div>
+<h1>Pocket <span>Match</span></h1>
+<p>Match pairs. Make clean paths. Beat the clock.</p>
+<div class="sprite-select">
+<div class="sprite-select-label"><span>Theme</span></div>
+<button aria-label="Previous theme" class="sprite-carousel-arrow sprite-carousel-prev" id="spriteCarouselPrev" type="button">
+            ‹
           </button>
-          <button class="sprite-option" data-set="foodies" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/foodies1-card.png" alt=""></span>
-            <span class="sprite-name">Foodies 1</span>
-            <span class="sprite-save-pill">NEW</span>
+<div class="sprite-options" id="spriteOptions">
+<button class="sprite-option active" data-set="original" type="button">
+<span class="sprite-icon icon-shell"><img alt="Pokémon icon" class="sprite-icon-img" src="assets/ui-icons/pokemon-card.png"/></span><span class="sprite-name">Pokémon</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="foodies" type="button">
+<span class="sprite-icon icon-shell"><img alt="Foodies 1 icon" class="sprite-icon-img" src="assets/ui-icons/foodies1-card.png"/></span><span class="sprite-name">Foodies 1</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="foodies2" type="button">
+<span class="sprite-icon icon-shell"><img alt="Foodies 2 icon" class="sprite-icon-img" src="assets/ui-icons/foodies2-card.png"/></span><span class="sprite-name">Foodies 2</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="gadgets" type="button">
+<span class="sprite-icon icon-shell"><img alt="Gadgets icon" class="sprite-icon-img" src="assets/ui-icons/gadgets-card.png"/></span><span class="sprite-name">Gadgets</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="sports" type="button">
+<span class="sprite-icon icon-shell"><img alt="Sports icon" class="sprite-icon-img" src="assets/ui-icons/sports-card.png"/></span><span class="sprite-name">Sports</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="home" type="button">
+<span class="sprite-icon icon-shell"><img alt="Home icon" class="sprite-icon-img" src="assets/ui-icons/home-card.png"/></span><span class="sprite-name">Home</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="landmarks" type="button">
+<span class="sprite-icon icon-shell"><img alt="Landmarks icon" class="sprite-icon-img" src="assets/ui-icons/landmarks-card.png"/></span><span class="sprite-name">Landmarks</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="brands" type="button">
+<span class="sprite-icon icon-shell"><img alt="Brands icon" class="sprite-icon-img" src="assets/ui-icons/brands-card.png"/></span><span class="sprite-name">Brands</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="tools" type="button">
+<span class="sprite-icon icon-shell"><img alt="Tools icon" class="sprite-icon-img" src="assets/ui-icons/tools-card.png"/></span><span class="sprite-name">Tools</span><span class="sprite-save-pill">NEW</span>
+</button>
+<button class="sprite-option" data-set="travel" type="button">
+<span class="sprite-icon icon-shell"><img alt="Travel icon" class="sprite-icon-img" src="assets/ui-icons/travel-card.png"/></span><span class="sprite-name">Travel</span><span class="sprite-save-pill">NEW</span>
+</button>
+</div>
+<button aria-label="Next theme" class="sprite-carousel-arrow sprite-carousel-next" id="spriteCarouselNext" type="button">
+            ›
           </button>
-          <button class="sprite-option" data-set="foodies2" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/foodies2-card.png" alt=""></span>
-            <span class="sprite-name">Foodies 2</span>
-            <span class="sprite-save-pill">NEW</span>
+<div aria-hidden="true" class="sprite-carousel-dots" id="spriteCarouselDots"></div>
+</div>
+<div class="saved-slot selected-run-info" id="savedSlot">
+<div class="saved-slot-card">
+<div class="saved-slot-info">
+<span class="saved-slot-label">Selected Run</span>
+<div class="saved-slot-details">
+<span id="saveLevel">—</span>
+<span class="saved-slot-sep">·</span>
+<span id="saveScore">—</span>
+</div>
+</div>
+<div class="saved-slot-info">
+<span class="saved-slot-label">Last Saved</span>
+<div class="saved-slot-details">
+<span id="saveDate">—</span>
+<button class="delete-save-btn" id="deleteSaveBtn" title="Delete selected saved game">
+                  ✕
+                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="start-actions action-grid">
+<button class="start-btn action-btn continue-action" id="continueFromSaveBtn" type="button">
+            Continue
           </button>
-          <button class="sprite-option" data-set="gadgets" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/gadgets-card.png" alt=""></span>
-            <span class="sprite-name">Gadgets</span>
-            <span class="sprite-save-pill">NEW</span>
+<button class="start-btn action-btn primary-action" id="startBtn" type="button">
+            New Game
           </button>
-          <button class="sprite-option" data-set="sports" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/sports-card.png" alt=""></span>
-            <span class="sprite-name">Sports</span>
-            <span class="sprite-save-pill">NEW</span>
+<button class="start-btn action-btn quick-action" id="quickGameBtn" type="button">
+            Quick Game
           </button>
-          <button class="sprite-option" data-set="home" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/home-card.png" alt=""></span>
-            <span class="sprite-name">Home</span>
-            <span class="sprite-save-pill">NEW</span>
+</div>
+</div>
+</section>
+<section class="overlay hidden" id="newGameConfirmOverlay">
+<div class="modal save-modal confirm-modal">
+<div class="modal-kicker">SAVE SLOT WARNING</div>
+<h1>Start New Game?</h1>
+<p id="newGameConfirmMsg">
+          This will delete the saved progress for the selected tile set.
+        </p>
+<div class="popup-actions">
+<button class="modal-btn secondary" id="cancelNewGameBtn" type="button">
+            Cancel
           </button>
-          <button class="sprite-option" data-set="landmarks" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/landmarks-card.png" alt=""></span>
-            <span class="sprite-name">Landmarks</span>
-            <span class="sprite-save-pill">NEW</span>
+<button class="modal-btn primary" id="confirmNewGameBtn" type="button">
+            New Game
           </button>
-          <button class="sprite-option" data-set="brands" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/brands-card.png" alt=""></span>
-            <span class="sprite-name">Brands</span>
-            <span class="sprite-save-pill">NEW</span>
+</div>
+</div>
+</section>
+<section class="overlay hidden" id="saveOverlay">
+<div class="modal save-modal">
+<div class="modal-kicker">CARTRIDGE SAVE</div>
+<h1>Game Saved</h1>
+<p id="saveMsg">
+          Progress saved — continue any time from the main screen.
+        </p>
+<div class="popup-actions">
+<button class="modal-btn primary" id="saveOkBtn" type="button">
+            OK
           </button>
-          <button class="sprite-option" data-set="tools" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/tools-card.png" alt=""></span>
-            <span class="sprite-name">Tools</span>
-            <span class="sprite-save-pill">NEW</span>
+</div>
+</div>
+</section>
+<section class="overlay pause-overlay hidden" id="pauseOverlay">
+<div class="modal pause-modal">
+<div class="modal-kicker">GAME PAUSED</div>
+<h1>Paused</h1>
+<p id="pauseMessage">
+          The timer is stopped. Choose how you want to continue.
+        </p>
+<div class="popup-actions" id="pauseActions">
+<button class="modal-btn primary" id="continueBtn" type="button">
+            Continue
           </button>
-          <button class="sprite-option" data-set="travel" type="button">
-            <span class="sprite-icon"><img class="sprite-icon-img" src="assets/ui-icons/travel-card.png" alt=""></span>
-            <span class="sprite-name">Travel</span>
-            <span class="sprite-save-pill">NEW</span>
+<button class="modal-btn secondary" id="saveContinueBtn" type="button">
+            Save &amp; Continue
           </button>
-        </div>
-
-        <button class="sprite-carousel-arrow sprite-carousel-next" id="spriteCarouselNext" type="button" aria-label="Next pack">›</button>
-        <div class="sprite-carousel-dots" id="spriteCarouselDots" aria-hidden="true"></div>
-      </div>
-
-      <div class="saved-slot" id="savedSlot">
-        <div class="saved-slot-grid">
-          <div class="saved-slot-cell">
-            <span class="saved-slot-label">Saved run</span>
-            <div class="saved-slot-details">
-              <span id="saveLevel">—</span>
-              <span class="saved-slot-sep">·</span>
-              <span id="saveScore">—</span>
-            </div>
-          </div>
-          <div class="saved-slot-cell saved-slot-cell-right">
-            <span class="saved-slot-label">Updated</span>
-            <div class="saved-slot-details">
-              <span id="saveDate">—</span>
-              <button class="delete-save-btn" id="deleteSaveBtn" title="Delete selected saved game" type="button">✕</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="start-actions">
-        <button class="action-btn ghost continue-action" id="continueFromSaveBtn" type="button">Continue</button>
-        <button class="action-btn primary primary-action" id="startBtn" type="button">New Game</button>
-        <button class="action-btn ghost quick-action" id="quickGameBtn" type="button">Quick Game</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─────────────────────────────────────────────
-       SECONDARY OVERLAYS (confirms, save, pause, level complete, game over)
-       Same IDs and button IDs as before — game.js binds to them.
-       ───────────────────────────────────────────── -->
-
-  <section class="overlay hidden" id="newGameConfirmOverlay">
-    <div class="modal small-modal">
-      <div class="modal-kicker">Heads up</div>
-      <h1>Start new game?</h1>
-      <p id="newGameConfirmMsg">This will delete the saved progress for the selected tile pack.</p>
-      <div class="popup-actions">
-        <button class="action-btn ghost" id="cancelNewGameBtn" type="button">Cancel</button>
-        <button class="action-btn primary" id="confirmNewGameBtn" type="button">New Game</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay hidden" id="saveOverlay">
-    <div class="modal small-modal">
-      <div class="modal-kicker">Saved</div>
-      <h1>Game saved</h1>
-      <p id="saveMsg">Progress saved — continue any time from the main screen.</p>
-      <div class="popup-actions">
-        <button class="action-btn primary" id="saveOkBtn" type="button">OK</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay pause-overlay hidden" id="pauseOverlay">
-    <div class="modal pause-modal">
-      <div class="modal-kicker">Paused</div>
-      <h1>Take a breath</h1>
-      <p id="pauseMessage">The timer is stopped. Choose how you want to continue.</p>
-      <div class="popup-actions" id="pauseActions">
-        <button class="action-btn primary" id="continueBtn" type="button">Continue</button>
-        <button class="action-btn ghost" id="saveContinueBtn" type="button">Save &amp; Continue</button>
-        <button class="action-btn ghost" id="saveFromPauseBtn" type="button">Save &amp; Quit</button>
-        <button class="action-btn ghost hidden" id="endQuickGameBtn" type="button">End Quick Game</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay hidden" id="levelCompleteOverlay">
-    <div class="modal level-modal">
-      <div class="modal-kicker" id="lcKicker">LEVEL COMPLETE</div>
-      <h1 id="lcTitle">Level Complete</h1>
-      <p id="lcSummary">Great run. Your score has been updated.</p>
-      <div class="result-summary">
-        <div class="result-line">
-          <span>Level score</span>
-          <strong id="lcLevelScore">—</strong>
-        </div>
-        <div class="result-line">
-          <span>Time bonus</span>
-          <strong id="lcTime">—</strong>
-        </div>
-        <div class="result-line">
-          <span>Perfect bonus</span>
-          <strong id="lcPerfect">—</strong>
-        </div>
-        <div class="result-line result-total">
-          <span>Total score</span>
-          <strong id="lcTotalScore">—</strong>
-        </div>
-        <div class="result-next" id="lcNextRule">Next: —</div>
-      </div>
-      <div class="popup-actions">
-        <button class="action-btn primary" id="nextLevelBtn" type="button">Next Level</button>
-        <button class="action-btn ghost" id="levelCompleteQuitBtn" type="button">Save &amp; Quit</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay hidden" id="gameOverOverlay">
-    <div class="modal small-modal game-over-modal">
-      <div class="modal-kicker">Time up</div>
-      <h1>Game Over</h1>
-      <p id="goMessage">Time is up. Start again or return to the start screen.</p>
-      <div class="popup-summary-line" id="goSummary">LV -- · -- · 0 pts</div>
-      <div class="popup-actions">
-        <button class="action-btn primary" id="gameOverNewGameBtn" type="button">New Game</button>
-        <button class="action-btn ghost" id="gameOverQuitBtn" type="button">Back to Start</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay hidden" id="helperMessageOverlay">
-    <div class="modal small-modal">
-      <div class="modal-kicker" id="helperMessageKicker">Helper</div>
-      <h1 id="helperMessageTitle">No Helpers Left</h1>
-      <p id="helperMessageText">You have no helpers available.</p>
-      <div class="popup-actions">
-        <button class="action-btn primary" id="helperMessageOkBtn" type="button">OK</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="overlay hidden" id="endQuickConfirmOverlay">
-    <div class="modal small-modal">
-      <div class="modal-kicker">Quick Game</div>
-      <h1>End Quick Game?</h1>
-      <p>This run will not be saved.</p>
-      <div class="popup-actions">
-        <button class="action-btn ghost" id="cancelEndQuickBtn" type="button">Cancel</button>
-        <button class="action-btn primary" id="confirmEndQuickBtn" type="button">End Game</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Combo pops + particle bursts mount here. Position: fixed, full viewport. -->
-  <div class="combo-layer" id="comboLayer" aria-hidden="true"></div>
-
-  <!-- ─────────────────────────────────────────────
-       Tweakable defaults — wrapped in EDITMODE markers so the
-       editor host can rewrite this block when the user changes
-       a tweak. The JSON between the markers must stay valid.
-       ───────────────────────────────────────────── -->
-  <script>
-    window.__pocketmatchTweakDefaults = /*EDITMODE-BEGIN*/{
-      "direction": "crystal",
-      "motion": "subtle",
-      "layout": "top"
-    }/*EDITMODE-END*/;
-  </script>
-
-  <!-- ─────────────────────────────────────────────
-       Original game logic — unchanged.
-       ───────────────────────────────────────────── -->
-  <script src="game.js"></script>
-  <!-- Revamp-only extras: direction picker, orientation lock, juice. -->
-  <script src="revamp-extras.js"></script>
+<button class="modal-btn secondary" id="saveFromPauseBtn" type="button">
+            Save &amp; Quit
+          </button>
+<button class="modal-btn secondary hidden" id="endQuickGameBtn" type="button">
+            End Quick Game
+          </button>
+</div>
+</div>
+</section>
+<section class="overlay hidden" id="levelCompleteOverlay">
+<div class="modal level-modal compact-result-modal">
+<div class="modal-kicker" id="lcKicker">LEVEL COMPLETE</div>
+<h1 id="lcTitle">Level Complete</h1>
+<p id="lcSummary">Great run. Your score has been updated.</p>
+<div class="result-summary">
+<div class="result-line">
+<span>Level Score</span>
+<strong id="lcLevelScore">—</strong>
+</div>
+<div class="result-line">
+<span>Time Bonus</span>
+<strong id="lcTime">—</strong>
+</div>
+<div class="result-line">
+<span>Perfect Bonus</span>
+<strong id="lcPerfect">—</strong>
+</div>
+<div class="result-line result-total">
+<span>Total Score</span>
+<strong id="lcTotalScore">—</strong>
+</div>
+<div class="result-next" id="lcNextRule">Next: —</div>
+</div>
+<div class="popup-actions">
+<button class="modal-btn primary" id="nextLevelBtn" type="button">
+            Next Level
+          </button>
+<button class="modal-btn secondary" id="levelCompleteQuitBtn" type="button">
+            Save &amp; Quit
+          </button>
+</div>
+</div>
+</section>
+<section class="overlay hidden" id="gameOverOverlay">
+<div class="modal save-modal compact-message-modal game-over-modal">
+<div class="modal-kicker">TIME LIMIT REACHED</div>
+<h1>Game Over</h1>
+<p id="goMessage">
+          Time is up. Start again or return to the start screen.
+        </p>
+<div class="popup-summary-line" id="goSummary">LV -- · -- · 0 pts</div>
+<div class="popup-actions">
+<button class="modal-btn primary" id="gameOverNewGameBtn" type="button">
+            New Game
+          </button>
+<button class="modal-btn secondary" id="gameOverQuitBtn" type="button">
+            Back to Start
+          </button>
+</div>
+</div>
+</section>
+<section class="overlay hidden compact-message-overlay" id="helperMessageOverlay">
+<div class="modal save-modal compact-message-modal">
+<div class="modal-kicker" id="helperMessageKicker">HELPER</div>
+<h1 id="helperMessageTitle">No Helpers Left</h1>
+<p id="helperMessageText">You have no helpers available.</p>
+<div class="popup-actions">
+<button class="modal-btn primary" id="helperMessageOkBtn" type="button">
+            OK
+          </button>
+</div>
+</div>
+</section>
+<section class="overlay hidden" id="endQuickConfirmOverlay">
+<div class="modal save-modal confirm-modal">
+<div class="modal-kicker">QUICK GAME</div>
+<h1>End Quick Game?</h1>
+<p>This run will not be saved.</p>
+<div class="popup-actions">
+<button class="modal-btn secondary" id="cancelEndQuickBtn" type="button">
+            Cancel
+          </button>
+<button class="modal-btn primary" id="confirmEndQuickBtn" type="button">
+            End Game
+          </button>
+</div>
+</div>
+</section>
+<div aria-hidden="true" class="combo-layer" id="comboLayer"></div>
+<script src="game.js?v=1.3.36-tools-set"></script>
 </body>
 </html>
