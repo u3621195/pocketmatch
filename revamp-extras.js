@@ -18,9 +18,21 @@
 (function () {
   "use strict";
 
+  // ─── TWEAKABLE DEFAULTS ───────────────────────────────────
+  // Defaults are declared in index.html (inside an EDITMODE block so the
+  // editor host can persist user tweaks to disk). We just read them here.
+  // Pulled up to the top of the IIFE so other init code (direction,
+  // motion, layout) can reference it without TDZ issues.
+  const TWEAK_DEFAULTS = Object.assign(
+    { direction: "candy", motion: "subtle", layout: "top" },
+    (typeof window !== "undefined" && window.__pocketmatchTweakDefaults) || {},
+  );
+
   // ─── DIRECTION PICKER ─────────────────────────────────────
   const DIRECTION_KEY = "pocketmatch_direction_v1";
   const DIRECTIONS = ["candy", "crystal", "cozy"];
+  const LAYOUT_KEY = "pocketmatch_layout_v1";
+  const LAYOUTS = ["top", "right"];
 
   function getStoredDirection() {
     try {
@@ -67,6 +79,34 @@
     });
   }
 
+  // ─── DESKTOP / IPAD LAYOUT TWEAK (top vs vertical-right) ──
+  function getStoredLayout() {
+    try {
+      const v = localStorage.getItem(LAYOUT_KEY);
+      return LAYOUTS.includes(v) ? v : (TWEAK_DEFAULTS.layout || "top");
+    } catch (e) {
+      return TWEAK_DEFAULTS.layout || "top";
+    }
+  }
+  function setLayout(layout) {
+    if (!LAYOUTS.includes(layout)) layout = "top";
+    document.body.setAttribute("data-layout", layout);
+    try { localStorage.setItem(LAYOUT_KEY, layout); } catch (e) {}
+    document.querySelectorAll("[data-layout-control]").forEach((el) => {
+      el.classList.toggle(
+        "is-active",
+        el.getAttribute("data-layout-control") === layout,
+      );
+    });
+    try {
+      window.parent?.postMessage(
+        { type: "__edit_mode_set_keys", edits: { layout } },
+        "*",
+      );
+    } catch (e) {}
+  }
+  let currentLayout = getStoredLayout();
+
   // ─── SCREEN-STATE TRACKING (menu / play) ─────────────────
   // We watch the .hidden class on the start overlay so we don't have to
   // patch game.js at all. When the overlay opens we're on the menu;
@@ -85,13 +125,53 @@
     updateScreenState();
   }
 
+  // ─── PHONE BREADCRUMB MIRROR ──────────────────────────────
+  // The breadcrumb at the bottom of the gameplay screen on phones
+  // mirrors live values from the canonical HUD elements. We do not
+  // duplicate the elements themselves — we just keep their text in
+  // sync so the original game.js logic only ever updates one place.
+  function updateBreadcrumb() {
+    const level = document.getElementById("level")?.textContent || "—";
+    const rule = document.getElementById("ruleTag")?.textContent || "—";
+    const boardInfo = document.getElementById("boardInfo")?.textContent || "";
+    // boardInfo is "MATCHES: 18 · SET: TOOLS" (or "MATCHES: --").
+    const matchMatch = boardInfo.match(/MATCHES:\s*([\d-]+)/i);
+    const setMatch = boardInfo.match(/SET:\s*([\w \-]+)/i);
+    const matches = matchMatch ? matchMatch[1] : "—";
+    const set = setMatch ? setMatch[1].trim() : "—";
+
+    const setText = (sel, value) => {
+      const el = document.querySelector(`[data-mirror="${sel}"]`);
+      if (el && el.textContent !== value) el.textContent = value;
+    };
+    setText("level", level);
+    setText("matches", `Matches ${matches}`);
+    setText("rule", titleCase(rule));
+    setText("set", titleCase(set));
+  }
+  function titleCase(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  function initBreadcrumbMirror() {
+    const sources = ["level", "ruleTag", "boardInfo"]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!sources.length) return;
+    const mo = new MutationObserver(updateBreadcrumb);
+    sources.forEach((el) =>
+      mo.observe(el, {
+        characterData: true,
+        childList: true,
+        subtree: true,
+      }),
+    );
+    updateBreadcrumb();
+  }
+
   // ─── MATCH-JUICE: tunable presets ─────────────────────────
-  // Defaults are declared in index.html (inside an EDITMODE block so the
-  // editor host can persist user tweaks to disk). We just read them here.
-  const TWEAK_DEFAULTS = Object.assign(
-    { direction: "candy", motion: "subtle" },
-    (typeof window !== "undefined" && window.__pocketmatchTweakDefaults) || {},
-  );
+  // TWEAK_DEFAULTS is declared at the top of this IIFE.
 
   // Motion presets. Each match fires `effects` in order; counts can be 0.
   const MOTION_PRESETS = {
@@ -367,6 +447,13 @@
           iPhone &amp; iPad do not support web vibration.
         </div>
       </div>
+      <div class="tweaks-section tweaks-section--bigscreen">
+        <div class="tweaks-section-label">HUD layout <span class="tweaks-note-inline">(desktop &amp; iPad)</span></div>
+        <div class="tweaks-options tweaks-options--row">
+          <button class="tweaks-option tweaks-option--compact" data-layout-control="top" type="button">Top bar</button>
+          <button class="tweaks-option tweaks-option--compact" data-layout-control="right" type="button">Vertical right</button>
+        </div>
+      </div>
       <div class="tweaks-section">
         <div class="tweaks-section-label">Tile pack</div>
         <div class="tweaks-options" id="tweaksPackOptions"></div>
@@ -397,6 +484,12 @@
     panel.querySelectorAll("[data-motion-control]").forEach((btn) => {
       btn.addEventListener("click", () => {
         setMotionLevel(btn.getAttribute("data-motion-control"));
+      });
+    });
+    // Wire HUD layout options
+    panel.querySelectorAll("[data-layout-control]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setLayout(btn.getAttribute("data-layout-control"));
       });
     });
 
@@ -462,10 +555,12 @@
   function init() {
     initDirectionPicker();
     initScreenStateObserver();
+    initBreadcrumbMirror();
     initMatchObserver();
     initTweaksPanel();
-    // Apply stored motion level so the chip UI reflects it.
+    // Apply stored motion level + HUD layout so chip UI reflects state.
     setMotionLevel(motionLevel);
+    setLayout(currentLayout);
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

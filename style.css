@@ -1568,6 +1568,41 @@ body[data-direction="crystal"] .modal {
   line-height: 1.4;
   color: var(--ink-faint);
 }
+.tweaks-note-inline {
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 10px;
+  margin-left: 4px;
+}
+/* Hide the HUD-layout tweak on actual phones — vertical-right is forced
+   there and showing the chooser would just confuse. */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .tweaks-section--bigscreen { display: none; }
+}
+
+/* Phone breadcrumb — hidden by default, shown on phones in gameplay. */
+.phone-breadcrumb {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.phone-breadcrumb strong {
+  color: var(--accent);
+  font-family: "Changa One", "Space Grotesk", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+.phone-breadcrumb .pb-rule { color: var(--accent); }
+.phone-breadcrumb .pb-sep { color: var(--ink-faint); }
 
 /* ──────────────  RESPONSIVE  ────────────── */
 @media (max-width: 1100px) {
@@ -1630,4 +1665,201 @@ body[data-rotate-prompt="1"] .rotate-prompt {
 /* Tweak panel responsive shrink */
 @media (max-width: 600px) {
   .tweaks-panel { width: calc(100% - 32px); right: 16px; bottom: 16px; }
+}
+
+/* ============================================================
+   PHONE GAMEPLAY OVERRIDES
+   When data-screen="play" AND we're on a small portrait device
+   (where landscape-rotation is in effect), we strip the board
+   frame chrome, push the HUD to a thin right-edge column, and
+   surface a bottom breadcrumb with Lv / Matches / Rule / Set.
+
+   The rotation media query ALREADY targets these viewports, so
+   this block reuses the same conditions.
+   ============================================================ */
+@media (max-width: 1024px) and (orientation: portrait) {
+  body[data-screen="play"] .rotate-stage .app-shell {
+    /* Two-column grid: board on the left, narrow HUD on the right. */
+    display: grid;
+    grid-template-columns: 1fr 118px;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "game hud"
+      "breadcrumb breadcrumb";
+    gap: 0;
+    padding: 8px 10px 4px;
+  }
+
+  /* Hide the brand + level + rule pills entirely on phones — that info
+     is replicated in the breadcrumb at the bottom. */
+  body[data-screen="play"] .topbar-left,
+  body[data-screen="play"] .brand,
+  body[data-screen="play"] .hud-level,
+  body[data-screen="play"] .hud-rule {
+    display: none !important;
+  }
+
+  /* Topbar dissolves on phones — children flow into the vertical HUD. */
+  body[data-screen="play"] .topbar {
+    display: contents;
+  }
+  body[data-screen="play"] .topbar-center,
+  body[data-screen="play"] .topbar-right {
+    grid-area: hud;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
+    padding: 0;
+  }
+  body[data-screen="play"] .topbar-center {
+    justify-content: flex-start;
+    margin-top: 4px;
+  }
+  body[data-screen="play"] .topbar-right {
+    justify-content: flex-end;
+    margin-bottom: 4px;
+  }
+
+  /* Slim, vertical timer + score */
+  body[data-screen="play"] .timer-panel {
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: var(--r-md);
+    background: var(--surface-overlay);
+  }
+  body[data-screen="play"] .timer-text {
+    font-size: 20px;
+  }
+  body[data-screen="play"] .score-panel {
+    padding: 8px 10px;
+    min-width: 0;
+    border-radius: var(--r-md);
+    box-shadow: none;
+  }
+  body[data-screen="play"] .score-label { font-size: 9px; }
+  body[data-screen="play"] .score-panel strong { font-size: 18px; }
+
+  /* Tools — Hint / Shuffle full-width pills, Sound + Pause side by side */
+  body[data-screen="play"] .tool-btn {
+    justify-content: flex-start;
+    padding: 8px 10px;
+    border-radius: var(--r-md);
+  }
+  body[data-screen="play"] .topbar-right {
+    display: grid;
+    grid-area: hud;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+    gap: 6px;
+  }
+  body[data-screen="play"] .topbar-right .tool-btn {
+    grid-column: 1 / -1; /* full-width */
+  }
+  body[data-screen="play"] .icon-btn {
+    width: 100%;
+    height: 38px;
+    border-radius: var(--r-md);
+  }
+
+  /* Game area + board-frame: kill the card chrome on phones */
+  body[data-screen="play"] .game-area {
+    grid-area: game;
+    margin-right: 8px;
+  }
+  body[data-screen="play"] .board-frame {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    gap: 0;
+  }
+  /* Hide chrome that used to live above the board */
+  body[data-screen="play"] .board-meta,
+  body[data-screen="play"] .board-time-meter {
+    display: none;
+  }
+
+  /* Slightly tall-bias board aspect → tiles ~18% taller than wide.
+     With 16 cols × 9 rows, aspect ~1.5 gets us close to the old shape. */
+  body[data-screen="play"] .board {
+    aspect-ratio: 1.5;
+    gap: 3px;
+  }
+  body[data-screen="play"] .tile {
+    border-radius: 8px;
+    border-width: 1px;
+  }
+
+  /* Soften matched-tile animation so small tiles don't strobe. */
+  body[data-screen="play"] .tile.matched {
+    animation: tileMatchPhone 0.32s ease-out forwards;
+  }
+  @keyframes tileMatchPhone {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.7); opacity: 0; }
+  }
+
+  /* Breadcrumb visible during gameplay */
+  body[data-screen="play"] .phone-breadcrumb {
+    grid-area: breadcrumb;
+    display: flex;
+    padding: 6px 8px 2px;
+    font-size: 10px;
+  }
+
+  /* If the user opens the Tweaks panel during phone gameplay,
+     don't let it cover the board completely. */
+  body[data-screen="play"] .tweaks-panel {
+    width: 240px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+/* ============================================================
+   DESKTOP / IPAD LAYOUT TWEAK
+   body[data-layout="right"] moves the HUD to a 200px right column,
+   leaving the board in the main area. Default layout (no attr)
+   keeps the existing top bar. Only active on viewports >1024px or
+   landscape iPads where the screen has room.
+   ============================================================ */
+@media (min-width: 1025px), (min-height: 700px) and (orientation: landscape) {
+  body[data-layout="right"] .app-shell {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    grid-template-areas: "game hud";
+    gap: 14px;
+  }
+  body[data-layout="right"] .topbar {
+    grid-area: hud;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  body[data-layout="right"] .topbar-cluster {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+  }
+  body[data-layout="right"] .topbar-left,
+  body[data-layout="right"] .topbar-center,
+  body[data-layout="right"] .topbar-right {
+    flex: 0 0 auto;
+  }
+  body[data-layout="right"] .brand,
+  body[data-layout="right"] .hud-stat,
+  body[data-layout="right"] .timer-panel,
+  body[data-layout="right"] .score-panel,
+  body[data-layout="right"] .tool-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  body[data-layout="right"] .game-area {
+    grid-area: game;
+  }
 }

@@ -147,6 +147,19 @@
             <div class="board" id="board"></div>
           </div>
         </div>
+
+        <!-- Phone-only single-line breadcrumb. Populated by revamp-extras.js
+             via MutationObserver on #level, #boardInfo, #ruleTag. Hidden on
+             tablet/desktop (where the full topbar carries this info). -->
+        <div class="phone-breadcrumb" aria-hidden="true">
+          <span class="pb-item pb-level">Lv <strong data-mirror="level">01</strong></span>
+          <span class="pb-sep">·</span>
+          <span class="pb-item pb-matches" data-mirror="matches">Matches —</span>
+          <span class="pb-sep">·</span>
+          <span class="pb-item pb-rule" data-mirror="rule">Normal</span>
+          <span class="pb-sep">·</span>
+          <span class="pb-item pb-set" data-mirror="set">—</span>
+        </div>
       </main>
     </div>
   </div>
@@ -416,7 +429,8 @@
   <script>
     window.__pocketmatchTweakDefaults = /*EDITMODE-BEGIN*/{
       "direction": "crystal",
-      "motion": "subtle"
+      "motion": "subtle",
+      "layout": "top"
     }/*EDITMODE-END*/;
   </script>
 
